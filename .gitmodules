@@ -79,3 +79,6 @@
 [submodule "deps/pareto"]
 	path = deps/pareto
 	url = https://github.com/chainblocks/pareto.git
+[submodule "deps/bgfx.cmake"]
+	path = deps/bgfx.cmake
+	url = https://github.com/bkaradzic/bgfx.cmake.git
