@@ -1,6 +1,9 @@
-project("chainblocks")
 cmake_minimum_required(VERSION 3.14)
-include(ExternalProject)
+
+project("chainblocks")
+
+# Disable CTest for any subprojects by default
+option(BUILD_TESTING "" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -23,3 +26,4 @@ include(Platform)
 # include(Extra)
 
 add_subdirectory(deps)
+add_subdirectory(src/core)

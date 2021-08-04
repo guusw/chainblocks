@@ -1,12 +1,27 @@
-# include(ExternalProject)
-# ExternalProject_Add(bgfx
-#   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bgfx.cmake
-#   CMAKE_CACHE_ARGS
-#     -DBX_DIR:STRING=${CMAKE_CURRENT_SOURCE_DIR}/bx
-#     -DBIMG_DIR:STRING=${CMAKE_CURRENT_SOURCE_DIR}/bimg
-#     -DBGFX_DIR:STRING=${CMAKE_CURRENT_SOURCE_DIR}/bgfx
-#   INSTALL_COMMAND ""
-# )
+add_subdirectory(filesystem)
+add_subdirectory(json)
+add_subdirectory(kcp)
+add_subdirectory(magic_enum)
+add_subdirectory(nameof)
+add_subdirectory(pareto)
+add_subdirectory(replxx)
+add_subdirectory(SDL)
+add_subdirectory(spdlog)
+add_subdirectory(tinygltf)
+add_subdirectory(wasm3)
+
+add_subdirectory(Catch2)
+
+option(TF_BUILD_TESTS "" OFF)
+option(TF_BUILD_EXAMPLES "" OFF)
+add_subdirectory(cpp-taskflow)
+
+option(KISSFFT_TEST "" OFF)
+option(KISSFFT_TOOLS "" OFF)
+add_subdirectory(kissfft)
+
+option(BGFX_BUILD_EXAMPLES "" OFF)
+option(BGFX_INSTALL "" OFF)
 set(BX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bx)
 set(BIMG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bimg)
 set(BGFX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bgfx)
@@ -28,8 +43,42 @@ if(APPLE)
         boost-context/src/asm/ontop_arm64_aapcs_macho_gas.S
       )
   endif()
-  add_library(boost-context ${boost_context_SOURCES}) 
+elseif(WIN32)
+  set(boost_context_SOURCES
+    boost-context/src/windows/stack_traits.cpp
+    boost-context/src/asm/jump_x86_64_ms_pe_gas.asm
+    boost-context/src/asm/make_x86_64_ms_pe_gas.asm
+    boost-context/src/asm/ontop_x86_64_ms_pe_gas.asm
+  )
 endif()
 
-add_executable(sandbox sandbox.cpp)
-target_link_libraries(sandbox bx bimg bgfx)
+enable_language(ASM-ATT)
+add_library(boost-context ${boost_context_SOURCES})
+target_include_directories(boost-context PUBLIC boost-context/include)
+
+file(GLOB xxHash_SOURCES
+  xxHash/*.c
+)
+add_library(xxHash ${xxHash_SOURCES})
+target_include_directories(xxHash PUBLIC xxHash)
+
+# file(GLOB backtrace_SOURCES
+#   libbacktrace/*.c
+# )
+# add_library(backtrace ${backtrace_SOURCES})
+# add_subdirectory(libbacktrace)
+
+add_library(linalg INTERFACE)
+target_include_directories(linalg INTERFACE linalg)
+
+add_library(miniaudio INTERFACE)
+target_include_directories(miniaudio INTERFACE miniaudio)
+
+add_library(stb INTERFACE)
+target_include_directories(stb INTERFACE stb)
+
+add_library(utf8.h INTERFACE)
+target_include_directories(utf8.h INTERFACE utf8.h)
+
+add_library(pdqsort INTERFACE) 
+target_include_directories(pdqsort INTERFACE pdqsort)

@@ -74,79 +74,79 @@ CBOptionalString setCompiledCompressedString(uint32_t id, const char *str) {
 }
 #endif
 
-extern void registerChainsBlocks();
-extern void registerLoggingBlocks();
-extern void registerFlowBlocks();
-extern void registerSeqsBlocks();
-extern void registerCastingBlocks();
 extern void registerBlocksCoreBlocks();
-extern void registerSerializationBlocks();
-extern void registerFSBlocks();
-extern void registerJsonBlocks();
-extern void registerNetworkBlocks();
-extern void registerStructBlocks();
-extern void registerTimeBlocks();
+// extern void registerChainsBlocks();
+// extern void registerLoggingBlocks();
+// extern void registerFlowBlocks();
+// extern void registerSeqsBlocks();
+// extern void registerCastingBlocks();
+// extern void registerSerializationBlocks();
+// extern void registerFSBlocks();
+// extern void registerJsonBlocks();
+// extern void registerNetworkBlocks();
+// extern void registerStructBlocks();
+// extern void registerTimeBlocks();
 // extern void registerOSBlocks();
-extern void registerProcessBlocks();
+// extern void registerProcessBlocks();
 
-namespace Math {
-extern void registerBlocks();
-namespace LinAlg {
-extern void registerBlocks();
-}
-} // namespace Math
+// namespace Math {
+// extern void registerBlocks();
+// namespace LinAlg {
+// extern void registerBlocks();
+// }
+// } // namespace Math
 
-namespace Regex {
-extern void registerBlocks();
-}
+// namespace Regex {
+// extern void registerBlocks();
+// }
 
-namespace channels {
-extern void registerBlocks();
-}
+// namespace channels {
+// extern void registerBlocks();
+// }
 
-namespace Assert {
-extern void registerBlocks();
-}
+// namespace Assert {
+// extern void registerBlocks();
+// }
 
-namespace Genetic {
-extern void registerBlocks();
-}
+// namespace Genetic {
+// extern void registerBlocks();
+// }
 
-namespace Random {
-extern void registerBlocks();
-}
+// namespace Random {
+// extern void registerBlocks();
+// }
 
-namespace Imaging {
-extern void registerBlocks();
-}
+// namespace Imaging {
+// extern void registerBlocks();
+// }
 
-namespace Http {
-extern void registerBlocks();
-}
+// namespace Http {
+// extern void registerBlocks();
+// }
 
-namespace WS {
-extern void registerBlocks();
-}
+// namespace WS {
+// extern void registerBlocks();
+// }
 
-namespace BigInt {
-extern void registerBlocks();
-}
+// namespace BigInt {
+// extern void registerBlocks();
+// }
 
-namespace Wasm {
-extern void registerBlocks();
-}
+// namespace Wasm {
+// extern void registerBlocks();
+// }
 
-namespace edn {
-extern void registerBlocks();
-}
+// namespace edn {
+// extern void registerBlocks();
+// }
 
-namespace reflection {
-extern void registerBlocks();
-}
+// namespace reflection {
+// extern void registerBlocks();
+// }
 
-#ifdef CB_WITH_EXTRAS
-extern void cbInitExtras();
-#endif
+// #ifdef CB_WITH_EXTRAS
+// extern void cbInitExtras();
+// #endif
 
 static bool globalRegisterDone = false;
 
@@ -272,35 +272,35 @@ void registerCoreBlocks() {
   static_assert(sizeof(CBMapIt) <= sizeof(CBTableIterator));
 
   registerBlocksCoreBlocks();
-  Assert::registerBlocks();
-  registerChainsBlocks();
-  registerLoggingBlocks();
-  registerFlowBlocks();
-  registerSeqsBlocks();
-  registerCastingBlocks();
-  registerSerializationBlocks();
-  Math::registerBlocks();
-  Math::LinAlg::registerBlocks();
-  registerJsonBlocks();
-  registerStructBlocks();
-  registerTimeBlocks();
-  Regex::registerBlocks();
-  channels::registerBlocks();
-  Random::registerBlocks();
-  Imaging::registerBlocks();
-  BigInt::registerBlocks();
-  registerFSBlocks();
-  Wasm::registerBlocks();
-  Http::registerBlocks();
-  edn::registerBlocks();
-  reflection::registerBlocks();
+  // Assert::registerBlocks();
+  // registerChainsBlocks();
+  // registerLoggingBlocks();
+  // registerFlowBlocks();
+  // registerSeqsBlocks();
+  // registerCastingBlocks();
+  // registerSerializationBlocks();
+  // Math::registerBlocks();
+  // Math::LinAlg::registerBlocks();
+  // registerJsonBlocks();
+  // registerStructBlocks();
+  // registerTimeBlocks();
+  // Regex::registerBlocks();
+  // channels::registerBlocks();
+  // Random::registerBlocks();
+  // Imaging::registerBlocks();
+  // BigInt::registerBlocks();
+  // registerFSBlocks();
+  // Wasm::registerBlocks();
+  // Http::registerBlocks();
+  // edn::registerBlocks();
+  // reflection::registerBlocks(); 
 
 #ifndef __EMSCRIPTEN__
   // registerOSBlocks();
-  registerProcessBlocks();
-  Genetic::registerBlocks();
-  registerNetworkBlocks();
-  WS::registerBlocks();
+  // registerProcessBlocks();
+  // Genetic::registerBlocks();
+  // registerNetworkBlocks();
+  // WS::registerBlocks();
 #endif
 
   // Enums are auto registered we need to propagate them to observers
