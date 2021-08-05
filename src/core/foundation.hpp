@@ -108,44 +108,44 @@ struct CBCoro {
 
 namespace chainblocks {
 #ifdef CB_COMPRESSED_STRINGS
-CBOptionalString getCompiledCompressedString(uint32_t crc);
+CHAINBLOCKS_API CBOptionalString getCompiledCompressedString(uint32_t crc);
 #else
-CBOptionalString setCompiledCompressedString(uint32_t crc, const char *str);
+CHAINBLOCKS_API CBOptionalString setCompiledCompressedString(uint32_t crc, const char *str);
 #endif
 
-CBString getString(uint32_t crc);
-void setString(uint32_t crc, CBString str);
-[[nodiscard]] CBComposeResult composeChain(const CBlocks chain,
+CHAINBLOCKS_API CBString getString(uint32_t crc);
+CHAINBLOCKS_API void setString(uint32_t crc, CBString str);
+CHAINBLOCKS_API [[nodiscard]] CBComposeResult composeChain(const CBlocks chain,
                                            CBValidationCallback callback,
                                            void *userData, CBInstanceData data);
-CBChainState activateBlocks(CBSeq blocks, CBContext *context,
+CHAINBLOCKS_API CBChainState activateBlocks(CBSeq blocks, CBContext *context,
                             const CBVar &chainInput, CBVar &output,
                             const bool handlesReturn = false);
-CBChainState activateBlocks(CBlocks blocks, CBContext *context,
+CHAINBLOCKS_API CBChainState activateBlocks(CBlocks blocks, CBContext *context,
                             const CBVar &chainInput, CBVar &output,
                             const bool handlesReturn = false);
-CBVar *referenceGlobalVariable(CBContext *ctx, const char *name);
-CBVar *referenceVariable(CBContext *ctx, const char *name);
-void releaseVariable(CBVar *variable);
-void setSharedVariable(const char *name, const CBVar &value);
-void unsetSharedVariable(const char *name);
-CBVar getSharedVariable(const char *name);
-CBChainState suspend(CBContext *context, double seconds);
-void registerEnumType(int32_t vendorId, int32_t enumId, CBEnumInfo info);
+CHAINBLOCKS_API CBVar *referenceGlobalVariable(CBContext *ctx, const char *name);
+CHAINBLOCKS_API CBVar *referenceVariable(CBContext *ctx, const char *name);
+CHAINBLOCKS_API void releaseVariable(CBVar *variable);
+CHAINBLOCKS_API void setSharedVariable(const char *name, const CBVar &value);
+CHAINBLOCKS_API void unsetSharedVariable(const char *name);
+CHAINBLOCKS_API CBVar getSharedVariable(const char *name);
+CHAINBLOCKS_API CBChainState suspend(CBContext *context, double seconds);
+CHAINBLOCKS_API void registerEnumType(int32_t vendorId, int32_t enumId, CBEnumInfo info);
 
-CBlock *createBlock(std::string_view name);
-void registerCoreBlocks();
-void registerBlock(std::string_view name, CBBlockConstructor constructor,
+CHAINBLOCKS_API CBlock *createBlock(std::string_view name);
+CHAINBLOCKS_API void registerCoreBlocks();
+CHAINBLOCKS_API void registerBlock(std::string_view name, CBBlockConstructor constructor,
                    std::string_view fullTypeName = std::string_view());
-void registerObjectType(int32_t vendorId, int32_t typeId, CBObjectInfo info);
-void registerEnumType(int32_t vendorId, int32_t typeId, CBEnumInfo info);
-void registerRunLoopCallback(std::string_view eventName, CBCallback callback);
-void unregisterRunLoopCallback(std::string_view eventName);
-void registerExitCallback(std::string_view eventName, CBCallback callback);
-void unregisterExitCallback(std::string_view eventName);
-void callExitCallbacks();
-void registerChain(CBChain *chain);
-void unregisterChain(CBChain *chain);
+CHAINBLOCKS_API void registerObjectType(int32_t vendorId, int32_t typeId, CBObjectInfo info);
+CHAINBLOCKS_API void registerEnumType(int32_t vendorId, int32_t typeId, CBEnumInfo info);
+CHAINBLOCKS_API void registerRunLoopCallback(std::string_view eventName, CBCallback callback);
+CHAINBLOCKS_API void unregisterRunLoopCallback(std::string_view eventName);
+CHAINBLOCKS_API void registerExitCallback(std::string_view eventName, CBCallback callback);
+CHAINBLOCKS_API void unregisterExitCallback(std::string_view eventName);
+CHAINBLOCKS_API void callExitCallbacks();
+CHAINBLOCKS_API void registerChain(CBChain *chain);
+CHAINBLOCKS_API void unregisterChain(CBChain *chain);
 
 struct RuntimeObserver {
   virtual void registerBlock(const char *fullName,
@@ -212,13 +212,13 @@ struct stack_allocator {
   }
 };
 
-void freeDerivedInfo(CBTypeInfo info);
-CBTypeInfo deriveTypeInfo(const CBVar &value, const CBInstanceData &data,
+CHAINBLOCKS_API void freeDerivedInfo(CBTypeInfo info);
+CHAINBLOCKS_API CBTypeInfo deriveTypeInfo(const CBVar &value, const CBInstanceData &data,
                           bool *containsVariables = nullptr);
-CBTypeInfo cloneTypeInfo(const CBTypeInfo &other);
+CHAINBLOCKS_API CBTypeInfo cloneTypeInfo(const CBTypeInfo &other);
 
-uint64_t deriveTypeHash(const CBVar &value);
-uint64_t deriveTypeHash(const CBTypeInfo &value);
+CHAINBLOCKS_API uint64_t deriveTypeHash(const CBVar &value);
+CHAINBLOCKS_API uint64_t deriveTypeHash(const CBTypeInfo &value);
 
 struct TypeInfo {
   TypeInfo() {}
@@ -269,7 +269,7 @@ struct CBStackAllocator {
 };
 #endif
 
-struct CBChain : public std::enable_shared_from_this<CBChain> {
+struct CHAINBLOCKS_API CBChain : public std::enable_shared_from_this<CBChain> {
   static std::shared_ptr<CBChain> make(std::string_view chain_name) {
     return std::shared_ptr<CBChain>(new CBChain(chain_name));
   }
@@ -597,7 +597,7 @@ struct Globals {
 };
 
 template <typename T>
-NO_INLINE void arrayGrow(T &arr, size_t addlen, size_t min_cap = 4);
+CHAINBLOCKS_API NO_INLINE void arrayGrow(T &arr, size_t addlen, size_t min_cap = 4);
 
 template <typename T, typename V> inline void arrayPush(T &arr, const V &val) {
   if ((arr.len + 1) > arr.cap) {
@@ -856,8 +856,8 @@ inline void swap(CBVar &v1, CBVar &v2) {
 } // namespace std
 
 namespace chainblocks {
-NO_INLINE void _destroyVarSlow(CBVar &var);
-NO_INLINE void _cloneVarSlow(CBVar &dst, const CBVar &src);
+CHAINBLOCKS_API NO_INLINE void _destroyVarSlow(CBVar &var);
+CHAINBLOCKS_API NO_INLINE void _cloneVarSlow(CBVar &dst, const CBVar &src);
 
 ALWAYS_INLINE inline void destroyVar(CBVar &var) {
   switch (var.valueType) {

@@ -6,6 +6,9 @@ project("chainblocks")
 option(BUILD_TESTING "" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
   set (X86 TRUE)
@@ -27,3 +30,4 @@ include(Platform)
 
 add_subdirectory(deps)
 add_subdirectory(src/core)
+add_subdirectory(src/mal)

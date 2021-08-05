@@ -159,20 +159,20 @@ private:
 };
 
 namespace chainblocks {
-[[nodiscard]] CBComposeResult composeChain(const std::vector<CBlock *> &chain,
+CHAINBLOCKS_API [[nodiscard]] CBComposeResult composeChain(const std::vector<CBlock *> &chain,
                                            CBValidationCallback callback,
                                            void *userData, CBInstanceData data);
-[[nodiscard]] CBComposeResult composeChain(const CBlocks chain,
+CHAINBLOCKS_API [[nodiscard]] CBComposeResult composeChain(const CBlocks chain,
                                            CBValidationCallback callback,
                                            void *userData, CBInstanceData data);
-[[nodiscard]] CBComposeResult composeChain(const CBSeq chain,
+CHAINBLOCKS_API [[nodiscard]] CBComposeResult composeChain(const CBSeq chain,
                                            CBValidationCallback callback,
                                            void *userData, CBInstanceData data);
-[[nodiscard]] CBComposeResult composeChain(const CBChain *chain,
+CHAINBLOCKS_API [[nodiscard]] CBComposeResult composeChain(const CBChain *chain,
                                            CBValidationCallback callback,
                                            void *userData, CBInstanceData data);
 
-bool validateSetParam(CBlock *block, int index, const CBVar &value,
+CHAINBLOCKS_API bool validateSetParam(CBlock *block, int index, const CBVar &value,
                       CBValidationCallback callback, void *userData);
 } // namespace chainblocks
 
@@ -181,7 +181,7 @@ bool validateSetParam(CBlock *block, int index, const CBVar &value,
 
 namespace chainblocks {
 
-void installSignalHandlers();
+CHAINBLOCKS_API void installSignalHandlers();
 
 FLATTEN ALWAYS_INLINE inline CBVar
 activateBlock(CBlock *blk, CBContext *context, const CBVar &input) {
@@ -470,7 +470,7 @@ activateBlock(CBlock *blk, CBContext *context, const CBVar &input) {
   }
 }
 
-CBRunChainOutput runChain(CBChain *chain, CBContext *context,
+CHAINBLOCKS_API CBRunChainOutput runChain(CBChain *chain, CBContext *context,
                           const CBVar &chainInput);
 
 inline CBRunChainOutput runSubChain(CBChain *chain, CBContext *context,
@@ -483,10 +483,10 @@ inline CBRunChainOutput runSubChain(CBChain *chain, CBContext *context,
 }
 
 #ifndef __EMSCRIPTEN__
-boost::context::continuation run(CBChain *chain, CBFlow *flow,
+CHAINBLOCKS_API boost::context::continuation run(CBChain *chain, CBFlow *flow,
                                  boost::context::continuation &&sink);
 #else
-void run(CBChain *chain, CBFlow *flow, CBCoro *coro);
+CHAINBLOCKS_API void run(CBChain *chain, CBFlow *flow, CBCoro *coro);
 #endif
 
 inline void prepare(CBChain *chain, CBFlow *flow) {
@@ -1694,9 +1694,9 @@ inline T emscripten_wait(CBContext *context, emscripten::val promise) {
 
 #ifdef __EMSCRIPTEN__
 // limit to 4 under emscripten
-extern Shared<boost::asio::thread_pool, int, 4> SharedThreadPool;
+CHAINBLOCKS_API extern Shared<boost::asio::thread_pool, int, 4> SharedThreadPool;
 #else
-extern Shared<boost::asio::thread_pool> SharedThreadPool;
+CHAINBLOCKS_API extern Shared<boost::asio::thread_pool> SharedThreadPool;
 #endif
 
 template <typename FUNC, typename CANCELLATION>

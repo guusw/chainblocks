@@ -10,8 +10,8 @@
 
 #include "spdlog/fmt/ostr.h" // must be included
 
-std::ostream &operator<<(std::ostream &os, const CBVar &var);
-std::ostream &operator<<(std::ostream &os, const CBTypeInfo &t);
-std::ostream &operator<<(std::ostream &os, const CBTypesInfo &ts);
+CHAINBLOCKS_API std::ostream &operator<<(std::ostream &os, const CBVar &var);
+CHAINBLOCKS_API std::ostream &operator<<(std::ostream &os, const CBTypeInfo &t);
+CHAINBLOCKS_API std::ostream &operator<<(std::ostream &os, const CBTypesInfo &ts);
 
 #endif

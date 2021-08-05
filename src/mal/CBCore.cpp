@@ -52,7 +52,7 @@ static StaticList<malBuiltIn *> handlers;
 
 MalString malpath() { return chainblocks::Globals::RootPath; }
 
-extern void cbRegisterAllBlocks();
+CHAINBLOCKS_IMPORT extern void cbRegisterAllBlocks();
 
 class malCBChain;
 class malCBlock;
@@ -2118,19 +2118,19 @@ BUILTIN_ISA("Chain?", malCBChain);
 BUILTIN_ISA("Block?", malCBlock);
 
 extern "C" {
-EXPORTED __cdecl void *cbLispCreate(const char *path) {
+__cdecl void *cbLispCreate(const char *path) {
   auto env = new malEnvPtr(new malEnv);
   malinit(*env, path, path);
   return (void *)env;
 }
 
-EXPORTED __cdecl void cbLispDestroy(void *env) {
+__cdecl void cbLispDestroy(void *env) {
   auto penv = (malEnvPtr *)env;
   observers.erase((malEnv *)penv->ptr());
   delete penv;
 }
 
-EXPORTED __cdecl CBVar cbLispEval(void *env, const char *str) {
+__cdecl CBVar cbLispEval(void *env, const char *str) {
   auto penv = (malEnvPtr *)env;
   try {
     auto res = maleval(str, *penv);

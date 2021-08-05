@@ -75,78 +75,78 @@ CBOptionalString setCompiledCompressedString(uint32_t id, const char *str) {
 #endif
 
 extern void registerBlocksCoreBlocks();
-// extern void registerChainsBlocks();
-// extern void registerLoggingBlocks();
-// extern void registerFlowBlocks();
-// extern void registerSeqsBlocks();
-// extern void registerCastingBlocks();
-// extern void registerSerializationBlocks();
-// extern void registerFSBlocks();
-// extern void registerJsonBlocks();
-// extern void registerNetworkBlocks();
-// extern void registerStructBlocks();
-// extern void registerTimeBlocks();
+extern void registerChainsBlocks();
+extern void registerLoggingBlocks();
+extern void registerFlowBlocks();
+extern void registerSeqsBlocks();
+extern void registerCastingBlocks();
+extern void registerSerializationBlocks();
+extern void registerFSBlocks();
+extern void registerJsonBlocks();
+extern void registerNetworkBlocks();
+extern void registerStructBlocks();
+extern void registerTimeBlocks();
 // extern void registerOSBlocks();
 // extern void registerProcessBlocks();
 
-// namespace Math {
-// extern void registerBlocks();
-// namespace LinAlg {
-// extern void registerBlocks();
-// }
-// } // namespace Math
+namespace Math {
+extern void registerBlocks();
+namespace LinAlg {
+extern void registerBlocks();
+}
+} // namespace Math
 
-// namespace Regex {
-// extern void registerBlocks();
-// }
+namespace Regex {
+extern void registerBlocks();
+}
 
-// namespace channels {
-// extern void registerBlocks();
-// }
+namespace channels {
+extern void registerBlocks();
+}
 
-// namespace Assert {
-// extern void registerBlocks();
-// }
+namespace Assert {
+extern void registerBlocks();
+}
 
-// namespace Genetic {
-// extern void registerBlocks();
-// }
+namespace Genetic {
+extern void registerBlocks();
+}
 
-// namespace Random {
-// extern void registerBlocks();
-// }
+namespace Random {
+extern void registerBlocks();
+}
 
-// namespace Imaging {
-// extern void registerBlocks();
-// }
+namespace Imaging {
+extern void registerBlocks();
+}
 
-// namespace Http {
-// extern void registerBlocks();
-// }
+namespace Http {
+extern void registerBlocks();
+}
 
-// namespace WS {
-// extern void registerBlocks();
-// }
+namespace WS {
+extern void registerBlocks();
+}
 
-// namespace BigInt {
-// extern void registerBlocks();
-// }
+namespace BigInt {
+extern void registerBlocks();
+}
 
-// namespace Wasm {
-// extern void registerBlocks();
-// }
+namespace Wasm {
+extern void registerBlocks();
+}
 
-// namespace edn {
-// extern void registerBlocks();
-// }
+namespace edn {
+extern void registerBlocks();
+}
 
-// namespace reflection {
-// extern void registerBlocks();
-// }
+namespace reflection {
+extern void registerBlocks();
+}
 
-// #ifdef CB_WITH_EXTRAS
-// extern void cbInitExtras();
-// #endif
+#ifdef CB_WITH_EXTRAS
+extern void cbInitExtras();
+#endif
 
 static bool globalRegisterDone = false;
 
@@ -272,33 +272,35 @@ void registerCoreBlocks() {
   static_assert(sizeof(CBMapIt) <= sizeof(CBTableIterator));
 
   registerBlocksCoreBlocks();
-  // Assert::registerBlocks();
-  // registerChainsBlocks();
-  // registerLoggingBlocks();
-  // registerFlowBlocks();
-  // registerSeqsBlocks();
-  // registerCastingBlocks();
-  // registerSerializationBlocks();
-  // Math::registerBlocks();
-  // Math::LinAlg::registerBlocks();
-  // registerJsonBlocks();
-  // registerStructBlocks();
-  // registerTimeBlocks();
-  // Regex::registerBlocks();
-  // channels::registerBlocks();
-  // Random::registerBlocks();
-  // Imaging::registerBlocks();
-  // BigInt::registerBlocks();
-  // registerFSBlocks();
-  // Wasm::registerBlocks();
-  // Http::registerBlocks();
-  // edn::registerBlocks();
-  // reflection::registerBlocks(); 
+  Assert::registerBlocks();
+  registerChainsBlocks();
+  registerLoggingBlocks();
+  registerFlowBlocks();
+  registerSeqsBlocks();
+  registerCastingBlocks();
+  registerSerializationBlocks();
+  
+  Math::registerBlocks();
+  Math::LinAlg::registerBlocks();
+  
+  registerJsonBlocks();
+  registerStructBlocks();
+  registerTimeBlocks();
+  Regex::registerBlocks();
+  channels::registerBlocks();
+  Random::registerBlocks();
+  Imaging::registerBlocks();
+  BigInt::registerBlocks();
+  registerFSBlocks();
+  Wasm::registerBlocks();
+  Http::registerBlocks();
+  edn::registerBlocks();
+  reflection::registerBlocks(); 
 
 #ifndef __EMSCRIPTEN__
   // registerOSBlocks();
   // registerProcessBlocks();
-  // Genetic::registerBlocks();
+  Genetic::registerBlocks();
   // registerNetworkBlocks();
   // WS::registerBlocks();
 #endif
@@ -1774,13 +1776,33 @@ void error_handler(int err_sig) {
   std::raise(err_sig);
 }
 
+#if _WIN32
+#include "debugapi.h"
+static bool isDebuggerPresent() {
+  return (bool)IsDebuggerPresent();
+}
+#else
+#include <sys/types.h>
+#include <sys/ptrace.h>
+static bool isDebuggerPresent()
+{
+  if (ptrace(PTRACE_TRACEME, 0, 1, 0) < 0)
+    return true;
+  else
+    ptrace(PTRACE_DETACH, 0, 1, 0);
+  return false;
+}
+#endif
+
 void installSignalHandlers() {
-  std::signal(SIGINT, &error_handler);
-  std::signal(SIGTERM, &error_handler);
-  std::signal(SIGFPE, &error_handler);
-  std::signal(SIGILL, &error_handler);
-  std::signal(SIGABRT, &error_handler);
-  std::signal(SIGSEGV, &error_handler);
+  if(!isDebuggerPresent()) {
+    std::signal(SIGINT, &error_handler);
+    std::signal(SIGTERM, &error_handler);
+    std::signal(SIGFPE, &error_handler);
+    std::signal(SIGILL, &error_handler);
+    std::signal(SIGABRT, &error_handler);
+    std::signal(SIGSEGV, &error_handler);
+  }
 }
 
 Blocks &Blocks::block(std::string_view name, std::vector<Var> params) {
@@ -2833,7 +2855,7 @@ void CBChain::cleanup(bool force) {
 }
 
 #ifndef OVERRIDE_REGISTER_ALL_BLOCKS
-void cbRegisterAllBlocks() { chainblocks::registerCoreBlocks(); }
+CHAINBLOCKS_EXPORT void cbRegisterAllBlocks() { chainblocks::registerCoreBlocks(); }
 #endif
 
 #define API_TRY_CALL(_name_, _block_)                                          \
@@ -2849,7 +2871,7 @@ bool cb_current_interface_loaded{false};
 CBCore cb_current_interface{};
 
 extern "C" {
-EXPORTED CBCore *__cdecl chainblocksInterface(uint32_t abi_version) {
+CHAINBLOCKS_API CBCore *__cdecl chainblocksInterface(uint32_t abi_version) {
   // for now we ignore abi_version
   if (cb_current_interface_loaded)
     return &cb_current_interface;

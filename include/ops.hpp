@@ -110,7 +110,7 @@ ALWAYS_INLINE inline bool operator>(const CBVar &a, const CBVar &b);
 ALWAYS_INLINE inline bool operator>=(const CBVar &a, const CBVar &b);
 ALWAYS_INLINE inline bool operator==(const CBVar &a, const CBVar &b);
 
-bool operator==(const CBTypeInfo &a, const CBTypeInfo &b);
+CHAINBLOCKS_API bool operator==(const CBTypeInfo &a, const CBTypeInfo &b);
 inline bool operator!=(const CBTypeInfo &a, const CBTypeInfo &b);
 
 inline int cmp(const CBVar &a, const CBVar &b) {
@@ -122,11 +122,11 @@ inline int cmp(const CBVar &a, const CBVar &b) {
     return 1;
 }
 
-bool _seqEq(const CBVar &a, const CBVar &b);
+CHAINBLOCKS_API bool _seqEq(const CBVar &a, const CBVar &b);
 
-bool _setEq(const CBVar &a, const CBVar &b);
+CHAINBLOCKS_API bool _setEq(const CBVar &a, const CBVar &b);
 
-bool _tableEq(const CBVar &a, const CBVar &b);
+CHAINBLOCKS_API bool _tableEq(const CBVar &a, const CBVar &b);
 
 ALWAYS_INLINE inline bool operator==(const CBVar &a, const CBVar &b) {
   if (a.valueType != b.valueType)
@@ -305,9 +305,9 @@ ALWAYS_INLINE inline bool operator==(const CBVar &a, const CBVar &b) {
   return false;
 }
 
-bool _seqLess(const CBVar &a, const CBVar &b);
+CHAINBLOCKS_API bool _seqLess(const CBVar &a, const CBVar &b);
 
-bool _tableLess(const CBVar &a, const CBVar &b);
+CHAINBLOCKS_API bool _tableLess(const CBVar &a, const CBVar &b);
 
 // avoid trying to be smart with SIMDs here
 // compiler will outsmart us likely anyway.
@@ -417,9 +417,9 @@ ALWAYS_INLINE inline bool operator<(const CBVar &a, const CBVar &b) {
   }
 }
 
-bool _seqLessEq(const CBVar &a, const CBVar &b);
+CHAINBLOCKS_API bool _seqLessEq(const CBVar &a, const CBVar &b);
 
-bool _tableLessEq(const CBVar &a, const CBVar &b);
+CHAINBLOCKS_API bool _tableLessEq(const CBVar &a, const CBVar &b);
 
 ALWAYS_INLINE inline bool operator<=(const CBVar &a, const CBVar &b) {
   if (a.valueType != b.valueType)
@@ -551,7 +551,7 @@ inline bool operator!=(const CBExposedTypeInfo &a, const CBExposedTypeInfo &b) {
 }
 
 namespace chainblocks {
-uint64_t hash(const CBVar &var);
+CHAINBLOCKS_API uint64_t hash(const CBVar &var);
 } // namespace chainblocks
 
 namespace std {
