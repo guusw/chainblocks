@@ -74,22 +74,22 @@ protected:
 };
 
 struct ActiveBase {
-  static CBTypesInfo inputTypes() { return Globals::windowType; }
+  static CBTypesInfo inputTypes() { return GetGlobals().windowType; }
   static CBTypesInfo outputTypes() { return CoreInfo::BoolType; }
 };
 
 struct PIDBase {
-  static CBTypesInfo inputTypes() { return Globals::windowType; }
+  static CBTypesInfo inputTypes() { return GetGlobals().windowType; }
   static CBTypesInfo outputTypes() { return CoreInfo::IntType; }
 };
 
 struct WinOpBase {
-  static CBTypesInfo inputTypes() { return Globals::windowType; }
-  static CBTypesInfo outputTypes() { return Globals::windowType; }
+  static CBTypesInfo inputTypes() { return GetGlobals().windowType; }GetGlobals().windowType
+  static CBTypesInfo outputTypes() { return GetGlobals().windowType; }
 };
 
 struct SizeBase {
-  static CBTypesInfo inputTypes() { return Globals::windowType; }
+  static CBTypesInfo inputTypes() { return GetGlobals().windowType; }
   static CBTypesInfo outputTypes() { return CoreInfo::Int2Type; }
 };
 
@@ -207,7 +207,7 @@ struct SendKeyEventBase {
       ParamsInfo::Param("Window",
                         CBCCSTR("None or a window variable if we wish to send "
                                 "the event only to a specific target window."),
-                        Globals::windowVarOrNone));
+                        GetGlobals().windowVarOrNone));
 
   static CBParametersInfo parameters() { return CBParametersInfo(params); }
 
@@ -239,7 +239,7 @@ struct SendKeyEventBase {
       _windowVarName = value.payload.stringValue;
       _exposedInfo = ExposedInfo(ExposedInfo::Variable(
           _windowVarName.c_str(), CBCCSTR("The window to send events to."),
-          Globals::windowType));
+          GetGlobals().windowType));
     }
   }
 
@@ -259,7 +259,7 @@ struct MousePosBase {
   static inline ParamsInfo params = ParamsInfo(ParamsInfo::Param(
       "Window",
       CBCCSTR("None or a window variable we wish to use as relative origin."),
-      Globals::windowVarOrNone));
+      GetGlobals().windowVarOrNone));
 
   static CBParametersInfo parameters() { return CBParametersInfo(params); }
 
@@ -269,7 +269,7 @@ struct MousePosBase {
   CBExposedTypesInfo requiredVariables() {
     if (_window.isVariable()) {
       _consuming = ExposedInfo(ExposedInfo::Variable(
-          _window.variableName(), CBCCSTR("The window."), Globals::windowType));
+          _window.variableName(), CBCCSTR("The window."), GetGlobals().windowType));
       return CBExposedTypesInfo(_consuming);
     } else {
       return {};
