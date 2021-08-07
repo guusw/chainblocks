@@ -26,10 +26,10 @@ set(core_SOURCES
 )
 
 set(os_SOURCES
-    # blocks/process.cpp
     # blocks/os.cpp
-    # blocks/network.cpp
-    # blocks/ws.cpp
+    blocks/process.cpp
+    blocks/network.cpp
+    blocks/ws.cpp
 )
 
 macro(add_chainblocks_library NAME LINK_TYPE)
@@ -47,7 +47,7 @@ macro(add_chainblocks_library NAME LINK_TYPE)
   
   target_link_libraries(${NAME} 
     PUBLIC spdlog magic_enum nameof
-    PRIVATE pdqsort utf8.h Taskflow linalg stb nlohmann_json m3 ghc_filesystem boost-context
+    PRIVATE pdqsort utf8.h Taskflow linalg stb nlohmann_json m3 ghc_filesystem boost-context boost_filesystem-mt
   )
   
   if(NOT EMSCRIPTEN)
