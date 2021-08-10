@@ -81,5 +81,13 @@
 	url = https://github.com/chainblocks/pareto.git
 [submodule "deps/bgfx.cmake"]
 	path = deps/bgfx.cmake
-	url = https://git.bakje.coffee/guus/bgfx.cmake.git
-	branch = guus
+	url = https://github.com/chainblocks/bgfx.cmake.git
+[submodule "deps/brotli"]
+	path = deps/brotli
+	url = https://github.com/chainblocks/brotli.git
+[submodule "deps/snappy"]
+	path = deps/snappy
+	url = https://github.com/chainblocks/snappy.git
+[submodule "cmake/corrosion"]
+	path = cmake/corrosion
+	url = https://github.com/AndrewGaspar/corrosion.git

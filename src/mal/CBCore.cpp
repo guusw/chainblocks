@@ -235,7 +235,8 @@ public:
     // remove from globals TODO some mutex maybe
     auto cp = CBChain::sharedFromRef(m_chain);
     auto it = chainblocks::GetGlobals().GlobalChains.find(cp.get()->name);
-    if (it != chainblocks::GetGlobals().GlobalChains.end() && it->second == cp) {
+    if (it != chainblocks::GetGlobals().GlobalChains.end() &&
+        it->second == cp) {
       chainblocks::GetGlobals().GlobalChains.erase(it);
     }
 
@@ -1146,6 +1147,8 @@ void setBlockParameters(malCBlock *malblock, malValueIter begin,
       if (!validateSetParam(block, pindex, var->value(), validationCallback,
                             nullptr)) {
         CBLOG_ERROR("Failed parameter index: {} line: {}", pindex, arg->line);
+        validateSetParam(block, pindex, var->value(), validationCallback,
+                         nullptr);
         throw chainblocks::CBException("Parameter validation failed");
       }
       block->setParam(block, pindex, &var->value());
@@ -2103,8 +2106,8 @@ BUILTIN("decompress-strings") {
     auto emplaced = strings_storage.emplace(uint32_t(crc.payload.intValue),
                                             str.payload.stringValue);
     auto &s = emplaced.first->second;
-    auto &val = (*chainblocks::GetGlobals().CompressedStrings)[uint32_t(
-        crc.payload.intValue)];
+    auto &val = (*chainblocks::GetGlobals()
+                      .CompressedStrings)[uint32_t(crc.payload.intValue)];
     val.string = s.c_str();
     val.crc = uint32_t(crc.payload.intValue);
   }

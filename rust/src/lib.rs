@@ -25,8 +25,8 @@ mod chainblocksc;
 pub mod core;
 #[macro_use]
 pub mod types;
+
 // order matters
-#[cfg(feature = "blocks")]
 pub mod blocks;
 
 use crate::block::Block;
@@ -281,7 +281,6 @@ mod dummy_block {
   }
 }
 
-#[cfg(feature = "blocks")]
 #[no_mangle]
 pub unsafe extern "C" fn registerRustBlocks(core: *mut CBCore) {
   Core = core;

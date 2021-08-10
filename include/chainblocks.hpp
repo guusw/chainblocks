@@ -59,7 +59,7 @@ public:
   explicit InvalidVarTypeError(std::string_view msg) : CBException(msg) {}
 };
 
-CBlock *createBlock(std::string_view name);
+CHAINBLOCKS_API CBlock *createBlock(std::string_view name);
 
 struct Type {
   Type() : _type({CBType::None}) {}
@@ -1069,7 +1069,7 @@ private:
   CBChainProvider _provider;
 };
 
-class Blocks {
+class CHAINBLOCKS_API Blocks {
 public:
   Blocks() {}
 
@@ -1099,7 +1099,7 @@ private:
   std::vector<Var> _blocks;
 };
 
-class Chain {
+class CHAINBLOCKS_API Chain {
 public:
   Chain() {}
   Chain(std::string_view name);

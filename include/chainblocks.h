@@ -1120,7 +1120,7 @@ typedef struct _CBCore {
 
 typedef CBCore *(__cdecl *CBChainblocksInterface)(uint32_t abi_version);
 
-#ifdef CHAINBLOCKS_DLL
+#ifdef CHAINBLOCKS_CORE_DLL
 #ifdef _WIN32
 #define CHAINBLOCKS_EXPORT __declspec(dllexport)
 #define CHAINBLOCKS_IMPORT __declspec(dllimport)

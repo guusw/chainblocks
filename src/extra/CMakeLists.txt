@@ -7,16 +7,36 @@ set(extra_SOURCES
   dsp.cpp
   gltf.cpp
   inputs.cpp
+  snappy.cpp
+  brotli.cpp
+  audio.cpp
 )
 
-add_library(chainblocks-extra SHARED ${extra_SOURCES})
+if(CHAINBLOCKS_EXTRA_BUILD_SHARED)
+  add_library(chainblocks-extra SHARED ${extra_SOURCES})
+  target_compile_definitions(chainblocks-extra PUBLIC "-DCHAINBLOCKS_EXTRA_DLL=1")
+else()
+  add_library(chainblocks-extra STATIC ${extra_SOURCES})
+endif()
+
+target_include_directories(chainblocks-extra PRIVATE ../core)
 target_link_libraries(chainblocks-extra
-  PRIVATE stb
-  PRIVATE brotli
-  PRIVATE gltf
-  PRIVATE imgui
-  PRIVATE bx
-  PRIVATE bimg
-  PRIVATE bgfx
-  PRIVATE snappy
+  PRIVATE chainblocks-core 
+  PRIVATE bx bimg bgfx bgfx-example-common stb SDL2 tinygltf
+  PRIVATE dear-imgui imgui_club implot
+  PRIVATE brotlienc-static brotlidec-static brotlicommon-static snappy
+  PRIVATE kissfft miniaudio
+  PRIVATE nlohmann_json
 )
+
+if(WIN32)
+  target_link_libraries(chainblocks-extra PRIVATE DXGI D3D11 ntdll)
+  target_sources(chainblocks-extra PRIVATE desktop.win.cpp)
+endif()
+
+option(CHAINBLOCKS_EXTRA_BUILD_SHARED OFF "Build chainblocks extra as dynamic library")
+
+if(CHAINBLOCKS_WITH_RUST_BLOCKS)
+  target_compile_definitions(chainblocks-extra PUBLIC "-DCHAINBLOCKS_WITH_RUST_BLOCKS=1")
+  target_link_libraries(chainblocks-extra PRIVATE chainblocks-rust)
+endif()

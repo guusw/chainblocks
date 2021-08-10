@@ -13,6 +13,10 @@ set(chainblocks_SOURCES
 
 add_executable(cbl ${chainblocks_SOURCES})
 target_link_libraries(cbl
-  chainblocks-core-static
+  chainblocks-core
   replxx
 )
+
+if(CHAINBLOCKS_WITH_EXTRA_BLOCKS)
+  target_link_libraries(cbl chainblocks-extra)
+endif()

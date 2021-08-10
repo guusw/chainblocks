@@ -115,7 +115,7 @@ CHAINBLOCKS_API CBOptionalString setCompiledCompressedString(uint32_t crc, const
 
 CHAINBLOCKS_API CBString getString(uint32_t crc);
 CHAINBLOCKS_API void setString(uint32_t crc, CBString str);
-CHAINBLOCKS_API [[nodiscard]] CBComposeResult composeChain(const CBlocks chain,
+[[nodiscard]] CHAINBLOCKS_API CBComposeResult composeChain(const CBlocks chain,
                                            CBValidationCallback callback,
                                            void *userData, CBInstanceData data);
 CHAINBLOCKS_API CBChainState activateBlocks(CBSeq blocks, CBContext *context,

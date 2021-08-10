@@ -3,7 +3,9 @@
 
 #include "runtime.hpp"
 
+#if CHAINBLOCKS_WITH_RUST_BLOCKS
 extern "C" void registerRustBlocks(CBCore *core);
+#endif
 
 namespace BGFX {
 extern void registerBGFXBlocks();
@@ -53,12 +55,17 @@ extern void registerEmscriptenShaderCompiler();
 #endif
 
 void cbInitExtras() {
+#if CHAINBLOCKS_WITH_RUST_BLOCKS
   registerRustBlocks(chainblocksInterface(CHAINBLOCKS_CURRENT_ABI));
+#endif
+
   Snappy::registerBlocks();
   Brotli::registerBlocks();
+  
 #ifdef __EMSCRIPTEN__
   registerEmscriptenShaderCompiler();
 #endif
+
   BGFX::registerBGFXBlocks();
   chainblocks::ImGui::registerImGuiBlocks();
   XR::registerBlocks();
@@ -66,6 +73,7 @@ void cbInitExtras() {
   Inputs::registerBlocks();
   Audio::registerBlocks();
   DSP::registerBlocks();
+  
 #ifdef _WIN32
   Desktop::registerDesktopBlocks();
 #endif

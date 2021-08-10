@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 3.14)
 
 project("chainblocks")
 
-# Disable CTest for any subprojects by default
-option(BUILD_TESTING "" OFF)
+option(CHAINBLOCKS_BUILD_TESTS "Enable to build chainblocks tests" ON)
+option(CHAINBLOCKS_WITH_EXTRA_BLOCKS "Enabled to build and include the extra c++ blocks (graphics, audio, etc.)" ON)
+option(CHAINBLOCKS_WITH_RUST_BLOCKS "Enable to build and include the extra rust blocks" ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -26,8 +27,29 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(Sanitizers)
 include(Platform)
-# include(Extra)
+include(Tidy)
+
+# Rust build support
+add_subdirectory(cmake/corrosion)
+
+# disable targets being added by CTestTargets.cmake
+set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
+
+enable_testing()
+include(CTest)
+include(deps/Catch2/extras/Catch.cmake)
 
 add_subdirectory(deps)
+
 add_subdirectory(src/core)
 add_subdirectory(src/mal)
+
+if(CHAINBLOCKS_WITH_EXTRA_BLOCKS)
+if(CHAINBLOCKS_WITH_RUST_BLOCKS)
+    # Configure with the following when using mingw clang:
+    # -DRust_TOOLCHAIN=stable-x86_64-pc-windows-gnu -DRust_CARGO_TARGET=x86_64-pc-windows-gnu
+    corrosion_import_crate(MANIFEST_PATH Cargo.toml)
+  endif()
+  
+  add_subdirectory(src/extra)
+endif()

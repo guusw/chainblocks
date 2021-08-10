@@ -7,10 +7,17 @@ add_subdirectory(pareto)
 add_subdirectory(replxx)
 add_subdirectory(SDL)
 add_subdirectory(spdlog)
-add_subdirectory(tinygltf)
 add_subdirectory(wasm3)
-
 add_subdirectory(Catch2)
+
+option(SNAPPY_BUILD_TESTS OFF "")
+add_subdirectory(snappy)
+
+set(BROTLI_DISABLE_TESTS ON)
+add_subdirectory(brotli)
+
+option(TINYGLTF_BUILD_LOADER_EXAMPLE OFF "") 
+add_subdirectory(tinygltf)
 
 option(TF_BUILD_TESTS "" OFF)
 option(TF_BUILD_EXAMPLES "" OFF)
@@ -26,6 +33,9 @@ set(BX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bx)
 set(BIMG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bimg)
 set(BGFX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bgfx)
 add_subdirectory(bgfx.cmake)
+
+add_library(bgfx-example-common INTERFACE)
+target_include_directories(bgfx-example-common INTERFACE ${BGFX_DIR}/examples/common/imgui)
 
 if(APPLE)
   if(X86 OR X86_IOS_SIMULATOR)
@@ -67,6 +77,20 @@ target_include_directories(xxHash PUBLIC xxHash)
 # )
 # add_library(backtrace ${backtrace_SOURCES})
 # add_subdirectory(libbacktrace)
+
+add_library(imgui_club INTERFACE)
+target_include_directories(imgui_club INTERFACE imgui_club/imgui_memory_editor)
+
+add_library(implot STATIC 
+  implot/implot.cpp
+  implot/implot_items.cpp
+)
+target_include_directories(implot PUBLIC implot)
+target_link_libraries(implot
+  PUBLIC dear-imgui
+  PRIVATE stb
+)
+# target_include_directories(implot PUBLIC bgfx/3rdparty/dear-imgui)
 
 add_library(linalg INTERFACE)
 target_include_directories(linalg INTERFACE linalg)

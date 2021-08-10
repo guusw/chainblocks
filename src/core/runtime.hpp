@@ -159,16 +159,16 @@ private:
 };
 
 namespace chainblocks {
-CHAINBLOCKS_API [[nodiscard]] CBComposeResult composeChain(const std::vector<CBlock *> &chain,
+[[nodiscard]] CHAINBLOCKS_API CBComposeResult composeChain(const std::vector<CBlock *> &chain,
                                            CBValidationCallback callback,
                                            void *userData, CBInstanceData data);
-CHAINBLOCKS_API [[nodiscard]] CBComposeResult composeChain(const CBlocks chain,
+[[nodiscard]] CHAINBLOCKS_API CBComposeResult composeChain(const CBlocks chain,
                                            CBValidationCallback callback,
                                            void *userData, CBInstanceData data);
-CHAINBLOCKS_API [[nodiscard]] CBComposeResult composeChain(const CBSeq chain,
+[[nodiscard]] CHAINBLOCKS_API CBComposeResult composeChain(const CBSeq chain,
                                            CBValidationCallback callback,
                                            void *userData, CBInstanceData data);
-CHAINBLOCKS_API [[nodiscard]] CBComposeResult composeChain(const CBChain *chain,
+[[nodiscard]] CHAINBLOCKS_API CBComposeResult composeChain(const CBChain *chain,
                                            CBValidationCallback callback,
                                            void *userData, CBInstanceData data);
 
@@ -865,7 +865,7 @@ private:
 
 namespace chainblocks {
 struct Serialization {
-  static void varFree(CBVar &output);
+  CHAINBLOCKS_API static void varFree(CBVar &output);
 
   std::unordered_map<std::string, CBChainRef> chains;
   std::unordered_map<std::string, std::shared_ptr<CBlock>> defaultBlocks;

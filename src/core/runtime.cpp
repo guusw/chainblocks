@@ -144,7 +144,7 @@ namespace reflection {
 extern void registerBlocks();
 }
 
-#ifdef CB_WITH_EXTRAS
+#ifdef CHAINBLOCKS_WITH_EXTRA_BLOCKS
 extern void cbInitExtras();
 #endif
 
@@ -317,7 +317,7 @@ void registerCoreBlocks() {
     }
   }
 
-#ifdef CB_WITH_EXTRAS
+#ifdef CHAINBLOCKS_WITH_EXTRA_BLOCKS
   cbInitExtras();
 #endif
 
@@ -483,7 +483,7 @@ void registerEnumType(int32_t vendorId, int32_t typeId, CBEnumInfo info) {
     GetGlobals().EnumTypesRegister.insert(std::make_pair(id, info));
   } else {
     GetGlobals().EnumTypesRegister[id] = info;
-    CBLOG_INFO("Overriding enum type: {}", typeName);
+    CBLOG_DEBUG("Overriding enum type: {}", typeName);
   }
 
   for (auto &pobs : GetGlobals().Observers) {
