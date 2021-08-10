@@ -74,7 +74,7 @@ public:
 
 class WaitWindow : public WindowWindows {
 public:
-  static CBTypesInfo outputTypes() { return Globals::windowType; }
+  static CBTypesInfo outputTypes() { return GetGlobals().windowType; }
 
   CBVar activate(CBContext *context, const CBVar &input) {
     while (!_window || !IsWindow(_window)) {
@@ -336,7 +336,7 @@ struct PixelBase {
   static inline ParamsInfo params = ParamsInfo(ParamsInfo::Param(
       "Window",
       CBCCSTR("The window variable name to use as coordinate origin."),
-      Globals::windowVarOrNone));
+      GetGlobals().windowVarOrNone));
 
   static CBParametersInfo parameters() { return CBParametersInfo(params); }
 
@@ -365,7 +365,7 @@ struct PixelBase {
         variableName = value.payload.stringValue;
         exposedInfo = ExposedInfo(ExposedInfo::Variable(
             variableName.c_str(), CBCCSTR("The window to use as origin."),
-            Globals::windowType));
+            GetGlobals().windowType));
       } else {
         variableName.clear();
       }
@@ -664,7 +664,7 @@ struct SendKeyEvent : public SendKeyEventBase {
       }
 
       auto lparam = MapVirtualKey(vkCode, MAPVK_VK_TO_VSC) << 16;
-      lparam = lparam | (state == 0) ? 0x00000001 : 0xC0000001;
+      lparam = lparam | (state == 0 ? 0x00000001 : 0xC0000001);
       PostMessage(window, state == 0 ? WM_KEYDOWN : WM_KEYUP, vkCode, lparam);
     } else {
       INPUT keyboardEvent;

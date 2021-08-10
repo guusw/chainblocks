@@ -83,14 +83,14 @@ void installCBCore(const malEnvPtr &env, const char *exePath,
   setupObserver(obs, env);
 
   if (!initDoneOnce) {
-    chainblocks::Globals::ExePath = exePath;
-    chainblocks::Globals::RootPath = scriptPath;
+    chainblocks::GetGlobals().ExePath = exePath;
+    chainblocks::GetGlobals().RootPath = scriptPath;
 
     CBLOG_DEBUG("Exe path: {}", exePath);
     CBLOG_DEBUG("Script path: {}", scriptPath);
 
 #ifndef __EMSCRIPTEN__
-    chainblocks::installSignalHandlers();
+    // chainblocks::installSignalHandlers();
 #endif
 
     cbRegisterAllBlocks();
@@ -217,7 +217,7 @@ public:
     CBLOG_TRACE("Created a CBChain - {}", name);
     auto chain = CBChain::make(name);
     m_chain = chain->newRef();
-    chainblocks::Globals::GlobalChains[name] = chain;
+    chainblocks::GetGlobals().GlobalChains[name] = chain;
   }
 
   malCBChain(const std::shared_ptr<CBChain> &chain) : m_chain(chain->newRef()) {
@@ -232,9 +232,9 @@ public:
 
     // remove from globals TODO some mutex maybe
     auto cp = CBChain::sharedFromRef(m_chain);
-    auto it = chainblocks::Globals::GlobalChains.find(cp.get()->name);
-    if (it != chainblocks::Globals::GlobalChains.end() && it->second == cp) {
-      chainblocks::Globals::GlobalChains.erase(it);
+    auto it = chainblocks::GetGlobals().GlobalChains.find(cp.get()->name);
+    if (it != chainblocks::GetGlobals().GlobalChains.end() && it->second == cp) {
+      chainblocks::GetGlobals().GlobalChains.erase(it);
     }
 
     // delref
@@ -937,7 +937,7 @@ std::vector<malCBlockPtr> blockify(const malValuePtr &arg) {
       cbMap[k[0] == '"' ? unescape(k) : k.substr(1)] = cbv->value();
     }
     var.valueType = Table;
-    var.payload.tableValue.api = &chainblocks::Globals::TableInterface;
+    var.payload.tableValue.api = &chainblocks::GetGlobals().TableInterface;
     var.payload.tableValue.opaque = &cbMap;
     WRAP_TO_CONST(var);
   } else if (malAtom *v = DYNAMIC_CAST(malAtom, arg)) {
@@ -1020,7 +1020,7 @@ malCBVarPtr varify(const malValuePtr &arg) {
     }
     CBVar tmp{};
     tmp.valueType = Table;
-    tmp.payload.tableValue.api = &chainblocks::Globals::TableInterface;
+    tmp.payload.tableValue.api = &chainblocks::GetGlobals().TableInterface;
     tmp.payload.tableValue.opaque = &cbMap;
     CBVar var{};
     chainblocks::cloneVar(var, tmp);
@@ -1545,7 +1545,7 @@ BUILTIN("set-global-chain") {
   auto first = *argsBegin;
   if (const malCBChain *v = DYNAMIC_CAST(malCBChain, first)) {
     auto chain = CBChain::sharedFromRef(v->value());
-    chainblocks::Globals::GlobalChains[chain->name] = chain;
+    chainblocks::GetGlobals().GlobalChains[chain->name] = chain;
     return mal::trueValue();
   }
   return mal::falseValue();
@@ -1556,9 +1556,9 @@ BUILTIN("unset-global-chain") {
   auto first = *argsBegin;
   if (const malCBChain *v = DYNAMIC_CAST(malCBChain, first)) {
     auto chain = CBChain::sharedFromRef(v->value());
-    auto it = chainblocks::Globals::GlobalChains.find(chain->name);
-    if (it != chainblocks::Globals::GlobalChains.end()) {
-      chainblocks::Globals::GlobalChains.erase(it);
+    auto it = chainblocks::GetGlobals().GlobalChains.find(chain->name);
+    if (it != chainblocks::GetGlobals().GlobalChains.end()) {
+      chainblocks::GetGlobals().GlobalChains.erase(it);
       return mal::trueValue();
     }
   }
@@ -1709,8 +1709,10 @@ BUILTIN("sleep") {
 BUILTIN("override-root-path") {
   CHECK_ARGS_IS(1);
   ARG(malString, value);
-  chainblocks::Globals::RootPath = value->ref();
+  
+  chainblocks::GetGlobals().RootPath = value->ref();
   std::filesystem::current_path(value->ref());
+  
   return mal::nilValue();
 }
 
@@ -1948,11 +1950,11 @@ BUILTIN("setenv") {
 }
 
 BUILTIN("settings-try-set-min") {
-  std::unique_lock lock(Globals::SettingsMutex);
+  std::unique_lock lock(GetGlobals().SettingsMutex);
   CHECK_ARGS_IS(2);
   ARG(malString, key);
   ARG(malCBVar, value);
-  auto &current = Globals::Settings[key->value()];
+  auto &current = GetGlobals().Settings[key->value()];
   if (current.valueType != CBType::None) {
     if (value->value() < current) {
       current = value->value();
@@ -1967,11 +1969,11 @@ BUILTIN("settings-try-set-min") {
 }
 
 BUILTIN("settings-try-set-max") {
-  std::unique_lock lock(Globals::SettingsMutex);
+  std::unique_lock lock(GetGlobals().SettingsMutex);
   CHECK_ARGS_IS(2);
   ARG(malString, key);
   ARG(malCBVar, value);
-  auto &current = Globals::Settings[key->value()];
+  auto &current = GetGlobals().Settings[key->value()];
   if (current.valueType != CBType::None) {
     if (value->value() > current) {
       current = value->value();
@@ -1997,7 +1999,7 @@ BUILTIN("hasBlock?") {
 
 BUILTIN("blocks") {
   malValueVec v;
-  for (auto [name, _] : chainblocks::Globals::BlocksRegister) {
+  for (auto [name, _] : chainblocks::GetGlobals().BlocksRegister) {
     v.emplace_back(mal::string(std::string(name)));
   }
   malValueVec *items = new malValueVec(v);
@@ -2066,9 +2068,9 @@ BUILTIN("info") {
 
 #ifndef CB_COMPRESSED_STRINGS
 BUILTIN("export-strings") {
-  assert(chainblocks::Globals::CompressedStrings);
+  assert(chainblocks::GetGlobals().CompressedStrings);
   malValueVec strs;
-  for (auto &[crc, str] : *chainblocks::Globals::CompressedStrings) {
+  for (auto &[crc, str] : *chainblocks::GetGlobals().CompressedStrings) {
     if (crc != 0) {
       malValueVec record;
       record.emplace_back(mal::number(crc, true));
@@ -2084,7 +2086,7 @@ static std::unordered_map<uint32_t, std::string> strings_storage;
 
 BUILTIN("decompress-strings") {
 #ifdef CB_COMPRESSED_STRINGS
-  if (!chainblocks::Globals::CompressedStrings) {
+  if (!chainblocks::GetGlobals().CompressedStrings) {
     throw chainblocks::CBException("String storage was null");
   }
   // run the script to populate compressed strings
@@ -2113,7 +2115,7 @@ BUILTIN("decompress-strings") {
     auto emplaced = strings_storage.emplace(uint32_t(crc.payload.intValue),
                                             str.payload.stringValue);
     auto &s = emplaced.first->second;
-    auto &val = (*chainblocks::Globals::CompressedStrings)[uint32_t(
+    auto &val = (*chainblocks::GetGlobals().CompressedStrings)[uint32_t(
         crc.payload.intValue)];
     val.string = s.c_str();
     val.crc = uint32_t(crc.payload.intValue);
@@ -2128,19 +2130,19 @@ BUILTIN_ISA("Chain?", malCBChain);
 BUILTIN_ISA("Block?", malCBlock);
 
 extern "C" {
-EXPORTED __cdecl void *cbLispCreate(const char *path) {
+__cdecl void *cbLispCreate(const char *path) {
   auto env = new malEnvPtr(new malEnv);
   malinit(*env, path, path);
   return (void *)env;
 }
 
-EXPORTED __cdecl void cbLispDestroy(void *env) {
+__cdecl void cbLispDestroy(void *env) {
   auto penv = (malEnvPtr *)env;
   observers.erase((malEnv *)penv->ptr());
   delete penv;
 }
 
-EXPORTED __cdecl CBVar cbLispEval(void *env, const char *str) {
+__cdecl CBVar cbLispEval(void *env, const char *str) {
   auto penv = (malEnvPtr *)env;
   try {
     auto res = maleval(str, *penv);
@@ -2159,7 +2161,7 @@ EXPORTED __cdecl CBVar cbLispEval(void *env, const char *str) {
 void setupObserver(std::shared_ptr<Observer> &obs, const malEnvPtr &env) {
   obs = std::make_shared<Observer>();
   obs->_env = env;
-  chainblocks::Globals::Observers.emplace_back(obs);
+  chainblocks::GetGlobals().Observers.emplace_back(obs);
   observers[env.ptr()] = obs;
 }
 
