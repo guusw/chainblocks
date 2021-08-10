@@ -1234,7 +1234,7 @@ struct Run {
       IM3Function ctors;
       err = m3_FindFunction(&ctors, _runtime.get(), "__wasm_call_ctors");
       if (err == m3Err_none)
-        m3_CallArgv(ctors, 0, nullptr);
+        m3_CallWithArgs(ctors, 0, nullptr);
     }
   }
 
@@ -1298,7 +1298,7 @@ struct Run {
               }
             }
 
-            result = m3_CallArgv(_mainFunc, _argsArray.size(), &_argsArray[0]);
+            result = m3_CallWithArgs(_mainFunc, _argsArray.size(), &_argsArray[0]);
           } else {
             // assume wasi
             _data.args.clear();
@@ -1322,7 +1322,7 @@ struct Run {
               }
             }
 
-            result = m3_CallArgv(_mainFunc, 0, nullptr);
+            result = m3_CallWithArgs(_mainFunc, 0, nullptr);
           }
 
           if (result == m3Err_trapExit) {
