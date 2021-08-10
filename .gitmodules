@@ -41,6 +41,7 @@
 [submodule "deps/SDL"]
 	path = deps/SDL
 	url = ssh://coffee_git@git.bakje.coffee:2302/guus/sdl2.git
+  branch = cmake_cleanup
 [submodule "deps/implot"]
 	path = deps/implot
 	url = https://github.com/chainblocks/implot.git
