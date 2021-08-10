@@ -43,9 +43,12 @@ target_include_directories(chainblocks-core PUBLIC ../../include)
 target_include_directories(chainblocks-core PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 # target_precompile_headers(chainblocks-core PRIVATE pch.hpp)
 
+find_package(Boost REQUIRED COMPONENTS context filesystem)
+message(STATUS "BOOST FOUND = ${Boost_FOUND} ${Boost_INCLUDE_DIRS}")
+
 target_link_libraries(chainblocks-core 
   PUBLIC spdlog magic_enum nameof linalg
-  PRIVATE pdqsort utf8.h Taskflow stb nlohmann_json m3 ghc_filesystem boost-context boost_filesystem-mt
+  PRIVATE pdqsort utf8.h Taskflow stb nlohmann_json m3 ghc_filesystem Boost::context Boost::filesystem
 )
 
 if(NOT EMSCRIPTEN)

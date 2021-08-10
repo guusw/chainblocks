@@ -37,35 +37,6 @@ add_subdirectory(bgfx.cmake)
 add_library(bgfx-example-common INTERFACE)
 target_include_directories(bgfx-example-common INTERFACE ${BGFX_DIR}/examples/common/imgui)
 
-if(APPLE)
-  if(X86 OR X86_IOS_SIMULATOR)
-    set(boost_context_SOURCES
-        boost-context/src/posix/stack_traits.cpp
-        boost-context/src/asm/jump_x86_64_sysv_macho_gas.S
-        boost-context/src/asm/make_x86_64_sysv_macho_gas.S
-        boost-context/src/asm/ontop_x86_64_sysv_macho_gas.S
-      )
-  else()
-    set(boost_context_SOURCES
-        boost-context/src/posix/stack_traits.cpp
-        boost-context/src/asm/jump_arm64_aapcs_macho_gas.S
-        boost-context/src/asm/make_arm64_aapcs_macho_gas.S
-        boost-context/src/asm/ontop_arm64_aapcs_macho_gas.S
-      )
-  endif()
-elseif(WIN32)
-  set(boost_context_SOURCES
-    boost-context/src/windows/stack_traits.cpp
-    boost-context/src/asm/jump_x86_64_ms_pe_gas.asm
-    boost-context/src/asm/make_x86_64_ms_pe_gas.asm
-    boost-context/src/asm/ontop_x86_64_ms_pe_gas.asm
-  )
-endif()
-
-enable_language(ASM-ATT)
-add_library(boost-context ${boost_context_SOURCES})
-target_include_directories(boost-context PUBLIC boost-context/include)
-
 file(GLOB xxHash_SOURCES
   xxHash/*.c
 )
