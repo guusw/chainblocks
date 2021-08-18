@@ -1,5 +1,5 @@
 [package]
-name = "chainblocks-rust"
+name = "chainblocks"
 description = "rust bindings and utility in order to use chainblocks"
 license = "BSD-3-Clause"
 version = "0.1.0"
