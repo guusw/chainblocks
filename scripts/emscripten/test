@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+${CHAINBLOCKS_BUILD}/bin/chainblocks-tests-runtime.exe
+${CHAINBLOCKS_BUILD}/bin/cbl.exe src/tests/general.edn

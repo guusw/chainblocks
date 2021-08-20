@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+
+cmake --build ${CHAINBLOCKS_BUILD_PATH} --target cargo-chainblocks
+cmake --build ${CHAINBLOCKS_BUILD_PATH} --target chainblocks-tests-runtime
+cmake --build ${CHAINBLOCKS_BUILD_PATH} --target cbl

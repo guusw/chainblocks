@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+ROOT_PATH=$(realpath $(dirname $0)/../..)
+export CHAINBLOCKS_BUILD_PATH=$ROOT_PATH/build
+
+EMSCRIPTEN_PTHREADS=OFF
+
+mkdir -p ${CHAINBLOCKS_BUILD_PATH}
+source ${EMSDK}/emsdk_env.sh
+cmake -B ${CHAINBLOCKS_BUILD_PATH} -S ${ROOT_PATH} -GNinja -DCMAKE_BUILD_TYPE=Release -DBOOST_ROOT=${ROOT_PATH}/external/boost_1_76_0 -DSKIP_HEAVY_INLINE=1 -DUSE_LTO=1 -DEMSCRIPTEN_PTHREADS=${EMSCRIPTEN_PTHREADS} -DCMAKE_TOOLCHAIN_FILE=${EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake
