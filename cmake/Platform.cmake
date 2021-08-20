@@ -9,14 +9,6 @@ elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
 endif()
 
 if(EMSCRIPTEN)
-  set(EM_EXPORTED_FUNCTIONS "-s \"EXPORTED_FUNCTIONS=['_main', '_chainblocksInterface', '_malloc', '_free', '_emscripten_get_now']\"")
-  set(EM_ASYNCIFY_IMPORTS "-s \"ASYNCIFY_IMPORTS=['emEval', 'emCompileShaderBlocking']\"")
-  set(EM_EXPORTED_RUNTIME_METHODS "-s \"EXPORTED_RUNTIME_METHODS=['FS', 'callMain', 'ENV', 'IDBFS', 'GL', 'PThread', 'setValue', 'getValue', 'lengthBytesUTF8', 'stringToUTF8']\"")
-
-  # MinSizeRel is better for release builds and RelWithDebInfo for debug
-  # check github actions CI for config command line
-  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s NO_EXIT_RUNTIME=1 -s DISABLE_EXCEPTION_CATCHING=0 -s INITIAL_MEMORY=209715200 -s FETCH=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 -s LLD_REPORT_UNDEFINED -s MODULARIZE=1 -s EXPORT_NAME=cbl -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s USE_SDL=2 ${EM_EXPORTED_FUNCTIONS} ${EM_ASYNCIFY_IMPORTS} ${EM_EXPORTED_RUNTIME_METHODS}")
-  
   if(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" OR CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ASSERTIONS=2")
     add_compile_options(-g1 -Os)

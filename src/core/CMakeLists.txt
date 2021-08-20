@@ -77,6 +77,8 @@ target_link_libraries(chainblocks-core
 
 if(NOT EMSCRIPTEN)
   target_sources(chainblocks-core PRIVATE ${os_SOURCES})
+else()
+  target_sources(chainblocks-core PRIVATE coro.cpp) # emscripten coroutines
 endif()
 
 if(WIN32)
