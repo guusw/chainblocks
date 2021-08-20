@@ -4,17 +4,17 @@ RUN pacman -Syu --noconfirm && pacman -S --noconfirm base-devel git cmake wget c
 
 ARG USER_ID=1000
 
-RUN useradd -ms /bin/bash -u ${USER_ID} tester
+RUN useradd -ms /bin/bash -u ${USER_ID} chainblocks
 
-USER tester
+USER chainblocks
 
-WORKDIR /home/tester
+WORKDIR /home/chainblocks
 
-COPY --chown=tester ./ /home/tester/test
+COPY --chown=chainblocks ./ /home/chainblocks/repo
 
-WORKDIR /home/tester/test
+WORKDIR /home/chainblocks/repo
 
-ENV HOME=/home/tester
+ENV HOME=/home/chainblocks
 
 # needed to init wasm
 RUN source /etc/profile.d/binaryen.sh && \

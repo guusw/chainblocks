@@ -37,11 +37,8 @@ add_subdirectory(bgfx.cmake)
 add_library(bgfx-example-common INTERFACE)
 target_include_directories(bgfx-example-common INTERFACE ${BGFX_DIR}/examples/common/imgui)
 
-file(GLOB xxHash_SOURCES
-  xxHash/*.c
-)
-add_library(xxHash ${xxHash_SOURCES})
-target_include_directories(xxHash PUBLIC xxHash)
+add_library(xxHash INTERFACE)
+target_include_directories(xxHash INTERFACE xxHash)
 
 # file(GLOB backtrace_SOURCES
 #   libbacktrace/*.c
@@ -61,7 +58,6 @@ target_link_libraries(implot
   PUBLIC dear-imgui
   PRIVATE stb
 )
-# target_include_directories(implot PUBLIC bgfx/3rdparty/dear-imgui)
 
 add_library(linalg INTERFACE)
 target_include_directories(linalg INTERFACE linalg)

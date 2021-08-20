@@ -30,7 +30,7 @@ USER chainblocks
 
 WORKDIR /home/chainblocks
 
-COPY --chown=chainblocks ../.. /home/chainblocks/repo
+COPY --chown=chainblocks ./ /home/chainblocks/repo
 
 WORKDIR /home/chainblocks/repo
 

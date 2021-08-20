@@ -14,7 +14,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
   set (X86 TRUE)
 else()
-  set (X86 FALSE)
+  set (X86 FALSE) 
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
@@ -24,13 +24,14 @@ else()
 endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+get_filename_component(CHAINBLOCKS_DIR ${CMAKE_CURRENT_LIST_DIR} ABSOLUTE)
 
 include(Sanitizers)
 include(Platform)
 include(Tidy)
 
 # Rust build support
-add_subdirectory(cmake/corrosion)
+include(Rust)
 
 # disable targets being added by CTestTargets.cmake
 set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
@@ -45,10 +46,8 @@ add_subdirectory(src/core)
 add_subdirectory(src/mal)
 
 if(CHAINBLOCKS_WITH_EXTRA_BLOCKS)
-if(CHAINBLOCKS_WITH_RUST_BLOCKS)
-    # Configure with the following when using mingw clang:
-    # -DRust_TOOLCHAIN=stable-x86_64-pc-windows-gnu -DRust_CARGO_TARGET=x86_64-pc-windows-gnu
-    corrosion_import_crate(MANIFEST_PATH Cargo.toml)
+  if(CHAINBLOCKS_WITH_RUST_BLOCKS)
+    add_subdirectory(rust)
   endif()
   
   add_subdirectory(src/extra)

@@ -47,7 +47,7 @@ if(EMSCRIPTEN)
     set(EXTRA_CMAKE_ARGS ${EXTRA_CMAKE_ARGS} -DCMAKE_CXX_FLAGS=-sUSE_PTHREADS=1 -DCMAKE_C_FLAGS=-sUSE_PTHREADS=1)
   endif()
 elseif(IOS)
-  add_compile_definitions(CB_NO_HTTP_BLOCKS=1)
+  add_compile_definitions(CHAINBLOCKS_NO_HTTP_BLOCKS=1)
   set(EXTRA_CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME})
   if(X86_IOS_SIMULATOR)
     set(EXTRA_CMAKE_BUILD_ARGS -- -sdk iphonesimulator -arch x86_64)
@@ -474,6 +474,8 @@ if(NOT BUILD_CORE_ONLY)
 
   add_custom_target(
     rust_blocks
+    ${CMAKE_COMMAND} -E env
+    RUSTFLAGS=
     COMMAND ${RUSTFLAGS}
     COMMAND cargo ${CARGO_NIGHT} build ${CARGO_Z} --features blocks${RUST_BINDGEN} ${RUST_BUILD_OPTIONS}
     WORKING_DIRECTORY ${CHAINBLOCKS_DIR}/rust

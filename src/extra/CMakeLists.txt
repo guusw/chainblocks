@@ -21,16 +21,16 @@ endif()
 
 target_include_directories(chainblocks-extra PRIVATE ../core)
 target_link_libraries(chainblocks-extra
-  PRIVATE chainblocks-core 
-  PRIVATE bx bimg bgfx bgfx-example-common stb SDL2 tinygltf
-  PRIVATE dear-imgui imgui_club implot
-  PRIVATE brotlienc-static brotlidec-static brotlicommon-static snappy
-  PRIVATE kissfft miniaudio
-  PRIVATE nlohmann_json
+  chainblocks-core 
+  bx bimg bgfx bgfx-example-common stb SDL2 tinygltf
+  dear-imgui imgui_club implot
+  brotlienc-static brotlidec-static brotlicommon-static snappy
+  kissfft miniaudio
+  nlohmann_json
 )
 
 if(WIN32)
-  target_link_libraries(chainblocks-extra PRIVATE DXGI D3D11 ntdll)
+  target_link_libraries(chainblocks-extra DXGI D3D11 ntdll)
   target_sources(chainblocks-extra PRIVATE desktop.win.cpp)
 endif()
 
@@ -38,5 +38,13 @@ option(CHAINBLOCKS_EXTRA_BUILD_SHARED OFF "Build chainblocks extra as dynamic li
 
 if(CHAINBLOCKS_WITH_RUST_BLOCKS)
   target_compile_definitions(chainblocks-extra PUBLIC "-DCHAINBLOCKS_WITH_RUST_BLOCKS=1")
-  target_link_libraries(chainblocks-extra PRIVATE chainblocks-rust)
+  target_link_libraries(chainblocks-extra chainblocks-rust)
+endif()
+
+if(EMSCRIPTEN)
+  target_compile_options(chainblocks-extra PRIVATE 
+    "SHELL:-s MIN_WEBGL_VERSION=2"
+    "SHELL:-s MAX_WEBGL_VERSION=2"
+    "SHELL:-s USE_SDL=2")
+  em_link_js_library(chainblocks-extra bgfx.shaderc.js)
 endif()

@@ -53,7 +53,8 @@
 	url = https://github.com/chainblocks/libbacktrace.git
 [submodule "deps/wasm3"]
 	path = deps/wasm3
-	url = https://github.com/sinkingsugar/wasm3.git
+	url = https://github.com/chainblocks/wasm3.git
+	branch = cmake_cleanup
 [submodule "deps/xxHash"]
 	path = deps/xxHash
 	url = https://github.com/chainblocks/xxHash.git

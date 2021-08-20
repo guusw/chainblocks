@@ -43,12 +43,36 @@ target_include_directories(chainblocks-core PUBLIC ../../include)
 target_include_directories(chainblocks-core PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 # target_precompile_headers(chainblocks-core PRIVATE pch.hpp)
 
-find_package(Boost REQUIRED COMPONENTS context filesystem)
-message(STATUS "BOOST FOUND = ${Boost_FOUND} ${Boost_INCLUDE_DIRS}")
+if(EMSCRIPTEN)
+  set(EM_EXPORTED_FUNCTIONS "-s \"EXPORTED_FUNCTIONS=['_main', '_chainblocksInterface', '_malloc', '_free', '_emscripten_get_now']\"")
+  set(EM_ASYNCIFY_IMPORTS "-s \"ASYNCIFY_IMPORTS=['emEval', 'emCompileShaderBlocking']\"")
+  set(EM_EXPORTED_RUNTIME_METHODS "-s \"EXPORTED_RUNTIME_METHODS=['FS', 'callMain', 'ENV', 'IDBFS', 'GL', 'PThread', 'setValue', 'getValue', 'lengthBytesUTF8', 'stringToUTF8']\"")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s NO_EXIT_RUNTIME=1 -s DISABLE_EXCEPTION_CATCHING=0 -s INITIAL_MEMORY=209715200 -s FETCH=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 -s LLD_REPORT_UNDEFINED -s MODULARIZE=1 -s EXPORT_NAME=cbl -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s USE_SDL=2 ${EM_EXPORTED_FUNCTIONS} ${EM_ASYNCIFY_IMPORTS} ${EM_EXPORTED_RUNTIME_METHODS}")
+endif()
+
+if(EMSCRIPTEN)
+  # emcmake sets this, but can't find boost anymore, see https://github.com/emscripten-core/emscripten/issues/10078
+  unset(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE)
+  
+  set(Boost_DEBUG ON)
+
+  # Only need the headers
+  find_package(Boost REQUIRED) 
+  
+  message(STATUS "Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}")
+  if(NOT ${Boost_FOUND})
+      message(FATAL_ERROR "Boost was not found")
+  endif()
+  
+  target_include_directories(chainblocks-core PUBLIC ${Boost_INCLUDE_DIRS})
+else()
+  find_package(Boost REQUIRED COMPONENTS context filesystem)
+  target_link_libraries(chainblocks-core Boost::context Boost::filesystem)
+endif()
 
 target_link_libraries(chainblocks-core 
-  PUBLIC spdlog magic_enum nameof linalg
-  PRIVATE pdqsort utf8.h Taskflow stb nlohmann_json m3 ghc_filesystem Boost::context Boost::filesystem
+  spdlog magic_enum nameof linalg xxHash
+  pdqsort utf8.h Taskflow stb nlohmann_json m3 ghc_filesystem 
 )
 
 if(NOT EMSCRIPTEN)
@@ -56,20 +80,20 @@ if(NOT EMSCRIPTEN)
 endif()
 
 if(WIN32)
-  target_link_libraries(chainblocks-core PRIVATE ssl crypto ws2_32 mswsock Secur32 Crypt32 NCrypt)
+  target_link_libraries(chainblocks-core ssl crypto ws2_32 mswsock Secur32 Crypt32 NCrypt)
 elseif(APPLE)
-  target_link_directories(chainblocks-core PRIVATE
+  target_link_directories(chainblocks-core
     /usr/local/lib
     /usr/local/opt/openssl/lib
   )
-  target_include_directories(chainblocks-core PRIVATE
+  target_include_directories(chainblocks-core
     /usr/local/include
     /usr/local/opt/openssl/include
     /usr/local/include/boost
   )
-  target_link_libraries(chainblocks-core PRIVATE ssl crypto)
-elseif(UNIX)
-  target_link_libraries(chainblocks-core PRIVATE ssl crypto pthread dl rt)
+  target_link_libraries(chainblocks-core ssl crypto)
+elseif(UNIX AND NOT EMSCRIPTEN)
+  target_link_libraries(chainblocks-core ssl crypto pthread dl rt)
 endif()
 
 target_compile_options(chainblocks-core 
@@ -84,7 +108,15 @@ target_compile_options(chainblocks-core
 # TODO: Modularize block registration to remove Core=>Rust dependency
 if(CHAINBLOCKS_WITH_EXTRA_BLOCKS)
   target_compile_definitions(chainblocks-core PUBLIC "-DCHAINBLOCKS_WITH_EXTRA_BLOCKS=1")
-  target_link_libraries(chainblocks-core PRIVATE chainblocks-extra)
+  target_link_libraries(chainblocks-core chainblocks-extra)
+endif()
+
+if(EMSCRIPTEN)
+  em_link_js_library(chainblocks-core blocks/core.js)
+endif()
+
+if(IOS)
+  target_compile_definitions(chainblocks-core PUBLIC CHAINBLOCKS_NO_HTTP_BLOCKS=1)
 endif()
 
 set(cbedn_SOURCES
@@ -101,3 +133,4 @@ if(CHAINBLOCKS_BUILD_TESTS)
   )
   catch_discover_tests(chainblocks-tests-runtime)
 endif()
+
