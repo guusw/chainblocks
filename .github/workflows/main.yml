@@ -8,14 +8,20 @@ jobs:
       CARGO_HOME: ~/.cargo
     steps:
     - uses: actions/checkout@v2
+      with:
+        submodules: true
     - name: Setup
       run: |
-        echo "Current directory =$(pwd)"
         sudo bash scripts/linux/install_packages
         bash scripts/linux/install_rust
     - name: Configure
       run: bash scripts/linux/configure
     - name: Build
       run: bash scripts/linux/build
-    - name: Build
+    - name: Test
       run: bash scripts/linux/test
+    - uses: actions/upload-artifact@master
+      with:
+        name: cbl
+        path: |
+          build/bin/cbl
