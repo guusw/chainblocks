@@ -4,14 +4,14 @@ jobs:
   linux:
     runs-on: ubuntu-20.04
     env:
-      RUSTUP_HOME: /usr/local/rustup
-      CARGO_HOME: /usr/local/cargo
+      RUSTUP_HOME: ~/.rustup
+      CARGO_HOME: ~/.cargo
     steps:
     - uses: actions/checkout@v2
     - name: Setup
       run: |
-        scripts/linux/install_packages
-        scripts/linux/install_rust
+        sudo scripts/linux/install_packages
+        sudo scripts/linux/install_rust
     - name: Configure
       run: scripts/linux/configure
     - name: Build
