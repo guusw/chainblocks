@@ -2,6 +2,9 @@
 
 set -eux
 
-apt-get -y update
-apt-get -y install tzdata
-apt-get -y install build-essential git cmake wget ninja-build libboost-all-dev xorg-dev libdbus-1-dev libssl-dev lcov ca-certificates
+# Ignore update when running on github actions
+if [ -z "$GITHUB_WORKFLOW" ]; then
+  apt-get -y update
+fi
+
+apt-get -y install build-essential cmake git wget ninja-build libboost-all-dev xorg-dev libdbus-1-dev libssl-dev ca-certificates tzdata
