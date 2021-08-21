@@ -16,6 +16,8 @@ if [ -z "${GITHUB_ACTION-}" ]; then
   PATH="$PATH:$CARGO_HOME/bin:$RUSTUP_HOME/bin"
 fi
 
+rustup update
+
 rustup --version
 cargo --version
 rustc --version
