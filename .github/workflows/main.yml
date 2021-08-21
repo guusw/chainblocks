@@ -3,9 +3,6 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   linux:
     runs-on: ubuntu-20.04
-    env:
-      RUSTUP_HOME: ~/.rustup
-      CARGO_HOME: ~/.cargo
     steps:
     - uses: actions/checkout@v2
       with:
