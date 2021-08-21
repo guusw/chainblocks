@@ -10,6 +10,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Setup
       run: |
+        echo "Current directory =$(pwd)"
         sudo scripts/linux/install_packages
         scripts/linux/install_rust
     - name: Configure
