@@ -6,11 +6,15 @@ if(NOT SKIP_RUST_BINDGEN)
   ADD_RUST_FEATURE(Rust_FEATURES run_bindgen)
 endif()
 
+if(Rust_CARGO_TARGET)
+  set(TARGET_SWITCH --target ${Rust_CARGO_TARGET})
+endif()
+
 add_custom_target(
   cargo-chainblocks
   ${CMAKE_COMMAND} -E env
   RUSTFLAGS="${Rust_FLAGS}"
-  cargo ${Rust_CARGO_TOOLCHAIN} build ${Rust_CARGO_UNSTABLE_FLAGS} --target ${Rust_CARGO_TARGET} --features ${Rust_FEATURES} ${Rust_CARGO_FLAGS}
+  cargo ${Rust_CARGO_TOOLCHAIN} build ${Rust_CARGO_UNSTABLE_FLAGS} ${TARGET_SWITCH} --features ${Rust_FEATURES} ${Rust_CARGO_FLAGS}
   WORKING_DIRECTORY ${CHAINBLOCKS_DIR}/rust
   USES_TERMINAL
 )
