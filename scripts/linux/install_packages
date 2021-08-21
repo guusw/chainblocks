@@ -3,7 +3,7 @@
 set -eux
 
 # Ignore update when running on github actions
-if [ -z "$GITHUB_WORKFLOW" ]; then
+if [ -z "${GITHUB_ACTION-}" ]; then
   apt-get -y update
 fi
 
