@@ -31,7 +31,6 @@ jobs:
     - name: Setup
       run: |
         sudo bash scripts/ubuntu18/install_packages
-        sudo bash scripts/ubuntu18/install_cmake
         bash scripts/ubuntu18/install_rust
     - name: Configure
       run: bash scripts/ubuntu18/configure
@@ -44,7 +43,7 @@ jobs:
         name: cbl
         path: |
           build/bin/cbl
-  emscripten-st:
+  emscripten:
     strategy:
       matrix:
         include:
