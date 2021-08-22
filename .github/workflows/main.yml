@@ -63,6 +63,9 @@ jobs:
       run: |
         echo ${EMSDK}
         # sudo bash scripts/emscripten/install_packages
+        chmod +x scripts/emscripten/install_emsdk
+        scripts/emscripten/install_emsdk
+        bash scripts/emscripten/install_emsdk
         sudo bash scripts/emscripten/install_emsdk
         # sudo bash scripts/emscripten/install_boost
         # bash scripts/emscripten/install_rust

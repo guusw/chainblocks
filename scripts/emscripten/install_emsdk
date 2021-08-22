@@ -2,7 +2,6 @@
 
 set -eux
 
-env
 echo "${EMSDK}"
 echo "$EMSDK"
 # echo "EMSDK = ${EMSDK:="./emsdk"}"
