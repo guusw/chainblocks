@@ -61,6 +61,7 @@ jobs:
     #     submodules: true
     - name: Setup
       run: |
+        set -x
         echo ${EMSDK}
         # sudo bash scripts/emscripten/install_packages
         chmod +x scripts/emscripten/install_emsdk
