@@ -17,6 +17,7 @@ if [ -z "${GITHUB_ACTION-}" ]; then
 fi
 
 rustup toolchain install nightly
+rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
 rustup target add wasm32-unknown-emscripten
 rustup update
 
