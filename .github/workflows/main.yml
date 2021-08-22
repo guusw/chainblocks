@@ -56,7 +56,7 @@ jobs:
       EMSCRIPTEN_PTHREADS: ${{matrix.with_pthreads}}
       EMSDK: "/emsdk"
     steps:
-    # - uses: actions/checkout@v2
+    - uses: actions/checkout@v2
     #   with:
     #     submodules: true
     - name: Setup
