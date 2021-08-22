@@ -2,6 +2,7 @@
 
 set -eux
 
+env
 echo "EMSDK = ${EMSDK:="./emsdk"}"
 
 git clone https://github.com/emscripten-core/emsdk.git ${EMSDK:=./emsdk}

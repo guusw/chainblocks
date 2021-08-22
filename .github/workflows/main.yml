@@ -1,48 +1,48 @@
 name: CI
 on: [push, pull_request, workflow_dispatch]
 jobs:
-  ubuntu20:
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-    - name: Setup
-      run: |
-        sudo bash scripts/ubuntu20/install_packages
-        bash scripts/ubuntu20/install_rust
-    - name: Configure
-      run: bash scripts/ubuntu20/configure
-    - name: Build
-      run: bash scripts/ubuntu20/build
-    - name: Test
-      run: bash scripts/ubuntu20/test
-    - uses: actions/upload-artifact@master
-      with:
-        name: cbl
-        path: |
-          build/bin/cbl
-  ubuntu18:
-    runs-on: ubuntu-18.04
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-    - name: Setup
-      run: |
-        sudo bash scripts/ubuntu18/install_packages
-        bash scripts/ubuntu18/install_rust
-    - name: Configure
-      run: bash scripts/ubuntu18/configure
-    - name: Build
-      run: bash scripts/ubuntu18/build
-    - name: Test
-      run: bash scripts/ubuntu18/test
-    - uses: actions/upload-artifact@master
-      with:
-        name: cbl
-        path: |
-          build/bin/cbl
+  # ubuntu20:
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #     with:
+  #       submodules: true
+  #   - name: Setup
+  #     run: |
+  #       sudo bash scripts/ubuntu20/install_packages
+  #       bash scripts/ubuntu20/install_rust
+  #   - name: Configure
+  #     run: bash scripts/ubuntu20/configure
+  #   - name: Build
+  #     run: bash scripts/ubuntu20/build
+  #   - name: Test
+  #     run: bash scripts/ubuntu20/test
+  #   - uses: actions/upload-artifact@master
+  #     with:
+  #       name: cbl
+  #       path: |
+  #         build/bin/cbl
+  # ubuntu18:
+  #   runs-on: ubuntu-18.04
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #     with:
+  #       submodules: true
+  #   - name: Setup
+  #     run: |
+  #       sudo bash scripts/ubuntu18/install_packages
+  #       bash scripts/ubuntu18/install_rust
+  #   - name: Configure
+  #     run: bash scripts/ubuntu18/configure
+  #   - name: Build
+  #     run: bash scripts/ubuntu18/build
+  #   - name: Test
+  #     run: bash scripts/ubuntu18/test
+  #   - uses: actions/upload-artifact@master
+  #     with:
+  #       name: cbl
+  #       path: |
+  #         build/bin/cbl
   emscripten:
     strategy:
       matrix:
@@ -61,10 +61,11 @@ jobs:
         submodules: true
     - name: Setup
       run: |
-        sudo bash scripts/emscripten/install_packages
+        env
+        # sudo bash scripts/emscripten/install_packages
         sudo bash scripts/emscripten/install_emsdk
-        sudo bash scripts/emscripten/install_boost
-        bash scripts/emscripten/install_rust
+        # sudo bash scripts/emscripten/install_boost
+        # bash scripts/emscripten/install_rust
     - name: Configure
       run: bash scripts/emscripten/configure
     - name: Build
