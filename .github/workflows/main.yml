@@ -57,15 +57,15 @@ jobs:
       EMSDK: "/emsdk"
     steps:
     - uses: actions/checkout@v2
-    #   with:
-    #     submodules: true
+      with:
+        submodules: true
     - name: Setup
       run: |
         set -x
-        # sudo bash scripts/emscripten/install_packages
+        sudo bash scripts/emscripten/install_packages
         sudo EMSDK=$EMSDK bash scripts/emscripten/install_emsdk
-        # sudo bash scripts/emscripten/install_boost
-        # bash scripts/emscripten/install_rust
+        sudo bash scripts/emscripten/install_boost
+        bash scripts/emscripten/install_rust
     - name: Configure
       run: bash scripts/emscripten/configure
     - name: Build
