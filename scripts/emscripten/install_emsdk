@@ -2,6 +2,8 @@
 
 set -eux
 
+echo "EMSDK = ${EMSDK:="./emsdk"}"
+
 git clone https://github.com/emscripten-core/emsdk.git ${EMSDK:=./emsdk}
 
 PREV_DIR=$(pwd)

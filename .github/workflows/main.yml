@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       EMSCRIPTEN_PTHREADS: ${{matrix.with_pthreads}}
-      EMSDK: /emsdk
+      EMSDK: "/emsdk"
     steps:
     - uses: actions/checkout@v2
       with:
