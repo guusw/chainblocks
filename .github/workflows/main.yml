@@ -45,6 +45,7 @@ jobs:
   #         build/bin/cbl
   emscripten:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - with_pthreads: ON
