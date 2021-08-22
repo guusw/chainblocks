@@ -3,12 +3,14 @@
 set -eux
 
 env
-echo "EMSDK = ${EMSDK:="./emsdk"}"
+echo "${EMSDK}"
+echo "$EMSDK"
+# echo "EMSDK = ${EMSDK:="./emsdk"}"
 
-git clone https://github.com/emscripten-core/emsdk.git ${EMSDK:=./emsdk}
+# git clone https://github.com/emscripten-core/emsdk.git ${EMSDK:=./emsdk}
 
-PREV_DIR=$(pwd)
-cd ${EMSDK}
-./emsdk install latest
-./emsdk activate latest
-cd $PREV_DIR
+# PREV_DIR=$(pwd)
+# cd ${EMSDK}
+# ./emsdk install latest
+# ./emsdk activate latest
+# cd $PREV_DIR

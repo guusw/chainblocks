@@ -56,12 +56,12 @@ jobs:
       EMSCRIPTEN_PTHREADS: ${{matrix.with_pthreads}}
       EMSDK: "/emsdk"
     steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
+    # - uses: actions/checkout@v2
+    #   with:
+    #     submodules: true
     - name: Setup
       run: |
-        env
+        echo ${EMSDK}
         # sudo bash scripts/emscripten/install_packages
         sudo bash scripts/emscripten/install_emsdk
         # sudo bash scripts/emscripten/install_boost
