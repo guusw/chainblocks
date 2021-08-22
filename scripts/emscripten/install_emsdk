@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -eux
+
+EMSDK=${EMSDK:-./emsdk}
+git clone https://github.com/emscripten-core/emsdk.git ${EMSDK}
+
+PREV_DIR=$pwd
+cd ${EMSDK}
+./emsdk install latest
+./emsdk activate latest
+cd $PREV_DIR

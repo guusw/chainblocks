@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -eux
+
+BOOST_VERSION=1.76.0
+BOOST_ARCHIVE_NAME=boost_${BOOST_VERSION//./_}
+
+mkdir external
+cd external
+wget -nv https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION}/source/${BOOST_ARCHIVE_NAME}.tar.gz
+tar xzf ${BOOST_ARCHIVE_NAME}.tar.gz
+rm ${BOOST_ARCHIVE_NAME}.tar.gz
+cd ..

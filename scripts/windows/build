@@ -1,4 +1,4 @@
 #!/bin/bash
 
-echo "$(dirname $0)/../build"
-source $(dirname $0)/../build
+echo "$(dirname ${BASH_SOURCE[0]})/../build"
+source $(dirname ${BASH_SOURCE[0]})/../build

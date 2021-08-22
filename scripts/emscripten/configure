@@ -1,8 +1,8 @@
 #!/bin/bash
 
-source $(dirname $0)/../shared
+source $(dirname ${BASH_SOURCE[0]})/../shared
 
-EMSCRIPTEN_PTHREADS=OFF
+EMSCRIPTEN_PTHREADS=${EMSCRIPTEN_PTHREADS:-OFF}
 
 mkdir -p ${CHAINBLOCKS_BUILD_PATH}
 source ${EMSDK}/emsdk_env.sh

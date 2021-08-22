@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -eux
+
+# Ignore update when running on github actions
+if [ -z "${GITHUB_ACTION-}" ]; then
+  apt-get -y update
+fi
+
+apt-get -y install build-essential cmake git wget libclang-dev ninja-build libboost-all-dev xorg-dev libdbus-1-dev libssl-dev ca-certificates tzdata

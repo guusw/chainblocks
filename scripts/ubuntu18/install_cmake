@@ -1,0 +1,18 @@
+#!/bin/bash
+
+apt remove --purge cmake
+
+CMAKE_VERSION=3.21.1
+CMAKE_ARCHIVE_NAME=cmake-${CMAKE_VERSION}
+
+wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/${CMAKE_ARCHIVE_NAME}.tar.gz
+tar -xf ${CMAKE_ARCHIVE_NAME}.tar.gz
+rm ${CMAKE_ARCHIVE_NAME}.tar.gz
+
+pushd ${CMAKE_ARCHIVE_NAME}
+./bootstrap
+make
+make install
+popd
+
+rm -rf ${CMAKE_ARCHIVE_NAME}
