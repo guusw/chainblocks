@@ -31,7 +31,7 @@ else()
 endif()
 message(STATUS "Rust_BUILD_SUBDIR = ${Rust_BUILD_SUBDIR}")
 
-if(Rust_USE_LTO OR USE_LTO)
+if(Rust_USE_LTO)
   set(Rust_FLAGS ${Rust_FLAGS} -Clinker-plugin-lto -Clinker=clang -Clink-arg=-fuse-ld=lld)
 endif()
 
