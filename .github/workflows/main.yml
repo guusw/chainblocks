@@ -1,48 +1,48 @@
 name: CI
 on: [push, pull_request, workflow_dispatch]
 jobs:
-  # ubuntu20:
-  #   runs-on: ubuntu-20.04
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #     with:
-  #       submodules: true
-  #   - name: Setup
-  #     run: |
-  #       sudo bash scripts/ubuntu20/install_packages
-  #       bash scripts/ubuntu20/install_rust
-  #   - name: Configure
-  #     run: bash scripts/ubuntu20/configure
-  #   - name: Build
-  #     run: bash scripts/ubuntu20/build
-  #   - name: Test
-  #     run: bash scripts/ubuntu20/test
-  #   - uses: actions/upload-artifact@master
-  #     with:
-  #       name: cbl
-  #       path: |
-  #         build/bin/cbl
-  # ubuntu18:
-  #   runs-on: ubuntu-18.04
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #     with:
-  #       submodules: true
-  #   - name: Setup
-  #     run: |
-  #       sudo bash scripts/ubuntu18/install_packages
-  #       bash scripts/ubuntu18/install_rust
-  #   - name: Configure
-  #     run: bash scripts/ubuntu18/configure
-  #   - name: Build
-  #     run: bash scripts/ubuntu18/build
-  #   - name: Test
-  #     run: bash scripts/ubuntu18/test
-  #   - uses: actions/upload-artifact@master
-  #     with:
-  #       name: cbl
-  #       path: |
-  #         build/bin/cbl
+  ubuntu20:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Setup
+      run: |
+        sudo bash scripts/ubuntu20/install_packages
+        bash scripts/ubuntu20/install_rust
+    - name: Configure
+      run: bash scripts/ubuntu20/configure
+    - name: Build
+      run: bash scripts/ubuntu20/build
+    - name: Test
+      run: bash scripts/ubuntu20/test
+    - uses: actions/upload-artifact@master
+      with:
+        name: cbl
+        path: |
+          build/bin/cbl
+  ubuntu18:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Setup
+      run: |
+        sudo bash scripts/ubuntu18/install_packages
+        bash scripts/ubuntu18/install_rust
+    - name: Configure
+      run: bash scripts/ubuntu18/configure
+    - name: Build
+      run: bash scripts/ubuntu18/build
+    - name: Test
+      run: bash scripts/ubuntu18/test
+    - uses: actions/upload-artifact@master
+      with:
+        name: cbl
+        path: |
+          build/bin/cbl
   emscripten:
     strategy:
       fail-fast: false
@@ -50,8 +50,8 @@ jobs:
         include:
           - with_pthreads: ON
             suffix: mt
-          - with_pthreads: OFF
-            suffix: st
+          # - with_pthreads: OFF
+          #   suffix: st
     runs-on: ubuntu-20.04
     env:
       EMSCRIPTEN_PTHREADS: ${{matrix.with_pthreads}}
@@ -77,3 +77,34 @@ jobs:
         path: |
           build/bin/cbl-${{matrix.suffix}}.js
           build/bin/cbl-${{matrix.suffix}}.wasm
+          
+  Windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        build-type: ["Debug", "Release"]
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Setup
+      env:
+        RUSTUP_USE_CURL: 1
+      run: |
+        rustup update
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        release: false
+        path-type: inherit
+    - name: Build and Run
+      env:
+        RUST_BACKTRACE: 1
+        CMAKE_BUILD_TYPE: ${{ matrix.build-type }}
+      run: |
+        msys2 scripts/windows/configure ${{ matrix.build-type }}
+        msys2 scripts/windows/build
+    - uses: actions/upload-artifact@master
+      with:
+        name: cbl-win64 ${{ matrix.build-type }}
+        path: build/cbl.exe

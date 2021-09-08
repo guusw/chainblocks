@@ -16,18 +16,19 @@
 [submodule "deps/imgui_club"]
 	path = deps/imgui_club
 	url = https://github.com/chainblocks/imgui_club.git
-[submodule "kcp"]
+[submodule "deps/kcp"]
 	path = deps/kcp
 	url = https://github.com/chainblocks/kcp.git
-[submodule "magic_enum"]
+[submodule "deps/magic_enum"]
 	path = deps/magic_enum
 	url = https://github.com/chainblocks/magic_enum.git
-[submodule "boost-context"]
+[submodule "deps/boost-context"]
 	path = deps/boost-context
 	url = https://github.com/chainblocks/context.git
-[submodule "cpp-taskflow"]
+[submodule "deps/cpp-taskflow"]
 	path = deps/cpp-taskflow
 	url = https://github.com/chainblocks/cpp-taskflow.git
+	branch = emscripten
 [submodule "deps/replxx"]
 	path = deps/replxx
 	url = https://github.com/chainblocks/replxx.git
