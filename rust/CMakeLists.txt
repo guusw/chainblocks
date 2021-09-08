@@ -27,4 +27,5 @@ set_target_properties(chainblocks-rust PROPERTIES
 
 if(WIN32)
   target_link_libraries(chainblocks-rust INTERFACE Userenv)
+  target_link_libraries(chainblocks-rust INTERFACE ws2_32 Bcrypt Crypt32 Secur32 NtDll Ncrypt)
 endif()
