@@ -92,6 +92,3 @@
 [submodule "deps/snappy"]
 	path = deps/snappy
 	url = https://github.com/chainblocks/snappy.git
-[submodule "cmake/corrosion"]
-	path = cmake/corrosion
-	url = https://github.com/AndrewGaspar/corrosion.git
