@@ -1,0 +1,6 @@
+#!/bin/bash
+
+source $(dirname $0)/../shared
+
+mkdir -p ${CHAINBLOCKS_BUILD_PATH}
+cmake -B ${CHAINBLOCKS_BUILD_PATH} -S ${CHAINBLOCKS_ROOT_PATH} -GNinja -DCMAKE_BUILD_TYPE=Release

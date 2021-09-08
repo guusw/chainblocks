@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -eux
+
+apt-get -y update
+apt-get -y install tzdata
+apt-get -y install build-essential git cmake wget ninja-build libboost-all-dev xorg-dev libdbus-1-dev libssl-dev lcov ca-certificates

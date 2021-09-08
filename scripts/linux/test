@@ -1,0 +1,6 @@
+#!/bin/bash
+
+source $(dirname $0)/../shared
+
+${CHAINBLOCKS_BUILD_PATH}/bin/chainblocks-tests-runtime
+${CHAINBLOCKS_BUILD_PATH}/bin/cbl src/tests/general.edn
