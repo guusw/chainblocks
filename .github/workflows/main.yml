@@ -11,11 +11,11 @@ jobs:
     - name: Setup
       run: |
         echo "Current directory =$(pwd)"
-        sudo scripts/linux/install_packages
-        scripts/linux/install_rust
+        sudo bash scripts/linux/install_packages
+        bash scripts/linux/install_rust
     - name: Configure
-      run: scripts/linux/configure
+      run: bash scripts/linux/configure
     - name: Build
-      run: scripts/linux/build
+      run: bash scripts/linux/build
     - name: Build
-      run: scripts/linux/test
+      run: bash scripts/linux/test
