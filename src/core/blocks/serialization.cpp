@@ -1,5 +1,5 @@
-/* SPDX-License-Identifier: BSD 3-Clause "New" or "Revised" License */
-/* Copyright © 2019-2021 Giovanni Petrantoni */
+/* SPDX-License-Identifier: BSD-3-Clause */
+/* Copyright © 2019 Fragcolor Pte. Ltd. */
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -73,12 +73,16 @@ struct FileBase {
 struct WriteFile : public FileBase {
   std::ofstream _fileStream;
   bool _append = false;
+  bool _flush = false;
 
   static inline Parameters params{
       FileBase::params,
       {{"Append",
         CBCCSTR("If we should append to the file if existed already or "
                 "truncate. (default: false)."),
+        {CoreInfo::BoolType}},
+       {"Flush",
+        CBCCSTR("If the file should be flushed to disk after every write."),
         {CoreInfo::BoolType}}}};
 
   static CBParametersInfo parameters() { return params; }
@@ -87,6 +91,9 @@ struct WriteFile : public FileBase {
     switch (index) {
     case 1:
       _append = value.payload.boolValue;
+      break;
+    case 2:
+      _flush = value.payload.boolValue;
       break;
     default:
       FileBase::setParam(index, value);
@@ -97,6 +104,8 @@ struct WriteFile : public FileBase {
     switch (index) {
     case 1:
       return Var(_append);
+    case 2:
+      return Var(_flush);
     default:
       return FileBase::getParam(index);
     }
@@ -146,6 +155,9 @@ struct WriteFile : public FileBase {
     Writer s(_fileStream);
     serial.reset();
     serial.serialize(input, s);
+    if (_flush) {
+      _fileStream.flush();
+    }
     return input;
   }
 };
@@ -349,6 +361,8 @@ struct LoadImage : public FileBase {
 };
 
 struct WritePNG : public FileBase {
+  std::vector<uint8_t> _scratch;
+
   static CBTypesInfo inputTypes() { return CoreInfo::ImageType; }
   static CBTypesInfo outputTypes() { return CoreInfo::ImageType; }
 
@@ -373,9 +387,66 @@ struct WritePNG : public FileBase {
     int w = int(input.payload.imageValue.width);
     int h = int(input.payload.imageValue.height);
     int c = int(input.payload.imageValue.channels);
-    if (0 == stbi_write_png(filename.c_str(), w, h, c,
-                            input.payload.imageValue.data, w * c))
-      throw ActivationError("Failed to write PNG file.");
+
+    // demultiply alpha if needed, limited to 4 channels
+    if (c == 4 &&
+        (input.payload.imageValue.flags & CBIMAGE_FLAGS_PREMULTIPLIED_ALPHA) ==
+            CBIMAGE_FLAGS_PREMULTIPLIED_ALPHA) {
+      _scratch.resize(w * h * 4 * pixsize);
+      int lineSize = w * 4;
+      for (int ih = 0; ih < h; ih++) {
+        for (int iw = 0; iw < w; iw++) {
+          int baseIdx = (ih * lineSize) + (iw * 4);
+          if (pixsize == 1) {
+            uint8_t a = input.payload.imageValue.data[baseIdx + 3];
+            float fa = float(a) / 255.0f;
+            _scratch[baseIdx + 3] = a;
+            uint8_t r = input.payload.imageValue.data[baseIdx + 0];
+            _scratch[baseIdx + 0] = uint8_t(float(r) / fa + 0.5);
+            uint8_t g = input.payload.imageValue.data[baseIdx + 1];
+            _scratch[baseIdx + 1] = uint8_t(float(g) / fa + 0.5);
+            uint8_t b = input.payload.imageValue.data[baseIdx + 2];
+            _scratch[baseIdx + 2] = uint8_t(float(b) / fa + 0.5);
+          } else if (pixsize == 2) {
+            uint16_t *source =
+                reinterpret_cast<uint16_t *>(input.payload.imageValue.data);
+            uint16_t *dest = reinterpret_cast<uint16_t *>(_scratch.data());
+            uint16_t a = source[baseIdx + 3];
+            float fa = float(a) / 65535.0f;
+            dest[baseIdx + 3] = a;
+            uint16_t r = source[baseIdx + 0];
+            dest[baseIdx + 0] = uint16_t(float(r) / fa + 0.5);
+            uint16_t g = source[baseIdx + 1];
+            dest[baseIdx + 1] = uint16_t(float(g) / fa + 0.5);
+            uint16_t b = source[baseIdx + 2];
+            dest[baseIdx + 2] = uint16_t(float(b) / fa + 0.5);
+          } else if (pixsize == 4) {
+            float *source =
+                reinterpret_cast<float *>(input.payload.imageValue.data);
+            float *dest = reinterpret_cast<float *>(_scratch.data());
+            float fa = source[baseIdx + 3];
+            dest[baseIdx + 3] = fa;
+            float r = source[baseIdx + 0];
+            dest[baseIdx + 0] = r / fa + 0.5;
+            float g = source[baseIdx + 1];
+            dest[baseIdx + 1] = g / fa + 0.5;
+            float b = source[baseIdx + 2];
+            dest[baseIdx + 2] = b / fa + 0.5;
+          }
+        }
+      }
+
+      // all done, write the file
+      if (0 ==
+          stbi_write_png(filename.c_str(), w, h, c, _scratch.data(), w * c))
+        throw ActivationError("Failed to write PNG file.");
+    } else {
+      // just write the file in this case straight
+      if (0 == stbi_write_png(filename.c_str(), w, h, c,
+                              input.payload.imageValue.data, w * c))
+        throw ActivationError("Failed to write PNG file.");
+    }
+
     return input;
   }
 };

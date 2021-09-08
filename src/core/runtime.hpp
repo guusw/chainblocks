@@ -1,5 +1,5 @@
-/* SPDX-License-Identifier: BSD 3-Clause "New" or "Revised" License */
-/* Copyright © 2019-2021 Giovanni Petrantoni */
+/* SPDX-License-Identifier: BSD-3-Clause */
+/* Copyright © 2019 Fragcolor Pte. Ltd. */
 
 #ifndef CB_RUNTIME_HPP
 #define CB_RUNTIME_HPP
@@ -1032,8 +1032,12 @@ struct Serialization {
         read((uint8_t *)&klen, sizeof(uint32_t));
         keyBuf.resize(klen);
         read((uint8_t *)keyBuf.c_str(), klen);
+        // TODO improve this, avoid allocations
+        CBVar tmp{};
+        deserialize(read, tmp);
         auto &dst = (*map)[keyBuf];
-        deserialize(read, dst);
+        dst = tmp;
+        varFree(tmp);
       }
       break;
     }
@@ -1059,9 +1063,11 @@ struct Serialization {
       uint64_t len;
       read((uint8_t *)&len, sizeof(uint64_t));
       for (uint64_t i = 0; i < len; i++) {
+        // TODO improve this, avoid allocations
         CBVar dst{};
         deserialize(read, dst);
         (*set).emplace(dst);
+        varFree(dst);
       }
       break;
     }
@@ -1623,6 +1629,15 @@ template <typename T> struct ChainDoppelgangerPool {
     _chainStr = stream.str();
   }
 
+  // notice users should stop chains themselves, we might want chains to persist
+  // after this object lifetime
+  void stopAll() {
+    for (auto &item : _pool) {
+      stop(item->chain.get());
+      _avail.emplace(item);
+    }
+  }
+
   template <class Composer> std::shared_ptr<T> acquire(Composer &composer) {
     if (_avail.size() == 0) {
       Serialization serializer;
@@ -1638,13 +1653,12 @@ template <typename T> struct ChainDoppelgangerPool {
           fresh->chain->name + "-" + std::to_string(_pool.size());
       return fresh;
     } else {
-      auto res = _avail.back();
-      _avail.pop_back();
-      return res;
+      auto res = _avail.extract(_avail.begin());
+      return res.value();
     }
   }
 
-  void release(std::shared_ptr<T> chain) { _avail.emplace_back(chain); }
+  void release(std::shared_ptr<T> chain) { _avail.emplace(chain); }
 
 private:
   struct Writer {
@@ -1667,7 +1681,7 @@ private:
   // so users don't have to worry about lifetime
   // just release when possible
   std::deque<std::shared_ptr<T>> _pool;
-  std::vector<std::shared_ptr<T>> _avail;
+  std::unordered_set<std::shared_ptr<T>> _avail;
   std::string _chainStr;
 };
 

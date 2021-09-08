@@ -1,5 +1,5 @@
-/* SPDX-License-Identifier: BSD 3-Clause "New" or "Revised" License */
-/* Copyright © 2021 Giovanni Petrantoni */
+/* SPDX-License-Identifier: BSD-3-Clause */
+/* Copyright © 2021 Fragcolor Pte. Ltd. */
 
 // included in gltf.cpp
 
@@ -12,7 +12,9 @@
 #undef CHECK
 #endif
 
-#if defined(BGFX_CONFIG_RENDERER_OPENGL) || defined(__linux__) ||              \
+#if defined(BGFX_CONFIG_RENDERER_VULKAN)
+#define SHADERS_FOLDER "spirv"
+#elif defined(BGFX_CONFIG_RENDERER_OPENGL) || defined(__linux__) ||            \
     defined(__EMSCRIPTEN__)
 #define SHADERS_FOLDER "glsl"
 #elif defined(__APPLE__)

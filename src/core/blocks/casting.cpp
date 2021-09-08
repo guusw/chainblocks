@@ -1,5 +1,5 @@
-/* SPDX-License-Identifier: BSD 3-Clause "New" or "Revised" License */
-/* Copyright © 2019-2021 Giovanni Petrantoni */
+/* SPDX-License-Identifier: BSD-3-Clause */
+/* Copyright © 2019 Fragcolor Pte. Ltd. */
 
 #include "shared.hpp"
 #include <boost/beast/core/detail/base64.hpp>
@@ -677,6 +677,7 @@ template <Type &ET> struct ExpectXComplex {
 struct ExpectLike {
   ParamVar _example{};
   CBTypeInfo _expectedType{};
+  bool _dispose{false};
   uint64_t _outputTypeHash{0};
   bool _unsafe{false};
   bool _derived{false};
@@ -710,9 +711,10 @@ struct ExpectLike {
   }
 
   void destroy() {
-    if (_expectedType.basicType != None) {
+    if (_expectedType.basicType != None && _dispose) {
       freeDerivedInfo(_expectedType);
       _expectedType = {};
+      _dispose = false;
     }
   }
 
@@ -721,9 +723,10 @@ struct ExpectLike {
       throw ComposeError(
           "The example value of ExpectLike cannot be a variable");
     } else {
-      if (_expectedType.basicType != None) {
+      if (_expectedType.basicType != None && _dispose) {
         freeDerivedInfo(_expectedType);
         _expectedType = {};
+        _dispose = false;
       }
       if (_example->valueType == CBType::Chain) {
         auto chain = CBChain::sharedFromRef(_example->payload.chainValue);
@@ -733,6 +736,7 @@ struct ExpectLike {
       } else {
         CBVar example = _example;
         _expectedType = deriveTypeInfo(example, data);
+        _dispose = true;
         _outputTypeHash = deriveTypeHash(_expectedType);
         return _expectedType;
       }

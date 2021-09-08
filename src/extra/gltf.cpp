@@ -1,5 +1,5 @@
-/* SPDX-License-Identifier: BSD 3-Clause "New" or "Revised" License */
-/* Copyright © 2021 Giovanni Petrantoni */
+/* SPDX-License-Identifier: BSD-3-Clause */
+/* Copyright © 2021 Fragcolor Pte. Ltd. */
 
 #include "./bgfx.hpp"
 #include "blocks/shared.hpp"
@@ -578,6 +578,7 @@ struct Load : public BGFX::BaseConsumer {
 
   void warmup(CBContext *ctx) {
     _shaderCompiler = makeShaderCompiler();
+    _shaderCompiler->warmup(ctx);
 
     // lazily fill out varying and entry point shaders
     if (_shadersVarying.size() == 0) {

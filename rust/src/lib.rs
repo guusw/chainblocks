@@ -1,3 +1,6 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+/* Copyright © 2020 Fragcolor Pte. Ltd. */
+
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
@@ -290,7 +293,7 @@ pub unsafe extern "C" fn registerRustBlocks(core: *mut CBCore) {
 
   blocks::casting::registerBlocks();
   blocks::hash::registerBlocks();
-  blocks::sign::registerBlocks();
+  blocks::ecdsa::registerBlocks();
   blocks::physics::simulation::registerBlocks();
   blocks::physics::shapes::registerBlocks();
   blocks::physics::rigidbody::registerBlocks();

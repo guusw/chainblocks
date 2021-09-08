@@ -87,7 +87,7 @@ jobs:
         cargo tree --features blocks --target=wasm32-unknown-emscripten
         mkdir build
         cd build
-        cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DSKIP_HEAVY_INLINE=1 -DUSE_LTO=1 -DRUST_USE_LTO=1 -DEMSCRIPTEN_IDBFS=1 -DCMAKE_TOOLCHAIN_FILE=$EMSDK/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake ..
+        cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DSKIP_HEAVY_INLINE=1 -DUSE_LTO=1 -DRUST_USE_LTO=0 -DEMSCRIPTEN_IDBFS=1 -DCMAKE_TOOLCHAIN_FILE=$EMSDK/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake ..
         ninja rust_blocks && ninja cbl && ninja test_runtime
     - name: Test
       run: |
@@ -295,6 +295,37 @@ jobs:
         dockerfile: docker/linux/Dockerfile-runtime
         tags: "latest"
 
+  # Linux-Release-Docker-VK:
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #     name: Checkout
+  #   - name: Fetch submodules
+  #     run: |
+  #       git submodule update --init --recursive
+  #   - uses: chainblocks/Publish-Docker-Github-Action@master
+  #     name: Build and upload to hub devel image
+  #     with:
+  #       name: chainblocks/devenv
+  #       username: ${{ secrets.DOCKER_USERNAME }}
+  #       password: ${{ secrets.DOCKER_PASSWORD }}
+  #       dockerfile: docker/linux/Dockerfile
+  #       tags: "latest"
+  #   - name: Build and Test
+  #     run: |
+  #       docker run --name chainblocks -t --cap-add=SYS_PTRACE chainblocks/devenv:latest bash -c "mkdir build && cd build && cmake -G Ninja -DFORCE_USE_VULKAN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo .. && ninja rust_blocks && ninja cbl && ./cbl ../src/tests/general.edn && ./cbl ../src/tests/variables.clj && ./cbl ../src/tests/linalg.clj && ./cbl ../src/tests/channels.clj"
+  #       mkdir build
+  #       docker cp chainblocks:/home/chainblocks/repo/build/cbl ./build/cbl
+  #   - uses: chainblocks/Publish-Docker-Github-Action@master
+  #     if: ${{ github.ref == 'refs/heads/devel' && github.event_name != 'pull_request' }}
+  #     name: Build and upload to hub runtime image
+  #     with:
+  #       name: chainblocks/cbl
+  #       username: ${{ secrets.DOCKER_USERNAME }}
+  #       password: ${{ secrets.DOCKER_PASSWORD }}
+  #       dockerfile: docker/linux/Dockerfile-runtime
+  #       tags: "latest-vulkan"
+
   Linux-Valgrind:
     runs-on: ubuntu-20.04
     steps:
@@ -305,7 +336,7 @@ jobs:
         docker build -f docker/linux/Dockerfile -t chainblocks-test --build-arg USER_ID=`id -u` --build-arg GROUP_ID=`id -g` .
     - name: Test
       run: |
-        docker run --rm -t --cap-add=SYS_PTRACE -u`id -u`:`id -g` chainblocks-test bash -c "mkdir build && cd build && cmake -G Ninja -DCB_NO_BIGINT_BLOCKS=1 -DUSE_VALGRIND=1 -DBUILD_CORE_ONLY=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo .. && ninja cbl && ninja test_runtime && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/general.edn && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/variables.clj && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/flows.clj && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/linalg.clj && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/kdtree.clj && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/channels.clj && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/genetic.clj && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/wasm.clj && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/subchains.clj && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/const-vars.edn && valgrind --exit-on-first-error=yes --error-exitcode=1 --leak-check=full ./test_runtime"
+        docker run --rm -t --cap-add=SYS_PTRACE -u`id -u`:`id -g` chainblocks-test bash -c "mkdir build && cd build && cmake -G Ninja -DCB_NO_BIGINT_BLOCKS=1 -DUSE_VALGRIND=1 -DBUILD_CORE_ONLY=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo .. && ninja cbl && ninja test_runtime && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/general.edn && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/variables.clj && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/flows.clj && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/linalg.clj && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/kdtree.clj && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/channels.clj && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/genetic.clj && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/wasm.clj && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/subchains.clj && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/const-vars.edn && valgrind --exit-on-first-error=yes --error-exitcode=1 ./cbl ../src/tests/chains_embed_issue.edn && valgrind --exit-on-first-error=yes --error-exitcode=1 --leak-check=full ./test_runtime"
 
   Windows:
     runs-on: windows-latest
@@ -380,7 +411,7 @@ jobs:
         git submodule update --init --recursive
         mkdir build
         cd build
-        cmake -G Ninja -DFORCE_CORE2=1 -DSKIP_HEAVY_INLINE=1 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} ..
+        cmake -G Ninja -DSKIP_HEAVY_INLINE=1 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} ..
         ninja rust_blocks && ninja cbl && ninja test_runtime
     - name: Test
       env:
@@ -412,6 +443,10 @@ jobs:
         ./cbl ../src/tests/time.edn
         ./cbl ../src/tests/eth.edn
         ./test_runtime
+    - uses: actions/upload-artifact@master
+      with:
+        name: cbl-macos ${{ matrix.build-type }}
+        path: build/cbl
 
   iOS:
     runs-on: macos-latest

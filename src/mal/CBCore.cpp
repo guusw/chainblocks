@@ -1,5 +1,5 @@
-/* SPDX-License-Identifier: BSD 3-Clause "New" or "Revised" License */
-/* Copyright © 2019-2021 Giovanni Petrantoni */
+/* SPDX-License-Identifier: MPL-2.0 AND BSD-3-Clause */
+/* Copyright © 2019 Fragcolor Pte. Ltd. */
 
 #include "chainblocks.hpp"
 #define String MalString
@@ -50,9 +50,7 @@ static StaticList<malBuiltIn *> handlers;
     return mal::boolean(DYNAMIC_CAST(type, *argsBegin));                       \
   }
 
-MalString malpath() { return chainblocks::GetGlobals().RootPath; }
-
-CHAINBLOCKS_IMPORT extern void cbRegisterAllBlocks();
+extern void cbRegisterAllBlocks();
 
 class malCBChain;
 class malCBlock;
@@ -357,6 +355,10 @@ class malCBVar : public malValue, public malRoot {
 public:
   malCBVar(CBVar &var, bool cloned = false) : m_var(var), m_cloned(cloned) {}
 
+  malCBVar(const CBVar &var) : m_var({}), m_cloned(true) {
+    cloneVar(m_var, var);
+  }
+
   malCBVar(const malCBVar &that, const malValuePtr &meta)
       : malValue(meta), m_cloned(true) {
     m_var = CBVar();
@@ -430,11 +432,6 @@ struct ChainFileWatcher {
 
     try {
       fs::path p(fileName);
-      if (path.size() > 0 && p.is_relative()) {
-        // complete path with current path if any
-        p = localRoot / p;
-      }
-
       if (!fs::exists(p)) {
         CBLOG_INFO("A ChainLoader loaded script path does not exist: {}", p);
       } else if (fs::is_regular_file(p) &&
@@ -937,7 +934,8 @@ std::vector<malCBlockPtr> blockify(const malValuePtr &arg) {
     for (auto [k, v] : v->m_map) {
       auto cbv = varify(v);
       vars.emplace_back(cbv);
-      cbMap[unescape(k)] = cbv->value();
+      // key is either a quoted string or a keyword (starting with ':')
+      cbMap[k[0] == '"' ? unescape(k) : k.substr(1)] = cbv->value();
     }
     var.valueType = Table;
     var.payload.tableValue.api = &chainblocks::GetGlobals().TableInterface;
@@ -1018,7 +1016,8 @@ malCBVarPtr varify(const malValuePtr &arg) {
     for (auto [k, v] : v->m_map) {
       auto cbv = varify(v);
       vars.emplace_back(cbv);
-      cbMap[unescape(k)] = cbv->value();
+      // key is either a quoted string or a keyword (starting with ':')
+      cbMap[k[0] == '"' ? unescape(k) : k.substr(1)] = cbv->value();
     }
     CBVar tmp{};
     tmp.valueType = Table;
@@ -1450,11 +1449,12 @@ static malValuePtr readVar(const CBVar &v) {
     }
     return mal::hash(map);
   } else {
-    throw "Invalid Var type";
+    // just return a variable in this case, but a cloned one
+    return malValuePtr(new malCBVar(v));
   }
 }
 
-BUILTIN("read-Var") {
+BUILTIN("read-var") {
   CHECK_ARGS_AT_LEAST(1);
   ARG(malCBVar, value);
   auto &v = value->value();
@@ -1713,6 +1713,7 @@ BUILTIN("override-root-path") {
   CHECK_ARGS_IS(1);
   ARG(malString, value);
   chainblocks::GetGlobals().RootPath = value->ref();
+  std::filesystem::current_path(value->ref());
   return mal::nilValue();
 }
 
@@ -1748,6 +1749,19 @@ BUILTIN("String") {
   var.valueType = String;
   auto &s = value->ref();
   var.payload.stringValue = s.c_str();
+  auto mvar = new malCBVar(var);
+  mvar->reference(value);
+  return malValuePtr(mvar);
+}
+
+BUILTIN("Bytes") {
+  CHECK_ARGS_IS(1);
+  ARG(malString, value);
+  CBVar var{};
+  var.valueType = Bytes;
+  auto &s = value->ref();
+  var.payload.bytesValue = (uint8_t *)s.data();
+  var.payload.bytesSize = s.size();
   auto mvar = new malCBVar(var);
   mvar->reference(value);
   return malValuePtr(mvar);
@@ -1881,10 +1895,6 @@ BUILTIN("import") {
   ARG(malString, value);
 
   auto filepath = std::filesystem::path(value->value());
-  auto currentPath = malpath();
-  if (currentPath.size() > 0 && filepath.is_relative()) {
-    filepath = std::filesystem::path(currentPath) / filepath;
-  }
 
   auto lib_name_str = filepath.string();
   auto lib_name = lib_name_str.c_str();

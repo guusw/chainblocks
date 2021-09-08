@@ -1,3 +1,6 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+/* Copyright © 2019 Fragcolor Pte. Ltd. */
+
 #include "ops_internal.hpp"
 #include "ops.hpp"
 #include <unordered_set>
@@ -543,7 +546,7 @@ bool operator==(const CBTypeInfo &a, const CBTypeInfo &b) {
     if (akeys != bkeys)
       return false;
 
-    if (atypes != akeys)
+    if (atypes != akeys && akeys != 0)
       return false;
 
     // compare but allow different orders of elements
@@ -552,8 +555,7 @@ bool operator==(const CBTypeInfo &a, const CBTypeInfo &b) {
         if (a.table.types.elements[i] == b.table.types.elements[j]) {
           if (a.table.keys.elements) { // this is enough to know they exist
             assert(i < akeys);
-            if (strcmp(a.table.keys.elements[i], b.table.keys.elements[j]) ==
-                0) {
+            if (!strcmp(a.table.keys.elements[i], b.table.keys.elements[j])) {
               goto matched_table;
             }
           } else {

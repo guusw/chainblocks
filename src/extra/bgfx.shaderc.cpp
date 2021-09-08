@@ -1,5 +1,5 @@
-/* SPDX-License-Identifier: BSD 3-Clause "New" or "Revised" License */
-/* Copyright © 2021 Giovanni Petrantoni */
+/* SPDX-License-Identifier: BSD-3-Clause */
+/* Copyright © 2021 Fragcolor Pte. Ltd. */
 
 // collection of runtime chains to allow shader compilation, caching and
 // storage.
@@ -23,6 +23,8 @@
 
 #if defined(__EMSCRIPTEN__)
 #define Shader_Model() let("300_es")
+#elif defined(BGFX_CONFIG_RENDERER_VULKAN)
+#define Shader_Model() let("spirv15-12")
 #elif defined(BGFX_CONFIG_RENDERER_OPENGL) || defined(__linux__)
 #if (BGFX_CONFIG_RENDERER_OPENGL_MIN_VERSION == 33)
 // headless tests run at version 150 due to xvfb limitations
@@ -69,6 +71,7 @@ So we need to use an emscripten module and a bit of JS for now
 */
 
 extern "C" {
+void emFetchShadersLibrary();
 void emSetupShaderCompiler();
 // not sure if it's a bug but this can only return "number" or false
 // this implementation is blocking on the C side, promises and async did not
@@ -224,6 +227,15 @@ struct ShaderCompiler : public IShaderCompiler {
   } // namespace chainblocks
 
   virtual ~ShaderCompiler() {}
+
+  void warmup(CBContext *context) override {
+#ifdef __EMSCRIPTEN__
+    emFetchShadersLibrary();
+    const auto cb = emscripten::val::global("chainblocks");
+    const auto fetch = cb["emFetchShadersLibraryAsync"];
+    emscripten_wait<emscripten::val>(context, fetch());
+#endif
+  }
 
   CBVar compile(std::string_view varyings, //
                 std::string_view code,     //

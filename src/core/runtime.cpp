@@ -1,5 +1,5 @@
-/* SPDX-License-Identifier: BSD 3-Clause "New" or "Revised" License */
-/* Copyright © 2019-2021 Giovanni Petrantoni */
+/* SPDX-License-Identifier: BSD-3-Clause */
+/* Copyright © 2019 Fragcolor Pte. Ltd. */
 
 #include "runtime.hpp"
 #include "blocks/shared.hpp"
@@ -1379,6 +1379,9 @@ void freeDerivedInfo(CBTypeInfo info) {
     for (uint32_t i = 0; info.table.types.len > i; i++) {
       freeDerivedInfo(info.table.types.elements[i]);
     }
+    for (uint32_t i = 0; info.table.keys.len > i; i++) {
+      free((void *)info.table.keys.elements[i]);
+    }
     chainblocks::arrayFree(info.table.types);
     chainblocks::arrayFree(info.table.keys);
   } break;
@@ -1428,7 +1431,7 @@ CBTypeInfo deriveTypeInfo(const CBVar &value, const CBInstanceData &data,
     while (t.api->tableNext(t, &tit, &k, &v)) {
       auto derived = deriveTypeInfo(v, data, containsVariables);
       chainblocks::arrayPush(varType.table.types, derived);
-      chainblocks::arrayPush(varType.table.keys, k);
+      chainblocks::arrayPush(varType.table.keys, strdup(k));
     }
   } break;
   case CBType::Set: {
@@ -1495,7 +1498,8 @@ CBTypeInfo cloneTypeInfo(const CBTypeInfo &other) {
       chainblocks::arrayPush(varType.table.types, cloned);
     }
     for (uint32_t i = 0; i < other.table.keys.len; i++) {
-      chainblocks::arrayPush(varType.table.keys, other.table.keys.elements[i]);
+      chainblocks::arrayPush(varType.table.keys,
+                             strdup(other.table.keys.elements[i]));
     }
     break;
   }
@@ -2787,8 +2791,7 @@ void CBChain::warmup(CBContext *context) {
           throw chainblocks::WarmupError(context->getErrorMessage());
         }
       } catch (const std::exception &e) {
-        CBLOG_ERROR("Block warmup error, failed block: {}",
-                    std::string(blk->name(blk)));
+        CBLOG_ERROR("Block warmup error, failed block: {}", blk->name(blk));
         CBLOG_ERROR(e.what());
         // if the failure is from an exception context might not be uptodate
         if (!context->failed()) {
@@ -2796,8 +2799,7 @@ void CBChain::warmup(CBContext *context) {
         }
         throw;
       } catch (...) {
-        CBLOG_ERROR("Block warmup error, failed block: {}",
-                    std::string(blk->name(blk)));
+        CBLOG_ERROR("Block warmup error, failed block: {}", blk->name(blk));
         if (!context->failed()) {
           context->cancelFlow("foreign exception failure, check logs");
         }
@@ -2830,10 +2832,9 @@ void CBChain::cleanup(bool force) {
 #endif
       catch (const std::exception &e) {
         CBLOG_ERROR("Block cleanup error, failed block: {}, error: {}",
-                    std::string(blk->name(blk)), e.what());
+                    blk->name(blk), e.what());
       } catch (...) {
-        CBLOG_ERROR("Block cleanup error, failed block: {}",
-                    std::string(blk->name(blk)));
+        CBLOG_ERROR("Block cleanup error, failed block: {}", blk->name(blk));
       }
     }
 

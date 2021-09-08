@@ -1,5 +1,5 @@
-/* SPDX-License-Identifier: BSD 3-Clause "New" or "Revised" License */
-/* Copyright © 2019-2021 Giovanni Petrantoni */
+/* SPDX-License-Identifier: BSD-3-Clause */
+/* Copyright © 2019 Fragcolor Pte. Ltd. */
 
 #include "blockwrapper.hpp"
 #include "chainblocks.h"
@@ -427,6 +427,7 @@ struct Maybe : public BaseSubFlow {
 
     if (!nextIsNone && !elseComp.flowStopper &&
         _composition.outputType != elseComp.outputType) {
+      CBLOG_ERROR("{} != {}", _composition.outputType, elseComp.outputType);
       throw ComposeError(
           "Maybe: output types mismatch between the two possible flows!");
     }

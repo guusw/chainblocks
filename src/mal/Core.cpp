@@ -1,3 +1,7 @@
+/* SPDX-License-Identifier: MPL-2.0 */
+/* Copyright © 2019 Fragcolor Pte. Ltd. */
+/* Copyright (C) 2015 Joel Martin <github@martintribe.org> */
+
 #include "Environment.h"
 #include "MAL.h"
 #include "StaticList.h"
@@ -461,10 +465,6 @@ BUILTIN("slurp") {
   ARG(malString, filename);
 
   auto filepath = std::filesystem::path(filename->value());
-  auto currentPath = malpath();
-  if (currentPath.size() > 0 && filepath.is_relative()) {
-    filepath = std::filesystem::path(currentPath) / filepath;
-  }
 
   std::ifstream file(filepath.c_str(), std::ios::binary);
   MAL_CHECK(!file.fail(), "Cannot open %s", filename->value().c_str());

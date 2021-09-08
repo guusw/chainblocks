@@ -1,5 +1,5 @@
-/* SPDX-License-Identifier: BSD 3-Clause "New" or "Revised" License */
-/* Copyright © 2019-2021 Giovanni Petrantoni */
+/* SPDX-License-Identifier: BSD-3-Clause */
+/* Copyright © 2019 Fragcolor Pte. Ltd. */
 
 #include "../runtime.hpp"
 #include "pdqsort.h"
@@ -1010,48 +1010,45 @@ struct Assoc : public VariableBase {
   static CBTypesInfo outputTypes() { return CoreInfo::AnySeqType; }
 
   CBExposedTypesInfo requiredVariables() {
-    if (_isTable) {
-      _requiredInfo = ExposedInfo(
-          ExposedInfo::Variable(_name.c_str(), CBCCSTR("The required table."),
-                                CoreInfo::AnyTableType));
-    } else {
-      _requiredInfo = ExposedInfo(ExposedInfo::Variable(
-          _name.c_str(), CBCCSTR("The required sequence."),
-          CoreInfo::AnySeqType));
-    }
+    _requiredInfo = ExposedInfo(ExposedInfo::Variable(
+        _name.c_str(), CBCCSTR("The required variable."), CoreInfo::AnyType));
     return CBExposedTypesInfo(_requiredInfo);
   }
 
-  CBTypeInfo compose(const CBInstanceData &data) {
-    _exposedInfo = {};
+  // TODO we need to evaluate deeper and figure out we don't mutate types
 
-    if (_isTable) {
-      _tableTypes = Type::TableOf(data.inputType.seqTypes);
-      if (_global) {
-        _exposedInfo = ExposedInfo(ExposedInfo::GlobalVariable(
-            _name.c_str(), CBCCSTR("The exposed table."), _tableTypes, true));
-      } else {
-        _exposedInfo = ExposedInfo(ExposedInfo::Variable(
-            _name.c_str(), CBCCSTR("The exposed table."), _tableTypes, true));
-      }
-    } else {
-      if (_global) {
-        _exposedInfo = ExposedInfo(ExposedInfo::GlobalVariable(
-            _name.c_str(), CBCCSTR("The exposed sequence."), data.inputType,
-            true));
-      } else {
-        _exposedInfo = ExposedInfo(ExposedInfo::Variable(
-            _name.c_str(), CBCCSTR("The exposed sequence."), data.inputType,
-            true));
-      }
-    }
+  // CBTypeInfo compose(const CBInstanceData &data) {
+  //   _exposedInfo = {};
 
-    return data.inputType;
-  }
+  //   if (_isTable) {
+  //     _tableTypes = Type::TableOf(data.inputType.seqTypes);
+  //     if (_global) {
+  //       _exposedInfo = ExposedInfo(ExposedInfo::GlobalVariable(
+  //           _name.c_str(), CBCCSTR("The exposed table."), _tableTypes,
+  //           true));
+  //     } else {
+  //       _exposedInfo = ExposedInfo(ExposedInfo::Variable(
+  //           _name.c_str(), CBCCSTR("The exposed table."), _tableTypes,
+  //           true));
+  //     }
+  //   } else {
+  //     if (_global) {
+  //       _exposedInfo = ExposedInfo(ExposedInfo::GlobalVariable(
+  //           _name.c_str(), CBCCSTR("The exposed sequence."), data.inputType,
+  //           true));
+  //     } else {
+  //       _exposedInfo = ExposedInfo(ExposedInfo::Variable(
+  //           _name.c_str(), CBCCSTR("The exposed sequence."), data.inputType,
+  //           true));
+  //     }
+  //   }
 
-  CBExposedTypesInfo exposedVariables() {
-    return CBExposedTypesInfo(_exposedInfo);
-  }
+  //   return data.inputType;
+  // }
+
+  // CBExposedTypesInfo exposedVariables() {
+  //   return CBExposedTypesInfo(_exposedInfo);
+  // }
 
   void warmup(CBContext *context) {
     if (_global)
@@ -1122,11 +1119,11 @@ struct Assoc : public VariableBase {
           throw ActivationError("Table is empty or does not exist yet.");
         }
       } else {
-        if (_target->valueType == Seq) {
+        if (_target->valueType == Seq || _target->valueType == Table) {
           // Pin fast cell
           _cell = _target;
         } else {
-          throw ActivationError("Sequence is empty or does not exist yet.");
+          throw ActivationError("Variable is empty or does not exist yet.");
         }
       }
       // recurse in, now that we have cell

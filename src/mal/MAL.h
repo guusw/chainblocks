@@ -1,3 +1,7 @@
+/* SPDX-License-Identifier: MPL-2.0 */
+/* Copyright © 2019 Fragcolor Pte. Ltd. */
+/* Copyright (C) 2015 Joel Martin <github@martintribe.org> */
+
 #ifndef INCLUDE_MAL_H
 #define INCLUDE_MAL_H
 
@@ -34,7 +38,6 @@ extern malValuePtr readStr(const String &input);
 // Extras
 extern void malinit(malEnvPtr env, const char *exePath, const char *scriptPath);
 extern malValuePtr maleval(const char *str, malEnvPtr env);
-extern String malpath();
 
 #define MAL_CHECK(condition, ...)                                              \
   if (!(condition)) {                                                          \

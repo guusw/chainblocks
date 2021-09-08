@@ -1,3 +1,6 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+/* Copyright © 2020 Fragcolor Pte. Ltd. */
+
 #[cfg(not(target_arch = "wasm32"))]
 extern crate reqwest;
 
@@ -24,7 +27,7 @@ use crate::types::Type;
 pub mod http;
 
 pub mod hash;
-pub mod sign;
+pub mod ecdsa;
 
 pub mod physics;
 

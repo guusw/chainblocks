@@ -1,3 +1,6 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+/* Copyright © 2020 Fragcolor Pte. Ltd. */
+
 use crate::chainblocksc::CBBool;
 use crate::chainblocksc::CBChain;
 use crate::chainblocksc::CBChainState;
@@ -407,6 +410,7 @@ pub mod common_type {
   use crate::types::CBType_Float3;
   use crate::types::CBType_Float4;
   use crate::types::CBType_Image;
+  use crate::types::CBType_Int2;
   use crate::types::CBType_Object;
 
   const fn base_info() -> CBTypeInfo {
@@ -577,6 +581,16 @@ pub mod common_type {
     int_table_var
   );
   cbtype!(
+    make_int2,
+    CBType_Int2,
+    int2,
+    int2s,
+    int2_var,
+    int2s_var,
+    int2_table,
+    int2_table_var
+  );
+  cbtype!(
     make_float,
     CBType_Float,
     float,
@@ -732,9 +746,11 @@ CBVar utility
  */
 
 #[repr(transparent)] // force it same size of original
+#[derive(Default)]
 pub struct ClonedVar(pub Var);
 
 #[repr(transparent)] // force it same size of original
+#[derive(Default)]
 pub struct WrappedVar(pub Var); // used in DSL macro, ignore it
 
 impl<T> From<T> for ClonedVar
@@ -968,6 +984,36 @@ impl From<&CStr> for Var {
       },
       ..Default::default()
     }
+  }
+}
+
+impl From<(i64, i64)> for Var {
+  #[inline(always)]
+  fn from(v: (i64, i64)) -> Self {
+    let mut res = CBVar {
+      valueType: CBType_Int2,
+      ..Default::default()
+    };
+    unsafe {
+      res.payload.__bindgen_anon_1.int2Value[0] = v.0;
+      res.payload.__bindgen_anon_1.int2Value[1] = v.1;
+    }
+    res
+  }
+}
+
+impl From<(f64, f64)> for Var {
+  #[inline(always)]
+  fn from(v: (f64, f64)) -> Self {
+    let mut res = CBVar {
+      valueType: CBType_Float2,
+      ..Default::default()
+    };
+    unsafe {
+      res.payload.__bindgen_anon_1.float2Value[0] = v.0;
+      res.payload.__bindgen_anon_1.float2Value[1] = v.1;
+    }
+    res
   }
 }
 
@@ -1412,8 +1458,9 @@ impl TryFrom<&Var> for &str {
       Err("Expected None, String, Path or ContextVar variable, but casting failed.")
     } else {
       unsafe {
-        let cstr =
-          CStr::from_ptr(var.payload.__bindgen_anon_1.__bindgen_anon_2.stringValue as *mut std::os::raw::c_char);
+        let cstr = CStr::from_ptr(
+          var.payload.__bindgen_anon_1.__bindgen_anon_2.stringValue as *mut std::os::raw::c_char,
+        );
         cstr.to_str().map_err(|_| "UTF8 string conversion failed!")
       }
     }
@@ -1449,6 +1496,24 @@ impl TryFrom<&Var> for u64 {
           .try_into()
           .map_err(|_| "i64 -> u64 conversion failed, possible overflow.")?;
         Ok(u)
+      }
+    }
+  }
+}
+
+impl TryFrom<&Var> for (i64, i64) {
+  type Error = &'static str;
+
+  #[inline(always)]
+  fn try_from(var: &Var) -> Result<Self, Self::Error> {
+    if var.valueType != CBType_Int2 {
+      Err("Expected Int2 variable, but casting failed.")
+    } else {
+      unsafe {
+        Ok((
+          var.payload.__bindgen_anon_1.int2Value[0],
+          var.payload.__bindgen_anon_1.int2Value[1],
+        ))
       }
     }
   }

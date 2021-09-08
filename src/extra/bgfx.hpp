@@ -1,5 +1,5 @@
-/* SPDX-License-Identifier: BSD 3-Clause "New" or "Revised" License */
-/* Copyright © 2019-2021 Giovanni Petrantoni */
+/* SPDX-License-Identifier: BSD-3-Clause */
+/* Copyright © 2019 Fragcolor Pte. Ltd. */
 
 #ifndef CB_BGFX_HPP
 #define CB_BGFX_HPP
@@ -14,7 +14,9 @@ using namespace chainblocks;
 namespace BGFX {
 enum class Renderer { None, DirectX11, Vulkan, OpenGL, Metal };
 
-#if defined(__linux__) || defined(__EMSCRIPTEN__) ||                           \
+#if defined(BGFX_CONFIG_RENDERER_VULKAN)
+constexpr Renderer CurrentRenderer = Renderer::Vulkan;
+#elif defined(__linux__) || defined(__EMSCRIPTEN__) ||                         \
     defined(BGFX_CONFIG_RENDERER_OPENGL)
 constexpr Renderer CurrentRenderer = Renderer::OpenGL;
 #elif defined(_WIN32)
@@ -449,6 +451,8 @@ struct IShaderCompiler {
                         std::string_view defines,  //
                         CBContext *context         //
                         ) = 0;
+
+  virtual void warmup(CBContext *context) = 0;
 };
 extern std::unique_ptr<IShaderCompiler> makeShaderCompiler();
 } // namespace chainblocks
