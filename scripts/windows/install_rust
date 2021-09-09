@@ -3,4 +3,5 @@
 set -e
 
 export RUSTUP_USE_CURL=1
-rustup default stable-i686-pc-windows-gnu
+rustup default stable-x86_64-pc-windows-gnu
+rustup update

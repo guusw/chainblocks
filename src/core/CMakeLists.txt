@@ -66,7 +66,7 @@ if(EMSCRIPTEN)
   
   target_include_directories(chainblocks-core PUBLIC ${Boost_INCLUDE_DIRS})
 else()
-  find_package(Boost REQUIRED COMPONENTS context filesystem)
+  find_package(Boost REQUIRED COMPONENTS context filesystem asio)
   target_link_libraries(chainblocks-core Boost::context Boost::filesystem)
 endif()
 

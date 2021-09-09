@@ -34,13 +34,18 @@ RunTest struct.clj
 RunTest flows.clj
 RunTest kdtree.clj
 RunTest channels.clj
-RunTest http.clj
 RunTest brotli.clj
 RunTest snappy.clj
 RunTest bigint.clj
 RunTest bgfx.clj
 RunTest wasm.clj
 RunTest eth.edn
+
+if [ -n "$CBL_GPU_TESTS" ]; then
+
+if [ -n "$CBL_HTTP_TESTS" ]; then
+  RunTest http.clj
+fi
 
 echo "Running test_runtime"
 $TEST_BIN_PATH/chainblocks-core-tests$TEST_BIN_EXT

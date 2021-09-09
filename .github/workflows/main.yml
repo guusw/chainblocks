@@ -97,7 +97,7 @@ jobs:
         RUSTUP_USE_CURL: 1
       run: |
         msys2 scripts/windows/install_packages
-        rustup update
+        msys2 scripts/windows/install_rust
     - name: Build and Run
       env:
         RUST_BACKTRACE: 1
