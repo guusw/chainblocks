@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+export RUSTUP_USE_CURL=1
+rustup default stable-i686-pc-windows-gnu

@@ -1,0 +1,46 @@
+#!/bin/bash
+
+set -e
+
+export CHAINBLOCKS_ROOT_PATH=$(realpath $(dirname ${BASH_SOURCE[0]})/..)
+
+TEST_BIN_PATH=$(dirname ${CBL_BIN:?"variable must be set"})
+TEST_BIN_EXT=${CBL_BIN##*.}
+[ -n "$TEST_BIN_EXT" ] && TEST_BIN_EXT=.$TEST_BIN_EXT
+
+echo "CBL_BIN = $CBL_BIN"
+echo "TEST_BIN_PATH = $TEST_BIN_PATH"
+echo "TEST_BIN_EXT = $TEST_BIN_EXT"
+
+function RunTest {
+  TEST_FILENAME=$1
+  
+  TEST_NAME=${TEST_FILENAME%%.*}
+  
+  echo "Running test: $TEST_NAME"
+  $CBL_BIN $CHAINBLOCKS_ROOT_PATH/src/tests/$TEST_FILENAME
+}
+
+echo "Test working dir = $CHAINBLOCKS_ROOT_PATH"
+pushd $CHAINBLOCKS_ROOT_PATH
+
+RunTest general.edn
+RunTest variables.clj
+RunTest subchains.clj
+RunTest linalg.clj
+RunTest loader.clj
+RunTest network.clj
+RunTest struct.clj
+RunTest flows.clj
+RunTest kdtree.clj
+RunTest channels.clj
+RunTest http.clj
+RunTest brotli.clj
+RunTest snappy.clj
+RunTest bigint.clj
+RunTest bgfx.clj
+RunTest wasm.clj
+RunTest eth.edn
+
+echo "Running test_runtime"
+$TEST_BIN_PATH/chainblocks-core-tests$TEST_BIN_EXT

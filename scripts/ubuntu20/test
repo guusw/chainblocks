@@ -2,5 +2,5 @@
 
 source $(dirname ${BASH_SOURCE[0]})/../shared
 
-${CHAINBLOCKS_BUILD_PATH}/bin/chainblocks-tests-runtime
-${CHAINBLOCKS_BUILD_PATH}/bin/cbl src/tests/general.edn
+export CBL_BIN=$CHAINBLOCKS_BUILD_PATH/bin/cbl
+source $(dirname ${BASH_SOURCE[0]})/../test

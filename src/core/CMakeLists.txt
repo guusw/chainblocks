@@ -129,10 +129,10 @@ add_executable(cbedn ${cbedn_SOURCES})
 target_link_libraries(cbedn chainblocks-core)
 
 if(CHAINBLOCKS_BUILD_TESTS)
-  add_executable(chainblocks-tests-runtime ../tests/test_runtime.cpp)
-  target_link_libraries(chainblocks-tests-runtime 
+  add_executable(chainblocks-core-tests ../tests/test_runtime.cpp)
+  target_link_libraries(chainblocks-core-tests 
     chainblocks-core Catch2WithMain
   )
-  catch_discover_tests(chainblocks-tests-runtime)
+  catch_discover_tests(chainblocks-core-tests)
 endif()
 
