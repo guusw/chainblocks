@@ -7,4 +7,4 @@ set -eux
 sudo add-apt-repository ppa:mhier/libboost-latest
 sudo apt-get update
 
-apt-get -y install build-essential git wget libclang-dev libgl1-mesa-dev ninja-build libboost xorg-dev libdbus-1-dev libssl-dev ca-certificates tzdata
+apt-get -y install build-essential git wget libclang-dev libgl1-mesa-dev ninja-build libboost1.70-dev xorg-dev libdbus-1-dev libssl-dev ca-certificates tzdata
