@@ -1,0 +1,16 @@
+#!/bin/bash
+
+source $(dirname ${BASH_SOURCE[0]})/../shared
+
+TESTS_PATH=$CHAINBLOCKS_ROOT_PATH/src/tests
+BIN_PATH=$CHAINBLOCKS_BUILD_PATH/bin
+EMSCRIPTEN_SUFFIX=${EMSCRIPTEN_SUFFIX:-mt}
+
+# Set root path as working directory
+pushd $CHAINBLOCKS_ROOT_PATH >/dev/null
+
+# Run a test script using cbl-mt/st.js
+node --experimental-wasm-threads --experimental-wasm-bulk-memory $TESTS_PATH/test_cbl.js $BIN_PATH/cbl-${EMSCRIPTEN_SUFFIX}.js || [[ $? == 143 ]] || exit
+
+# Run native core tests
+node --experimental-wasm-threads --experimental-wasm-bulk-memory $TESTS_PATH/test_runtime.js $BIN_PATH/chainblocks-core-tests.js || [[ $? == 143 ]] || exit

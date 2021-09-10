@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: BSD-3-Clause */
 /* Copyright © 2021 Fragcolor Pte. Ltd. */
 
-const test = require('../../build/test_runtime.js');
+// Pass the *.js file to run as argument
+const test = require(process.argv[2]);
 test({
   postRun: () => {
     process.kill(process.pid, "SIGTERM");

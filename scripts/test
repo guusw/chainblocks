@@ -8,9 +8,11 @@ TEST_BIN_PATH=$(dirname ${CBL_BIN:?"variable must be set"})
 TEST_BIN_EXT=${CBL_BIN##*.}
 [ -n "$TEST_BIN_EXT" ] && TEST_BIN_EXT=.$TEST_BIN_EXT
 
-echo "CBL_BIN = $CBL_BIN"
-echo "TEST_BIN_PATH = $TEST_BIN_PATH"
-echo "TEST_BIN_EXT = $TEST_BIN_EXT"
+if [ -n "$CHAINBLOCKS_SCRIPT_VERBOSE" ]; then
+  echo "CBL_BIN = $CBL_BIN"
+  echo "TEST_BIN_PATH = $TEST_BIN_PATH"
+  echo "TEST_BIN_EXT = $TEST_BIN_EXT"
+fi
 
 function RunTest {
   TEST_FILENAME=$1
@@ -22,7 +24,7 @@ function RunTest {
 }
 
 echo "Test working dir = $CHAINBLOCKS_ROOT_PATH"
-pushd $CHAINBLOCKS_ROOT_PATH
+pushd $CHAINBLOCKS_ROOT_PATH >/dev/null
 
 RunTest general.edn
 RunTest variables.clj
@@ -37,15 +39,16 @@ RunTest channels.clj
 RunTest brotli.clj
 RunTest snappy.clj
 RunTest bigint.clj
-RunTest bgfx.clj
-RunTest wasm.clj
 RunTest eth.edn
+# RunTest http.clj
+# RunTest wasm.clj
 
 if [ -n "$CBL_GPU_TESTS" ]; then
-
-if [ -n "$CBL_HTTP_TESTS" ]; then
-  RunTest http.clj
+  RunTest bgfx.clj
 fi
 
-echo "Running test_runtime"
-$TEST_BIN_PATH/chainblocks-core-tests$TEST_BIN_EXT
+CBL_CORE_TESTS_BIN=$TEST_BIN_PATH/chainblocks-core-tests$TEST_BIN_EXT
+if [ -f "$CBL_CORE_TESTS_BIN" ]; then
+  echo "Running chainblocks-core native tests"
+  $CBL_CORE_TESTS_BIN
+fi

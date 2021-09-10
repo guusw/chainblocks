@@ -1,0 +1,13 @@
+#!/bin/bash
+
+source $(dirname ${BASH_SOURCE[0]})/shared
+
+BGFX_PATH=$CHAINBLOCKS_ROOT_PATH/deps/bgfx
+
+CBL_SHADER_INCLUDE_PATH=$CHAINBLOCKS_ROOT_PATH/src/extra/shaders/include
+
+(set -x
+  cp $BGFX_PATH/src/bgfx_shader.sh $CBL_SHADER_INCLUDE_PATH/bgfx_shader.h
+  cp $BGFX_PATH/src/bgfx_compute.sh $CBL_SHADER_INCLUDE_PATH/bgfx_compute.h
+  cp $BGFX_PATH/examples/common/shaderlib.sh $CBL_SHADER_INCLUDE_PATH/shaderlib.h
+)

@@ -1,6 +1,50 @@
 name: CI
 on: [push, pull_request, workflow_dispatch]
 jobs:
+  emscripten:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - with_pthreads: ON
+            suffix: mt
+          - with_pthreads: OFF
+            suffix: st
+    runs-on: ubuntu-20.04
+    env:
+      EMSCRIPTEN_PTHREADS: ${{matrix.with_pthreads}}
+      EMSDK: "/emsdk"
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Setup
+      run: |
+        set -x
+        sudo bash scripts/emscripten/install_packages
+        sudo EMSDK=$EMSDK bash scripts/emscripten/install_emsdk
+        sudo bash scripts/emscripten/install_boost
+        bash scripts/emscripten/install_rust
+    - name: Configure
+      run: bash scripts/emscripten/configure
+    - name: Build
+      run: bash scripts/emscripten/build
+    - name: Test
+      env:
+        EMSCRIPTEN_SUFFIX: ${{matrix.suffix}}
+      run: bash scripts/emscripten/test
+    - uses: actions/upload-artifact@master
+      with:
+        name: cbl
+        path: |
+          build/bin/cbl-${{matrix.suffix}}.js
+          build/bin/cbl-${{matrix.suffix}}.wasm
+    # - uses: chainblocks/ipfs-action@master
+    #   with:
+    #     path: build/cbl/
+    #     service: infura
+    #     port: 5001
+    #     protocol: https
   ubuntu20:
     runs-on: ubuntu-20.04
     steps:
@@ -43,41 +87,6 @@ jobs:
         name: cbl
         path: |
           build/bin/cbl
-  emscripten:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - with_pthreads: ON
-            suffix: mt
-          # - with_pthreads: OFF
-          #   suffix: st
-    runs-on: ubuntu-20.04
-    env:
-      EMSCRIPTEN_PTHREADS: ${{matrix.with_pthreads}}
-      EMSDK: "/emsdk"
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-    - name: Setup
-      run: |
-        set -x
-        sudo bash scripts/emscripten/install_packages
-        sudo EMSDK=$EMSDK bash scripts/emscripten/install_emsdk
-        sudo bash scripts/emscripten/install_boost
-        bash scripts/emscripten/install_rust
-    - name: Configure
-      run: bash scripts/emscripten/configure
-    - name: Build
-      run: bash scripts/emscripten/build
-    - uses: actions/upload-artifact@master
-      with:
-        name: cbl
-        path: |
-          build/bin/cbl-${{matrix.suffix}}.js
-          build/bin/cbl-${{matrix.suffix}}.wasm
-          
   Windows:
     runs-on: windows-latest
     strategy:
