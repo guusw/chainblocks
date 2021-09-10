@@ -7,4 +7,8 @@ set -eux
 sudo add-apt-repository ppa:mhier/libboost-latest
 sudo apt-get update
 
+# Use GCC>8.0 because it has <filesystem> include
+apt-get -y install gcc-8
+update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 80 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
+
 apt-get -y install build-essential git wget libclang-dev libgl1-mesa-dev ninja-build libboost1.70-dev xorg-dev libdbus-1-dev libssl-dev ca-certificates tzdata
