@@ -1,5 +1,5 @@
 name: CI
-on: [push, pull_request, workflow_dispatch]
+on: [push, workflow_dispatch]
 jobs:
   emscripten:
     strategy:
@@ -35,56 +35,37 @@ jobs:
       run: bash scripts/emscripten/test
     - uses: actions/upload-artifact@master
       with:
-        name: cbl
+        name: cbl emscripten (PTHREADS=${{matrix.with_pthreads}})
         path: |
           build/bin/cbl-${{matrix.suffix}}.js
           build/bin/cbl-${{matrix.suffix}}.wasm
-    # - uses: chainblocks/ipfs-action@master
-    #   with:
-    #     path: build/cbl/
-    #     service: infura
-    #     port: 5001
-    #     protocol: https
-  ubuntu20:
-    runs-on: ubuntu-20.04
+  ubuntu:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: "ubuntu-20.04"
+            script_dir: "ubuntu20"
+          - os: "ubuntu-18.04"
+            script_dir: "ubuntu18"
+    runs-on: ${{matrix.os}}
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: true
     - name: Setup
       run: |
-        sudo bash scripts/ubuntu20/install_packages
-        bash scripts/ubuntu20/install_rust
+        sudo bash scripts/${{matrix.script_dir}}/install_packages
+        bash scripts/${{matrix.script_dir}}/install_rust
     - name: Configure
-      run: bash scripts/ubuntu20/configure
+      run: bash scripts/${{matrix.script_dir}}/configure
     - name: Build
-      run: bash scripts/ubuntu20/build
+      run: bash scripts/${{matrix.script_dir}}/build
     - name: Test
-      run: bash scripts/ubuntu20/test
+      run: bash scripts/${{matrix.script_dir}}/test
     - uses: actions/upload-artifact@master
       with:
-        name: cbl
-        path: |
-          build/bin/cbl
-  ubuntu18:
-    runs-on: ubuntu-18.04
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-    - name: Setup
-      run: |
-        sudo bash scripts/ubuntu18/install_packages
-        bash scripts/ubuntu18/install_rust
-    - name: Configure
-      run: bash scripts/ubuntu18/configure
-    - name: Build
-      run: bash scripts/ubuntu18/build
-    - name: Test
-      run: bash scripts/ubuntu18/test
-    - uses: actions/upload-artifact@master
-      with:
-        name: cbl
+        name: cbl ${{matrix.os}}
         path: |
           build/bin/cbl
   Windows:
@@ -107,17 +88,17 @@ jobs:
       run: |
         msys2 scripts/windows/install_packages
         msys2 scripts/windows/install_rust
-    - name: Build and Run
+    - name: Build
       env:
         RUST_BACKTRACE: 1
         CMAKE_BUILD_TYPE: ${{ matrix.build-type }}
       run: |
         msys2 scripts/windows/configure ${{ matrix.build-type }}
         msys2 scripts/windows/build
-    - name: Run Tests
+    - name: Test
       run: |
         msys2 scripts/windows/test
     - uses: actions/upload-artifact@master
       with:
-        name: cbl-win64 ${{ matrix.build-type }}
-        path: build/cbl.exe
+        name: cbl win64 ${{ matrix.build-type }}
+        path: build/bin/cbl.exe
