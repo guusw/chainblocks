@@ -2,6 +2,6 @@
 
 source $(dirname ${BASH_SOURCE[0]})/shared
 
-cmake --build ${CHAINBLOCKS_BUILD_PATH} --target cargo-chainblocks
-cmake --build ${CHAINBLOCKS_BUILD_PATH} --target chainblocks-core-tests
-cmake --build ${CHAINBLOCKS_BUILD_PATH} --target cbl
+cmake --build ${CHAINBLOCKS_BUILD_PATH} --target cargo-chainblocks --verbose
+cmake --build ${CHAINBLOCKS_BUILD_PATH} --target chainblocks-core-tests --verbose
+cmake --build ${CHAINBLOCKS_BUILD_PATH} --target cbl --verbose

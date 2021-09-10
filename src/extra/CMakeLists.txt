@@ -22,12 +22,22 @@ endif()
 target_include_directories(chainblocks-extra PRIVATE ../core)
 target_link_libraries(chainblocks-extra
   chainblocks-core 
-  bx bimg bgfx bgfx-example-common stb SDL2 tinygltf
+  bx bimg bgfx bgfx-example-common stb tinygltf
   dear-imgui imgui_club implot
   brotlienc-static brotlidec-static brotlicommon-static snappy
   kissfft miniaudio
   nlohmann_json
 )
+
+if(EMSCRIPTEN)
+  target_link_libraries(chainblocks-extra SDL2)
+else()
+  # Use builtin SDL2 port
+  target_compile_options(chainblocks-extra PRIVATE 
+    "SHELL:-s MIN_WEBGL_VERSION=2"
+    "SHELL:-s MAX_WEBGL_VERSION=2"
+    "SHELL:-s USE_SDL=2")
+endif()
 
 if(WIN32)
   target_link_libraries(chainblocks-extra DXGI D3D11 ntdll)
@@ -42,9 +52,5 @@ if(CHAINBLOCKS_WITH_RUST_BLOCKS)
 endif()
 
 if(EMSCRIPTEN)
-  target_compile_options(chainblocks-extra PRIVATE 
-    "SHELL:-s MIN_WEBGL_VERSION=2"
-    "SHELL:-s MAX_WEBGL_VERSION=2"
-    "SHELL:-s USE_SDL=2")
   em_link_js_library(chainblocks-extra bgfx.shaderc.js)
 endif()
