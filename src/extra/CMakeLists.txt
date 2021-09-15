@@ -37,6 +37,7 @@ else()
     "SHELL:-s MIN_WEBGL_VERSION=2"
     "SHELL:-s MAX_WEBGL_VERSION=2"
     "SHELL:-s USE_SDL=2")
+  target_link_libraries(chainblocks-extra SDL2)
 endif()
 
 if(WIN32)

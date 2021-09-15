@@ -44,10 +44,7 @@ target_include_directories(chainblocks-core PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 # target_precompile_headers(chainblocks-core PRIVATE pch.hpp)
 
 if(EMSCRIPTEN)
-  set(EM_EXPORTED_FUNCTIONS "-s \"EXPORTED_FUNCTIONS=['_main', '_chainblocksInterface', '_malloc', '_free', '_emscripten_get_now']\"")
-  set(EM_ASYNCIFY_IMPORTS "-s \"ASYNCIFY_IMPORTS=['emEval', 'emCompileShaderBlocking']\"")
-  set(EM_EXPORTED_RUNTIME_METHODS "-s \"EXPORTED_RUNTIME_METHODS=['FS', 'callMain', 'ENV', 'IDBFS', 'GL', 'PThread', 'setValue', 'getValue', 'lengthBytesUTF8', 'stringToUTF8']\"")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s NO_EXIT_RUNTIME=1 -s DISABLE_EXCEPTION_CATCHING=0 -s INITIAL_MEMORY=209715200 -s FETCH=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 -s LLD_REPORT_UNDEFINED -s MODULARIZE=1 -s EXPORT_NAME=cbl -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s USE_SDL=2 ${EM_EXPORTED_FUNCTIONS} ${EM_ASYNCIFY_IMPORTS} ${EM_EXPORTED_RUNTIME_METHODS}")
+  target_compile_options(chainblocks-core PRIVATE "SHELL:-s DISABLE_EXCEPTION_CATCHING=0")
 endif()
 
 if(EMSCRIPTEN)
@@ -115,6 +112,30 @@ endif()
 
 if(EMSCRIPTEN)
   em_link_js_library(chainblocks-core blocks/core.js)
+  
+  target_compile_options(chainblocks-core PUBLIC 
+    "SHELL:-s DISABLE_EXCEPTION_CATCHING=0"
+    "SHELL:-s FETCH=1"
+    "SHELL:-s MIN_WEBGL_VERSION=2"
+    "SHELL:-s MAX_WEBGL_VERSION=2"
+  )
+  
+  target_link_options(chainblocks-core PUBLIC
+    "SHELL:-s DISABLE_EXCEPTION_CATCHING=0"
+    "SHELL:-s NO_EXIT_RUNTIME=1"
+    "SHELL:-s INITIAL_MEMORY=209715200"
+    "SHELL:-s FETCH=1"
+    "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+    "SHELL:-s ASYNCIFY=1"
+    "SHELL:-s LLD_REPORT_UNDEFINED"
+    "SHELL:-s MODULARIZE=1"
+    "SHELL:-s EXPORT_NAME=cbl"
+    "SHELL:-s MIN_WEBGL_VERSION=2"
+    "SHELL:-s MAX_WEBGL_VERSION=2"
+    "SHELL:-s \"EXPORTED_FUNCTIONS=['_main', '_chainblocksInterface', '_malloc', '_free', '_emscripten_get_now']\""
+    "SHELL:-s \"ASYNCIFY_IMPORTS=['emEval', 'emCompileShaderBlocking']\""
+    "SHELL:-s \"EXPORTED_RUNTIME_METHODS=['FS', 'callMain', 'ENV', 'IDBFS', 'GL', 'PThread', 'setValue', 'getValue', 'lengthBytesUTF8', 'stringToUTF8']\""
+  )
 endif()
 
 if(IOS)
@@ -130,6 +151,7 @@ target_link_libraries(cbedn chainblocks-core)
 
 if(CHAINBLOCKS_BUILD_TESTS)
   add_executable(chainblocks-core-tests ../tests/test_runtime.cpp)
+  
   target_link_libraries(chainblocks-core-tests 
     chainblocks-core Catch2WithMain
   )

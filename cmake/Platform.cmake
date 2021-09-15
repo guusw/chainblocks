@@ -9,9 +9,12 @@ elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
 endif()
 
 if(EMSCRIPTEN)
-  if(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" OR CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ASSERTIONS=2")
+  if(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     add_compile_options(-g1 -Os)
+  endif()
+  
+  if(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" OR CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_link_options("SHELL:-s ASSERTIONS=2")
   endif()
   
   add_compile_definitions(NO_FORCE_INLINE)
@@ -19,7 +22,7 @@ if(EMSCRIPTEN)
   
   ## if we wanted thread support...
   if(EMSCRIPTEN_PTHREADS)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=6")
+    add_link_options("SHELL:-s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=6")
     add_compile_options(-pthread -Wno-pthreads-mem-growth)
     add_link_options(-pthread)
   endif()
