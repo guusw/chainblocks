@@ -49,6 +49,13 @@ if(WIN32)
   target_sources(chainblocks-extra PRIVATE desktop.win.cpp)
 endif()
 
+# Need to compile specific files as objective-c
+if(IOS)
+  target_sources(chainblocks-extra PRIVATE audio.mm)
+else()
+  target_sources(chainblocks-extra PRIVATE audio.cpp)
+endif()
+
 option(CHAINBLOCKS_EXTRA_BUILD_SHARED OFF "Build chainblocks extra as dynamic library")
 
 if(CHAINBLOCKS_WITH_RUST_BLOCKS)
