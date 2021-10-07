@@ -28,8 +28,8 @@ mod chainblocksc;
 pub mod core;
 #[macro_use]
 pub mod types;
+
 // order matters
-#[cfg(feature = "blocks")]
 pub mod blocks;
 
 use crate::block::Block;
@@ -405,7 +405,6 @@ mod cblisp {
   }
 }
 
-#[cfg(feature = "blocks")]
 #[no_mangle]
 pub extern "C" fn registerRustBlocks(core: *mut CBCore) {
   unsafe {

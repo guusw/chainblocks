@@ -1797,6 +1797,6 @@ void registerBlocks() {
 } // namespace gltf
 } // namespace chainblocks
 
-#ifdef CB_INTERNAL_TESTS
+#ifdef CHAINBLOCKS_BUILD_TESTS
 #include "gltf_tests.cpp"
 #endif
