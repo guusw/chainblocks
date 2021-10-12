@@ -12,6 +12,7 @@
 #include <nameof.hpp>
 #include <string>
 #include <vector>
+#include <boost/thread/tss.hpp>
 
 namespace chainblocks {
 // CBVar strings can have an optional len field populated
@@ -96,6 +97,7 @@ inline CBOptionalString operator"" _optional(const char *s, size_t) {
 
 #define THREAD_LOCAL_IMPL_WIN32 _WIN32
 
+#if THREAD_LOCAL_IMPL_WIN32
 struct Win32ThreadLocal {
   typedef void (*DestroyCallback)(void *);
   uint32_t _index;
@@ -106,6 +108,7 @@ struct Win32ThreadLocal {
   void *get();
   void set(void *data);
 };
+#endif
 
 template <typename T> class ThreadLocal {
 public:
@@ -123,7 +126,7 @@ public:
 
     return *data;
 #else
-    return _value;
+    return *_value.get();
 #endif
   }
 
@@ -132,7 +135,7 @@ private:
   static void threadTerminatedStatic(T *data) { delete data; }
   Win32ThreadLocal _value;
 #else
-  thread_local T _value;
+  boost::thread_specific_ptr<T> _value;
 #endif
 };
 
