@@ -94,6 +94,48 @@ inline CBOptionalString operator"" _optional(const char *s, size_t) {
     enum { value = sizeof(test<T>(0)) == sizeof(char) };                       \
   }
 
+#define THREAD_LOCAL_IMPL_WIN32 _WIN32
+
+struct Win32ThreadLocal {
+  typedef void (*DestroyCallback)(void *);
+  uint32_t _index;
+
+  Win32ThreadLocal();
+  void initialize(DestroyCallback callback);
+  bool isInitialized() const;
+  void *get();
+  void set(void *data);
+};
+
+template <typename T> class ThreadLocal {
+public:
+  T &operator()() {
+#if THREAD_LOCAL_IMPL_WIN32
+    if (!_value.isInitialized()) {
+      _value.initialize((Win32ThreadLocal::DestroyCallback)&threadTerminatedStatic);
+    }
+
+    T *data = (T *)_value.get();
+    if (!data) {
+      data = new T();
+      _value.set(data);
+    }
+
+    return *data;
+#else
+    return _value;
+#endif
+  }
+
+private:
+#if THREAD_LOCAL_IMPL_WIN32
+  static void threadTerminatedStatic(T *data) { delete data; }
+  Win32ThreadLocal _value;
+#else
+  thread_local T _value;
+#endif
+};
+
 /*
   Lazy initialization of a static variable.
 

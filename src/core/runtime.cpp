@@ -2355,17 +2355,7 @@ NO_INLINE void _cloneVarSlow(CBVar &dst, const CBVar &src) {
   };
 }
 
-std::unordered_set<const CBChain *> &gatheringChains() {
-#ifdef WIN32
-  // we have to leak.. or windows tls emulation will crash at process end
-  thread_local std::unordered_set<const CBChain *> *chains =
-      new std::unordered_set<const CBChain *>();
-  return *chains;
-#else
-  thread_local std::unordered_set<const CBChain *> chains;
-  return chains;
-#endif
-}
+static ThreadLocal<std::unordered_set<const CBChain *>> _gatheredChains;
 
 void _gatherBlocks(const BlocksCollection &coll, std::vector<CBlockInfo> &out) {
   // TODO out should be a set?
@@ -2373,8 +2363,8 @@ void _gatherBlocks(const BlocksCollection &coll, std::vector<CBlockInfo> &out) {
   case 0: {
     // chain
     auto chain = std::get<const CBChain *>(coll);
-    if (!gatheringChains().count(chain)) {
-      gatheringChains().insert(chain);
+    if (!_gatheredChains().count(chain)) {
+      _gatheredChains().insert(chain);
       for (auto blk : chain->blocks) {
         _gatherBlocks(blk, out);
       }
@@ -2436,9 +2426,11 @@ void _gatherBlocks(const BlocksCollection &coll, std::vector<CBlockInfo> &out) {
 }
 
 void gatherBlocks(const BlocksCollection &coll, std::vector<CBlockInfo> &out) {
-  gatheringChains().clear();
+  _gatheredChains().clear();
   _gatherBlocks(coll, out);
 }
+
+static ThreadLocal<std::unordered_set<CBChain *>> tHashingChains;
 
 void hash_update(const CBVar &var, void *state);
 
@@ -2446,7 +2438,7 @@ uint64_t hash(const CBVar &var) {
   static_assert(std::is_same<uint64_t, XXH64_hash_t>::value,
                 "XXH64_hash_t is not uint64_t");
 
-  gatheringChains().clear();
+  tHashingChains().clear();
 
   XXH3_state_s hashState;
   XXH3_INITSTATE(&hashState);
@@ -2585,8 +2577,8 @@ void hash_update(const CBVar &var, void *state) {
   } break;
   case CBType::Chain: {
     auto chain = CBChain::sharedFromRef(var.payload.chainValue);
-    if (gatheringChains().count(chain.get()) == 0) {
-      gatheringChains().insert(chain.get());
+    if (tHashingChains().count(chain.get()) == 0) {
+      tHashingChains().insert(chain.get());
 
       error = XXH3_64bits_update(hashState, chain->name.c_str(),
                                  chain->name.length());
@@ -3288,3 +3280,26 @@ CBCore *__cdecl chainblocksInterface(uint32_t abi_version) {
   return result;
 }
 };
+
+#if THREAD_LOCAL_IMPL_WIN32
+#include <WinSock2.h>
+#include <windows.h>
+#include <cassert>
+
+namespace chainblocks {
+Win32ThreadLocal::Win32ThreadLocal() : _index(FLS_OUT_OF_INDEXES) {}
+void Win32ThreadLocal::initialize(Win32ThreadLocal::DestroyCallback callback) {
+  assert(!isInitialized());
+    _index = FlsAlloc((PFLS_CALLBACK_FUNCTION)callback);
+}
+bool Win32ThreadLocal::isInitialized() const {
+  return _index != FLS_OUT_OF_INDEXES;
+}
+void *Win32ThreadLocal::get() {
+  return FlsGetValue(_index);
+}
+void Win32ThreadLocal::set(void *data) {
+  FlsSetValue(_index, data);
+}
+} // namespace chainblocks
+#endif
