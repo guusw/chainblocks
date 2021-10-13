@@ -3,7 +3,7 @@
 /* Copyright (C) 2015 Joel Martin <github@martintribe.org> */
 
 #include "ReadLine.h"
-#include "String.h"
+#include "MalString.h"
 #include <replxx.hxx>
 
 static replxx::Replxx rx{};

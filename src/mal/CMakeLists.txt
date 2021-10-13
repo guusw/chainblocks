@@ -5,10 +5,10 @@ set(chainblocks_SOURCES
   Environment.cpp
   Reader.cpp
   ReadLine.cpp
-  String.cpp
   Types.cpp
   Validation.cpp
   CBCore.cpp
+  MalString.cpp
 )
 
 add_executable(cbl ${chainblocks_SOURCES})

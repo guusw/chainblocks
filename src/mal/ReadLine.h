@@ -5,7 +5,7 @@
 #ifndef INCLUDE_READLINE_H
 #define INCLUDE_READLINE_H
 
-#include "String.h"
+#include "MalString.h"
 
 class ReadLine {
 public:

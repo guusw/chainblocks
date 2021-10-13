@@ -7,7 +7,7 @@
 
 #include "Debug.h"
 #include "RefCountedPtr.h"
-#include "String.h"
+#include "MalString.h"
 
 #include <vector>
 
