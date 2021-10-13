@@ -1234,7 +1234,9 @@ TEST_CASE("Vector types") {
   VectorTypeLookup Typelookup;
 
   CBType typesToCheck[] = {
-      Int, Int2, Int3, Int4, Int8, Int16, Float, Float2, Float3, Float4, Color,
+      CBType::Int,    CBType::Int2,   CBType::Int3,  CBType::Int4,
+      CBType::Int8,   CBType::Int16,  CBType::Float, CBType::Float2,
+      CBType::Float3, CBType::Float4, CBType::Color,
   };
 
   for (const CBType &typeToCheck : typesToCheck) {
