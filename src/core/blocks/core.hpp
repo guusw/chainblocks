@@ -2476,24 +2476,24 @@ struct Take {
 
         _vectorOutput.valueType = _vectorOutputType->cbType;
         return _vectorOutputType->type;
-      } else if (data.inputType.basicType == Bytes) {
+      } else if (data.inputType.basicType == CBType::Bytes) {
         OVERRIDE_ACTIVATE(data, activateBytes);
         if (_seqOutput) {
           return CoreInfo::IntSeqType;
         } else {
           return CoreInfo::IntType;
         }
-      } else if (data.inputType.basicType == String) {
+      } else if (data.inputType.basicType == CBType::String) {
         OVERRIDE_ACTIVATE(data, activateString);
         if (_seqOutput) {
           return CoreInfo::StringSeqType;
         } else {
           return CoreInfo::StringType;
         }
-      } else if (data.inputType.basicType == Table) {
+      } else if (data.inputType.basicType == CBType::Table) {
         OVERRIDE_ACTIVATE(data, activateTable);
         if (data.inputType.table.keys.len > 0 &&
-            (_indices.valueType == String || _indices.valueType == Seq)) {
+            (_indices.valueType == CBType::String || _indices.valueType == CBType::Seq)) {
           // we can fully reconstruct a type in this case
           if (data.inputType.table.keys.len != data.inputType.table.types.len) {
             CBLOG_ERROR("Table input type: {}", data.inputType);
@@ -2506,7 +2506,7 @@ struct Take {
             _seqOutputTypes.clear();
             for (uint32_t j = 0; j < _indices.payload.seqValue.len; j++) {
               auto &record = _indices.payload.seqValue.elements[j];
-              if (record.valueType != String) {
+              if (record.valueType != CBType::String) {
                 CBLOG_ERROR("Expected a sequence of strings, but found: {}",
                             _indices);
                 throw ComposeError(
@@ -2713,7 +2713,7 @@ struct RTake : public Take {
 
   CBTypeInfo compose(const CBInstanceData &data) {
     CBTypeInfo result = Take::compose(data);
-    if (data.inputType.basicType == Seq) {
+    if (data.inputType.basicType == CBType::Seq) {
       OVERRIDE_ACTIVATE(data, activate);
     } else {
       throw CBException("RTake is only supported on sequence types");

@@ -310,7 +310,7 @@ template <CBType ToType> struct ToNumber {
       _numberConversion = NumberTypeLookup::getInstance().getConversion(
           _inputVectorType->numberType, _outputVectorType->numberType);
       cbassert(_numberConversion);
-    } else if (data.inputType.basicType == Seq) {
+    } else if (data.inputType.basicType == CBType::Seq) {
       const NumberTypeTraits *fixedNumberType =
           determineFixedSeqNumberType(data.inputType);
       if (fixedNumberType) {
@@ -431,13 +431,13 @@ template <CBType ToType> struct ToNumber {
     output.valueType = _outputVectorType->cbType;
 
     switch (input.valueType) {
-    case Seq:
+    case CBType::Seq:
       parseSeqElements(output, input.payload.seqValue);
       break;
-    case Enum:
+    case CBType::Enum:
       parseEnumValue(output, input.payload.enumValue);
       break;
-    case String:
+    case CBType::String:
       parseStringElements(output, input.payload.stringValue,
                           input.payload.stringLen);
       break;
@@ -783,17 +783,17 @@ struct StringToBytes {
 };
 
 void registerCastingBlocks() {
-  REGISTER_CBLOCK("ToInt", ToNumber<Int>);
-  REGISTER_CBLOCK("ToInt2", ToNumber<Int2>);
-  REGISTER_CBLOCK("ToInt3", ToNumber<Int3>);
-  REGISTER_CBLOCK("ToInt4", ToNumber<Int4>);
-  REGISTER_CBLOCK("ToInt8", ToNumber<Int8>);
-  REGISTER_CBLOCK("ToInt16", ToNumber<Int16>);
-  REGISTER_CBLOCK("ToColor", ToNumber<Color>);
-  REGISTER_CBLOCK("ToFloat", ToNumber<Float>);
-  REGISTER_CBLOCK("ToFloat2", ToNumber<Float2>);
-  REGISTER_CBLOCK("ToFloat3", ToNumber<Float3>);
-  REGISTER_CBLOCK("ToFloat4", ToNumber<Float4>);
+  REGISTER_CBLOCK("ToInt", ToNumber<CBType::Int>);
+  REGISTER_CBLOCK("ToInt2", ToNumber<CBType::Int2>);
+  REGISTER_CBLOCK("ToInt3", ToNumber<CBType::Int3>);
+  REGISTER_CBLOCK("ToInt4", ToNumber<CBType::Int4>);
+  REGISTER_CBLOCK("ToInt8", ToNumber<CBType::Int8>);
+  REGISTER_CBLOCK("ToInt16", ToNumber<CBType::Int16>);
+  REGISTER_CBLOCK("ToColor", ToNumber<CBType::Color>);
+  REGISTER_CBLOCK("ToFloat", ToNumber<CBType::Float>);
+  REGISTER_CBLOCK("ToFloat2", ToNumber<CBType::Float2>);
+  REGISTER_CBLOCK("ToFloat3", ToNumber<CBType::Float3>);
+  REGISTER_CBLOCK("ToFloat4", ToNumber<CBType::Float4>);
 
   REGISTER_CORE_BLOCK(ToString);
   REGISTER_CORE_BLOCK(ToHex);

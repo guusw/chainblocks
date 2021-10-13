@@ -8,17 +8,17 @@ namespace chainblocks {
 std::map<CBType, NumberType> getCBTypeToNumberTypeMap() {
   // clang-format off
   return {
-    {Color, NumberType::UInt8},
-    {Int, NumberType::Int64},
-    {Int2, NumberType::Int64},
-    {Int3, NumberType::Int32},
-    {Int4, NumberType::Int32},
-    {Int8, NumberType::Int16},
-    {Int16, NumberType::Int8},
-    {Float, NumberType::Float64},
-    {Float2, NumberType::Float64},
-    {Float3, NumberType::Float32},
-    {Float4, NumberType::Float32},
+    {CBType::Color, NumberType::UInt8},
+    {CBType::Int, NumberType::Int64},
+    {CBType::Int2, NumberType::Int64},
+    {CBType::Int3, NumberType::Int32},
+    {CBType::Int4, NumberType::Int32},
+    {CBType::Int8, NumberType::Int16},
+    {CBType::Int16, NumberType::Int8},
+    {CBType::Float, NumberType::Float64},
+    {CBType::Float2, NumberType::Float64},
+    {CBType::Float3, NumberType::Float32},
+    {CBType::Float4, NumberType::Float32},
   };
   // clang-format on
 };
@@ -138,12 +138,12 @@ template <CBType Type> struct TVectorTypeTraits {};
 #define EXPAND(_x) _x
 #define STRINGIFY(_x) EXPAND(#_x)
 #define VECTOR_TYPE_TRAITS(_CBType, _Dimension, _NumberType)                   \
-  template <> struct TVectorTypeTraits<_CBType> : public VectorTypeTraits {    \
+  template <> struct TVectorTypeTraits<CBType::_CBType> : public VectorTypeTraits {    \
     typedef TNumberTypeTraits<_NumberType>::TInner TInner;                     \
     TVectorTypeTraits() {                                                      \
       dimension = _Dimension;                                                  \
       isInteger = std::is_integral<TInner>::value;                             \
-      cbType = _CBType;                                                        \
+      cbType = CBType::_CBType;                                                        \
       type = chainblocks::CoreInfo::_CBType##Type;                             \
       numberType = _NumberType;                                                \
       name = STRINGIFY(_CBType);                                               \
@@ -169,17 +169,17 @@ VECTOR_TYPE_TRAITS(Float4, 4, NumberType::Float32);
 VectorTypeLookup::VectorTypeLookup() {
   // clang-format off
     vectorTypes = {
-        TVectorTypeTraits<Color>(),
-        TVectorTypeTraits<Int>(),
-        TVectorTypeTraits<Int2>(),
-        TVectorTypeTraits<Int3>(),
-        TVectorTypeTraits<Int4>(),
-        TVectorTypeTraits<Int8>(),
-        TVectorTypeTraits<Int16>(),
-        TVectorTypeTraits<Float>(),
-        TVectorTypeTraits<Float2>(),
-        TVectorTypeTraits<Float3>(),
-        TVectorTypeTraits<Float4>(),
+        TVectorTypeTraits<CBType::Color>(),
+        TVectorTypeTraits<CBType::Int>(),
+        TVectorTypeTraits<CBType::Int2>(),
+        TVectorTypeTraits<CBType::Int3>(),
+        TVectorTypeTraits<CBType::Int4>(),
+        TVectorTypeTraits<CBType::Int8>(),
+        TVectorTypeTraits<CBType::Int16>(),
+        TVectorTypeTraits<CBType::Float>(),
+        TVectorTypeTraits<CBType::Float2>(),
+        TVectorTypeTraits<CBType::Float3>(),
+        TVectorTypeTraits<CBType::Float4>(),
     };
   // clang-format on
   buildCBTypeLookup();
