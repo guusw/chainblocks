@@ -1377,7 +1377,7 @@ struct Load : public BGFX::BaseConsumer {
           }
 
           // process animations if needed
-          if (_animations.valueType == Seq &&
+          if (_animations.valueType == CBType::Seq &&
               _animations.payload.seqValue.len > 0) {
             std::unordered_set<std::string_view> names;
             for (const auto &animation : _animations) {

@@ -77,7 +77,7 @@ struct ChainBase {
     if (!chain) {
       if (chainref->valueType == CBType::Chain) {
         chain = CBChain::sharedFromRef(chainref->payload.chainValue);
-      } else if (chainref->valueType == String) {
+      } else if (chainref->valueType == CBType::String) {
         chain = GetGlobals().GlobalChains[chainref->payload.stringValue];
       } else {
         chain = nullptr;
@@ -324,7 +324,7 @@ struct Wait : public ChainBase {
       auto vchain = chainref.get();
       if (vchain.valueType == CBType::Chain) {
         chain = CBChain::sharedFromRef(vchain.payload.chainValue);
-      } else if (vchain.valueType == String) {
+      } else if (vchain.valueType == CBType::String) {
         chain = GetGlobals().GlobalChains[vchain.payload.stringValue];
       } else {
         chain = nullptr;
@@ -376,7 +376,7 @@ struct StopChain : public ChainBase {
   }
 
   void composed(const CBChain *chain, const CBComposeResult *result) {
-    if (!chain && chainref->valueType == None &&
+    if (!chain && chainref->valueType == CBType::None &&
         _inputType != result->outputType) {
       CBLOG_ERROR("Stop input and chain output type mismatch, Stop input must "
                   "be the same type of the chain's output (regular flow), "
@@ -434,7 +434,7 @@ struct StopChain : public ChainBase {
       auto vchain = chainref.get();
       if (vchain.valueType == CBType::Chain) {
         chain = CBChain::sharedFromRef(vchain.payload.chainValue);
-      } else if (vchain.valueType == String) {
+      } else if (vchain.valueType == CBType::String) {
         chain = GetGlobals().GlobalChains[vchain.payload.stringValue];
       } else {
         chain = nullptr;
@@ -600,7 +600,7 @@ struct Recur : public ChainBase {
     for (auto &shared : data.shared) {
       if (shared.scope == data.chain) {
         CBVar ctxVar{};
-        ctxVar.valueType = ContextVar;
+        ctxVar.valueType = CBType::ContextVar;
         ctxVar.payload.stringValue = shared.name;
         auto &p = _vars.emplace_back();
         p = ctxVar;
@@ -904,7 +904,7 @@ struct ChainLoader : public BaseLoader<ChainLoader> {
     switch (index) {
     case 0: {
       cleanup(); // stop current
-      if (value.valueType == Object) {
+      if (value.valueType == CBType::Object) {
         _provider = (CBChainProvider *)value.payload.objectValue;
       } else {
         _provider = nullptr;

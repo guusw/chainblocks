@@ -112,7 +112,7 @@ Value Program::eval(form::Form ast, std::shared_ptr<Environment> env,
               if (res.index() == value::types::Var) {
                 // is cbvarvalue
                 auto &var = std::get<CBVarValue>(res);
-                if (var.value().valueType == Bool &&
+                if (var.value().valueType == CBType::Bool &&
                     var.value().payload.boolValue) {
                   // is true
                   ast = list.front().form;

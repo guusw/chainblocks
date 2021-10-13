@@ -13,92 +13,92 @@
 inline std::string type2Name(CBType type) {
   std::string name = "";
   switch (type) {
-  case EndOfBlittableTypes:
+  case CBType::EndOfBlittableTypes:
     // this should never happen
     throw chainblocks::CBException("EndOfBlittableTypes is an invalid type");
-  case None:
-    name = "None";
+  case CBType::None:
+    name = "CBType::None";
     break;
   case CBType::Any:
-    name = "Any";
+    name = "CBType::Any";
     break;
-  case Object:
-    name = "Object";
+  case CBType::Object:
+    name = "CBType::Object";
     break;
-  case Enum:
-    name = "Enum";
+  case CBType::Enum:
+    name = "CBType::Enum";
     break;
-  case Bool:
-    name = "Bool";
+  case CBType::Bool:
+    name = "CBType::Bool";
     break;
-  case Bytes:
-    name = "Bytes";
+  case CBType::Bytes:
+    name = "CBType::Bytes";
     break;
-  case Int:
-    name = "Int";
+  case CBType::Int:
+    name = "CBType::Int";
     break;
-  case Int2:
-    name = "Int2";
+  case CBType::Int2:
+    name = "CBType::Int2";
     break;
-  case Int3:
-    name = "Int3";
+  case CBType::Int3:
+    name = "CBType::Int3";
     break;
-  case Int4:
-    name = "Int4";
+  case CBType::Int4:
+    name = "CBType::Int4";
     break;
-  case Int8:
-    name = "Int8";
+  case CBType::Int8:
+    name = "CBType::Int8";
     break;
-  case Int16:
-    name = "Int16";
+  case CBType::Int16:
+    name = "CBType::Int16";
     break;
-  case Float:
-    name = "Float";
+  case CBType::Float:
+    name = "CBType::Float";
     break;
-  case Float2:
-    name = "Float2";
+  case CBType::Float2:
+    name = "CBType::Float2";
     break;
-  case Float3:
-    name = "Float3";
+  case CBType::Float3:
+    name = "CBType::Float3";
     break;
-  case Float4:
-    name = "Float4";
+  case CBType::Float4:
+    name = "CBType::Float4";
     break;
-  case Color:
-    name = "Color";
+  case CBType::Color:
+    name = "CBType::Color";
     break;
-  case Chain:
-    name = "Chain";
+  case CBType::Chain:
+    name = "CBType::Chain";
     break;
-  case Block:
-    name = "Block";
+  case CBType::Block:
+    name = "CBType::Block";
     break;
   case CBType::String:
-    name = "String";
+    name = "CBType::String";
     break;
-  case ContextVar:
-    name = "ContextVar";
+  case CBType::ContextVar:
+    name = "CBType::ContextVar";
     break;
   case CBType::Path:
-    name = "Path";
+    name = "CBType::Path";
     break;
-  case Image:
-    name = "Image";
+  case CBType::Image:
+    name = "CBType::Image";
     break;
-  case Audio:
-    name = "Audio";
+  case CBType::Audio:
+    name = "CBType::Audio";
     break;
-  case Seq:
-    name = "Seq";
+  case CBType::Seq:
+    name = "CBType::Seq";
     break;
-  case Table:
-    name = "Table";
+  case CBType::Table:
+    name = "CBType::Table";
     break;
   case CBType::Set:
-    name = "Set";
+    name = "CBType::Set";
     break;
-  case Array:
-    name = "Array";
+  case CBType::Array:
+    name = "CBType::Array";
     break;
   }
   return name;
@@ -133,61 +133,61 @@ ALWAYS_INLINE inline bool operator==(const CBVar &a, const CBVar &b) {
     return false;
 
   switch (a.valueType) {
-  case None:
+  case CBType::None:
   case CBType::Any:
-  case EndOfBlittableTypes:
+  case CBType::EndOfBlittableTypes:
     return true;
-  case Object:
+  case CBType::Object:
     return a.payload.objectVendorId == b.payload.objectVendorId &&
            a.payload.objectTypeId == b.payload.objectTypeId &&
            a.payload.objectValue == b.payload.objectValue;
-  case Enum:
+  case CBType::Enum:
     return a.payload.enumVendorId == b.payload.enumVendorId &&
            a.payload.enumTypeId == b.payload.enumTypeId &&
            a.payload.enumValue == b.payload.enumValue;
-  case Bool:
+  case CBType::Bool:
     return a.payload.boolValue == b.payload.boolValue;
-  case Int:
+  case CBType::Int:
     return a.payload.intValue == b.payload.intValue;
-  case Float:
+  case CBType::Float:
     return __builtin_fabs(a.payload.floatValue - b.payload.floatValue) <=
            FLT_EPSILON;
-  case Int2: {
+  case CBType::Int2: {
     CBInt2 vec = a.payload.int2Value == b.payload.int2Value;
     for (auto i = 0; i < 2; i++)
       if (vec[i] == 0)
         return false;
     return true;
   }
-  case Int3: {
+  case CBType::Int3: {
     CBInt3 vec = a.payload.int3Value == b.payload.int3Value;
     for (auto i = 0; i < 3; i++)
       if (vec[i] == 0)
         return false;
     return true;
   }
-  case Int4: {
+  case CBType::Int4: {
     CBInt4 vec = a.payload.int4Value == b.payload.int4Value;
     for (auto i = 0; i < 4; i++)
       if (vec[i] == 0)
         return false;
     return true;
   }
-  case Int8: {
+  case CBType::Int8: {
     CBInt8 vec = a.payload.int8Value == b.payload.int8Value;
     for (auto i = 0; i < 8; i++)
       if (vec[i] == 0)
         return false;
     return true;
   }
-  case Int16: {
+  case CBType::Int16: {
     CBInt16 vec = a.payload.int16Value == b.payload.int16Value;
     for (auto i = 0; i < 16; i++)
       if (vec[i] == 0)
         return false;
     return true;
   }
-  case Float2: {
+  case CBType::Float2: {
     const CBFloat2 vepsi = {FLT_EPSILON, FLT_EPSILON};
     CBFloat2 diff = a.payload.float2Value - b.payload.float2Value;
     diff[0] = __builtin_fabs(diff[0]);
@@ -198,7 +198,7 @@ ALWAYS_INLINE inline bool operator==(const CBVar &a, const CBVar &b) {
         return false;
     return true;
   }
-  case Float3: {
+  case CBType::Float3: {
     const CBFloat3 vepsi = {FLT_EPSILON, FLT_EPSILON, FLT_EPSILON};
     CBFloat3 diff = a.payload.float3Value - b.payload.float3Value;
     diff[0] = __builtin_fabs(diff[0]);
@@ -210,7 +210,7 @@ ALWAYS_INLINE inline bool operator==(const CBVar &a, const CBVar &b) {
         return false;
     return true;
   }
-  case Float4: {
+  case CBType::Float4: {
     const CBFloat4 vepsi = {FLT_EPSILON, FLT_EPSILON, FLT_EPSILON, FLT_EPSILON};
     CBFloat4 diff = a.payload.float4Value - b.payload.float4Value;
     diff[0] = __builtin_fabs(diff[0]);
@@ -223,17 +223,17 @@ ALWAYS_INLINE inline bool operator==(const CBVar &a, const CBVar &b) {
         return false;
     return true;
   }
-  case Color:
+  case CBType::Color:
     return a.payload.colorValue.r == b.payload.colorValue.r &&
            a.payload.colorValue.g == b.payload.colorValue.g &&
            a.payload.colorValue.b == b.payload.colorValue.b &&
            a.payload.colorValue.a == b.payload.colorValue.a;
-  case Chain:
+  case CBType::Chain:
     return a.payload.chainValue == b.payload.chainValue;
-  case Block:
+  case CBType::Block:
     return a.payload.blockValue == b.payload.blockValue;
   case CBType::Path:
-  case ContextVar:
+  case CBType::ContextVar:
   case CBType::String: {
     if (a.payload.stringValue == b.payload.stringValue)
       return true;
@@ -250,7 +250,7 @@ ALWAYS_INLINE inline bool operator==(const CBVar &a, const CBVar &b) {
 
     return astr == bstr;
   }
-  case Image: {
+  case CBType::Image: {
     auto apixsize = 1;
     auto bpixsize = 1;
     if ((a.payload.imageValue.flags & CBIMAGE_FLAGS_16BITS_INT) ==
@@ -274,7 +274,7 @@ ALWAYS_INLINE inline bool operator==(const CBVar &a, const CBVar &b) {
                     a.payload.imageValue.channels * a.payload.imageValue.width *
                         a.payload.imageValue.height * apixsize) == 0));
   }
-  case Audio: {
+  case CBType::Audio: {
     return a.payload.audioValue.nsamples == b.payload.audioValue.nsamples &&
            a.payload.audioValue.channels == b.payload.audioValue.channels &&
            a.payload.audioValue.sampleRate == b.payload.audioValue.sampleRate &&
@@ -283,9 +283,9 @@ ALWAYS_INLINE inline bool operator==(const CBVar &a, const CBVar &b) {
                     a.payload.audioValue.channels *
                         a.payload.audioValue.nsamples * sizeof(float)) == 0));
   }
-  case Seq:
+  case CBType::Seq:
     return _seqEq(a, b);
-  case Table:
+  case CBType::Table:
     return _tableEq(a, b);
   case CBType::Set:
     return _setEq(a, b);
@@ -326,50 +326,50 @@ ALWAYS_INLINE inline bool operator<(const CBVar &a, const CBVar &b) {
         "Comparison < between two different value types");
 
   switch (a.valueType) {
-  case Enum: {
+  case CBType::Enum: {
     if (a.payload.enumVendorId != b.payload.enumVendorId ||
         a.payload.enumTypeId != b.payload.enumTypeId)
       throw chainblocks::InvalidVarTypeError(
           "Comparison < between two different kind of enums (vendor/type)");
     return a.payload.enumValue < b.payload.enumValue;
   }
-  case Bool:
+  case CBType::Bool:
     return a.payload.boolValue < b.payload.boolValue;
-  case Int:
+  case CBType::Int:
     return a.payload.intValue < b.payload.intValue;
-  case Float:
+  case CBType::Float:
     return a.payload.floatValue < b.payload.floatValue;
-  case Int2: {
+  case CBType::Int2: {
     CBVECTOR_CMP(a.payload.int2Value, b.payload.int2Value, 2, false);
   }
-  case Int3: {
+  case CBType::Int3: {
     CBVECTOR_CMP(a.payload.int3Value, b.payload.int3Value, 3, false);
   }
-  case Int4: {
+  case CBType::Int4: {
     CBVECTOR_CMP(a.payload.int4Value, b.payload.int4Value, 4, false);
   }
-  case Int8: {
+  case CBType::Int8: {
     CBVECTOR_CMP(a.payload.int8Value, b.payload.int8Value, 8, false);
   }
-  case Int16: {
+  case CBType::Int16: {
     CBVECTOR_CMP(a.payload.int16Value, b.payload.int16Value, 16, false);
   }
-  case Float2: {
+  case CBType::Float2: {
     CBVECTOR_CMP(a.payload.float2Value, b.payload.float2Value, 2, false);
   }
-  case Float3: {
+  case CBType::Float3: {
     CBVECTOR_CMP(a.payload.float3Value, b.payload.float3Value, 3, false);
   }
-  case Float4: {
+  case CBType::Float4: {
     CBVECTOR_CMP(a.payload.float4Value, b.payload.float4Value, 4, false);
   }
-  case Color:
+  case CBType::Color:
     return a.payload.colorValue.r < b.payload.colorValue.r ||
            a.payload.colorValue.g < b.payload.colorValue.g ||
            a.payload.colorValue.b < b.payload.colorValue.b ||
            a.payload.colorValue.a < b.payload.colorValue.a;
   case CBType::Path:
-  case ContextVar:
+  case CBType::ContextVar:
   case CBType::String: {
     if (a.payload.stringValue == b.payload.stringValue)
       return false;
@@ -386,11 +386,11 @@ ALWAYS_INLINE inline bool operator<(const CBVar &a, const CBVar &b) {
 
     return astr < bstr;
   }
-  case Seq:
+  case CBType::Seq:
     return _seqLess(a, b);
-  case Table:
+  case CBType::Table:
     return _tableLess(a, b);
-  case Bytes: {
+  case CBType::Bytes: {
     if (a.payload.bytesValue == b.payload.bytesValue &&
         a.payload.bytesSize == b.payload.bytesSize)
       return false;
@@ -400,7 +400,7 @@ ALWAYS_INLINE inline bool operator<(const CBVar &a, const CBVar &b) {
                           b.payload.bytesSize);
     return abuf < bbuf;
   }
-  case Array: {
+  case CBType::Array: {
     if (a.payload.arrayValue.elements == b.payload.arrayValue.elements &&
         a.payload.arrayValue.len == b.payload.arrayValue.len)
       return false;
@@ -427,50 +427,50 @@ ALWAYS_INLINE inline bool operator<=(const CBVar &a, const CBVar &b) {
         "Comparison <= between two different value types");
 
   switch (a.valueType) {
-  case Enum: {
+  case CBType::Enum: {
     if (a.payload.enumVendorId != b.payload.enumVendorId ||
         a.payload.enumTypeId != b.payload.enumTypeId)
       throw chainblocks::InvalidVarTypeError(
           "Comparison <= between two different kind of enums (vendor/type)");
     return a.payload.enumValue <= b.payload.enumValue;
   }
-  case Bool:
+  case CBType::Bool:
     return a.payload.boolValue <= b.payload.boolValue;
-  case Int:
+  case CBType::Int:
     return a.payload.intValue <= b.payload.intValue;
-  case Float:
+  case CBType::Float:
     return a.payload.floatValue <= b.payload.floatValue;
-  case Int2: {
+  case CBType::Int2: {
     CBVECTOR_CMP(a.payload.int2Value, b.payload.int2Value, 2, true);
   }
-  case Int3: {
+  case CBType::Int3: {
     CBVECTOR_CMP(a.payload.int3Value, b.payload.int3Value, 3, true);
   }
-  case Int4: {
+  case CBType::Int4: {
     CBVECTOR_CMP(a.payload.int4Value, b.payload.int4Value, 4, true);
   }
-  case Int8: {
+  case CBType::Int8: {
     CBVECTOR_CMP(a.payload.int8Value, b.payload.int8Value, 8, true);
   }
-  case Int16: {
+  case CBType::Int16: {
     CBVECTOR_CMP(a.payload.int16Value, b.payload.int16Value, 16, true);
   }
-  case Float2: {
+  case CBType::Float2: {
     CBVECTOR_CMP(a.payload.float2Value, b.payload.float2Value, 2, true);
   }
-  case Float3: {
+  case CBType::Float3: {
     CBVECTOR_CMP(a.payload.float3Value, b.payload.float3Value, 3, true);
   }
-  case Float4: {
+  case CBType::Float4: {
     CBVECTOR_CMP(a.payload.float4Value, b.payload.float4Value, 4, true);
   }
-  case Color:
+  case CBType::Color:
     return a.payload.colorValue.r <= b.payload.colorValue.r &&
            a.payload.colorValue.g <= b.payload.colorValue.g &&
            a.payload.colorValue.b <= b.payload.colorValue.b &&
            a.payload.colorValue.a <= b.payload.colorValue.a;
   case CBType::Path:
-  case ContextVar:
+  case CBType::ContextVar:
   case CBType::String: {
     if (a.payload.stringValue == b.payload.stringValue)
       return true;
@@ -487,11 +487,11 @@ ALWAYS_INLINE inline bool operator<=(const CBVar &a, const CBVar &b) {
 
     return astr <= bstr;
   }
-  case Seq:
+  case CBType::Seq:
     return _seqLessEq(a, b);
-  case Table:
+  case CBType::Table:
     return _tableLessEq(a, b);
-  case Bytes: {
+  case CBType::Bytes: {
     if (a.payload.bytesValue == b.payload.bytesValue &&
         a.payload.bytesSize == b.payload.bytesSize)
       return true;
@@ -501,7 +501,7 @@ ALWAYS_INLINE inline bool operator<=(const CBVar &a, const CBVar &b) {
                           b.payload.bytesSize);
     return abuf <= bbuf;
   }
-  case Array: {
+  case CBType::Array: {
     if (a.payload.arrayValue.elements == b.payload.arrayValue.elements &&
         a.payload.arrayValue.len == b.payload.arrayValue.len)
       return true;
@@ -567,9 +567,9 @@ template <> struct hash<CBTypeInfo> {
     using std::hash;
     using std::size_t;
     using std::string;
-    auto res = hash<int>()(typeInfo.basicType);
-    res = res ^ hash<int>()(typeInfo.innerType);
-    if (typeInfo.basicType == Table) {
+    auto res = hash<int>()((int)typeInfo.basicType);
+    res = res ^ hash<int>()((int)typeInfo.innerType);
+    if (typeInfo.basicType == CBType::Table) {
       if (typeInfo.table.keys.elements) {
         for (uint32_t i = 0; i < typeInfo.table.keys.len; i++) {
           res = res ^ hash<string>()(typeInfo.table.keys.elements[i]);
@@ -580,7 +580,7 @@ template <> struct hash<CBTypeInfo> {
           res = res ^ hash<CBTypeInfo>()(typeInfo.table.types.elements[i]);
         }
       }
-    } else if (typeInfo.basicType == Seq) {
+    } else if (typeInfo.basicType == CBType::Seq) {
       for (uint32_t i = 0; i < typeInfo.seqTypes.len; i++) {
         if (typeInfo.seqTypes.elements[i].recursiveSelf) {
           res = res ^ hash<int>()(INT32_MAX);
@@ -596,10 +596,10 @@ template <> struct hash<CBTypeInfo> {
           res = res ^ hash<CBTypeInfo>()(typeInfo.setTypes.elements[i]);
         }
       }
-    } else if (typeInfo.basicType == Object) {
+    } else if (typeInfo.basicType == CBType::Object) {
       res = res ^ hash<int>()(typeInfo.object.vendorId);
       res = res ^ hash<int>()(typeInfo.object.typeId);
-    } else if (typeInfo.basicType == Enum) {
+    } else if (typeInfo.basicType == CBType::Enum) {
       res = res ^ hash<int>()(typeInfo.enumeration.vendorId);
       res = res ^ hash<int>()(typeInfo.enumeration.typeId);
     }

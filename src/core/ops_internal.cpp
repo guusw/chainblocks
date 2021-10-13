@@ -173,7 +173,7 @@ std::ostream &operator<<(std::ostream &os, const CBVar &var) {
     }
     os << "]";
     break;
-  case Table: {
+  case CBType::Table: {
     os << "{";
     auto &t = var.payload.tableValue;
     bool first = true;

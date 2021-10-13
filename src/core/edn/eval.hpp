@@ -81,7 +81,7 @@ public:
   IntValue(int64_t value, const token::Token &token,
            const std::shared_ptr<Environment> &env)
       : CBVarValue(token, env) {
-    _var.valueType = Int;
+    _var.valueType = CBType::Int;
     _var.payload.intValue = value;
   }
 };
@@ -91,7 +91,7 @@ public:
   FloatValue(double value, const token::Token &token,
              const std::shared_ptr<Environment> &env)
       : CBVarValue(token, env) {
-    _var.valueType = Float;
+    _var.valueType = CBType::Float;
     _var.payload.floatValue = value;
   }
 };
@@ -101,7 +101,7 @@ public:
   StringValue(std::string value, const token::Token &token,
               const std::shared_ptr<Environment> &env)
       : CBVarValue(token, env), _storage(value) {
-    _var.valueType = String;
+    _var.valueType = CBType::String;
     _var.payload.stringValue = _storage.c_str();
   }
 
@@ -114,7 +114,7 @@ public:
   BoolValue(bool value, const token::Token &token,
             const std::shared_ptr<Environment> &env)
       : CBVarValue(token, env) {
-    _var.valueType = Bool;
+    _var.valueType = CBType::Bool;
     _var.payload.boolValue = value;
   }
 };
@@ -124,17 +124,17 @@ public:
   BlockValue(CBlockPtr value, const token::Token &token,
              const std::shared_ptr<Environment> &env)
       : CBVarValue(token, env) {
-    _var.valueType = Block;
+    _var.valueType = CBType::Block;
     _var.payload.blockValue = value;
     _block = std::shared_ptr<CBlock>(value, [this](CBlock *blk) {
       // Make sure we are not consumed (inside a chain or another block)
-      if (_var.valueType == Block)
+      if (_var.valueType == CBType::Block)
         blk->destroy(blk);
     });
   }
 
   void consume() {
-    if (_var.valueType != Block) {
+    if (_var.valueType != CBType::Block) {
       throw EvalException("Attempt to use an already consumed block",
                           _token.line);
     }

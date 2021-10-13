@@ -17,8 +17,8 @@ struct VectorUnaryBase : public UnaryBase {
 
   template <class Operation>
   CBVar doActivate(CBContext *context, const CBVar &input, Operation operate) {
-    if (input.valueType == Seq) {
-      _result.valueType = Seq;
+    if (input.valueType == CBType::Seq) {
+      _result.valueType = CBType::Seq;
       chainblocks::arrayResize(_result.payload.seqValue, 0);
       for (uint32_t i = 0; i < input.payload.seqValue.len; i++) {
         CBVar scratch;
@@ -52,7 +52,7 @@ struct VectorBinaryBase : public BinaryBase {
       operate(scratch, input, operand);
       return scratch;
     } else if (_opType == Seq1) {
-      _result.valueType = Seq;
+      _result.valueType = CBType::Seq;
       chainblocks::arrayResize(_result.payload.seqValue, 0);
       for (uint32_t i = 0; i < input.payload.seqValue.len; i++) {
         CBVar scratch;
@@ -61,7 +61,7 @@ struct VectorBinaryBase : public BinaryBase {
       }
       return _result;
     } else {
-      _result.valueType = Seq;
+      _result.valueType = CBType::Seq;
       chainblocks::arrayResize(_result.payload.seqValue, 0);
       for (uint32_t i = 0;
            i < input.payload.seqValue.len && i < operand.payload.seqValue.len;
@@ -79,18 +79,18 @@ struct VectorBinaryBase : public BinaryBase {
 struct Cross : public VectorBinaryBase {
   struct Operation {
     void operator()(CBVar &output, const CBVar &input, const CBVar &operand) {
-      if (operand.valueType != Float3)
+      if (operand.valueType != CBType::Float3)
         throw ActivationError("LinAlg.Cross works only with Float3 types.");
 
       switch (input.valueType) {
-      case Float3: {
+      case CBType::Float3: {
         const CBInt3 mask1 = {1, 2, 0};
         const CBInt3 mask2 = {2, 0, 1};
         auto a1 = shufflevector(input.payload.float3Value, mask1);
         auto a2 = shufflevector(input.payload.float3Value, mask2);
         auto b1 = shufflevector(operand.payload.float3Value, mask1);
         auto b2 = shufflevector(operand.payload.float3Value, mask2);
-        output.valueType = Float3;
+        output.valueType = CBType::Float3;
         output.payload.float3Value = a1 * b2 - a2 * b1;
       } break;
       default:
@@ -120,15 +120,15 @@ struct Dot : public VectorBinaryBase {
             "LinAlg.Dot works only with same input and operand types.");
 
       switch (input.valueType) {
-      case Float2: {
-        output.valueType = Float;
+      case CBType::Float2: {
+        output.valueType = CBType::Float;
         output.payload.floatValue =
             input.payload.float2Value[0] * operand.payload.float2Value[0];
         output.payload.floatValue +=
             input.payload.float2Value[1] * operand.payload.float2Value[1];
       } break;
-      case Float3: {
-        output.valueType = Float;
+      case CBType::Float3: {
+        output.valueType = CBType::Float;
         output.payload.floatValue =
             input.payload.float3Value[0] * operand.payload.float3Value[0];
         output.payload.floatValue +=
@@ -136,8 +136,8 @@ struct Dot : public VectorBinaryBase {
         output.payload.floatValue +=
             input.payload.float3Value[2] * operand.payload.float3Value[2];
       } break;
-      case Float4: {
-        output.valueType = Float;
+      case CBType::Float4: {
+        output.valueType = CBType::Float;
         output.payload.floatValue =
             input.payload.float4Value[0] * operand.payload.float4Value[0];
         output.payload.floatValue +=
@@ -209,8 +209,8 @@ struct Normalize : public VectorUnaryBase {
   static CBTypesInfo outputTypes() { return CoreInfo::FloatVectorsOrFloatSeq; }
 
   CBTypeInfo compose(const CBInstanceData &data) {
-    if (data.inputType.basicType == Seq && data.inputType.seqTypes.len == 1 &&
-        data.inputType.seqTypes.elements[0].basicType == Float) {
+    if (data.inputType.basicType == CBType::Seq && data.inputType.seqTypes.len == 1 &&
+        data.inputType.seqTypes.elements[0].basicType == CBType::Float) {
       OVERRIDE_ACTIVATE(data, activateFloatSeq);
     } else {
       OVERRIDE_ACTIVATE(data, activate);
@@ -241,8 +241,8 @@ struct Normalize : public VectorUnaryBase {
       lenOp(len, input);
 
       switch (input.valueType) {
-      case Float2: {
-        output.valueType = Float2;
+      case CBType::Float2: {
+        output.valueType = CBType::Float2;
         if (len.payload.floatValue > 0 || !positiveOnly) {
           CBFloat2 vlen = {len.payload.floatValue, len.payload.floatValue};
           output.payload.float2Value = input.payload.float2Value / vlen;
@@ -254,8 +254,8 @@ struct Normalize : public VectorUnaryBase {
           output.payload.float2Value = input.payload.float2Value;
         }
       } break;
-      case Float3: {
-        output.valueType = Float3;
+      case CBType::Float3: {
+        output.valueType = CBType::Float3;
         if (len.payload.floatValue > 0 || !positiveOnly) {
           CBFloat3 vlen = {float(len.payload.floatValue),
                            float(len.payload.floatValue),
@@ -269,8 +269,8 @@ struct Normalize : public VectorUnaryBase {
           output.payload.float3Value = input.payload.float3Value;
         }
       } break;
-      case Float4: {
-        output.valueType = Float4;
+      case CBType::Float4: {
+        output.valueType = CBType::Float4;
         if (len.payload.floatValue > 0 || !positiveOnly) {
           CBFloat4 vlen = {
               float(len.payload.floatValue), float(len.payload.floatValue),
@@ -356,17 +356,17 @@ struct MatMul : public VectorBinaryBase {
       &_result.payload.seqValue.elements[0]);                                  \
   *c = linalg::mul(*a, *b);                                                    \
   for (auto i = 0; i < _n_; i++) {                                             \
-    _result.payload.seqValue.elements[i].valueType = _v2_;                     \
+    _result.payload.seqValue.elements[i].valueType = CBType::_v2_;                     \
   }
-      _result.valueType = Seq;
+      _result.valueType = CBType::Seq;
       switch (input.payload.seqValue.elements[0].valueType) {
-      case Float2: {
+      case CBType::Float2: {
         MATMUL_OP(double2x2, Float2, 2);
       } break;
-      case Float3: {
+      case CBType::Float3: {
         MATMUL_OP(float3x3, Float3, 3);
       } break;
-      case Float4: {
+      case CBType::Float4: {
         MATMUL_OP(float4x4, Float4, 4);
       } break;
       default:
@@ -383,15 +383,15 @@ struct MatMul : public VectorBinaryBase {
   linalg::aliases::_v3_ *c =                                                   \
       reinterpret_cast<linalg::aliases::_v3_ *>(&_result.payload._v3v_);       \
   *c = linalg::mul(*a, *b);                                                    \
-  _result.valueType = _v2_;
+  _result.valueType = CBType::_v2_;
       switch (input.payload.seqValue.elements[0].valueType) {
-      case Float2: {
+      case CBType::Float2: {
         MATMUL_OP(double2x2, Float2, 2, double2, float2Value);
       } break;
-      case Float3: {
+      case CBType::Float3: {
         MATMUL_OP(float3x3, Float3, 3, float3, float3Value);
       } break;
-      case Float4: {
+      case CBType::Float4: {
         MATMUL_OP(float4x4, Float4, 4, float4, float4Value);
       } break;
       default:
@@ -408,7 +408,7 @@ struct MatMul : public VectorBinaryBase {
 
 struct Transpose : public VectorUnaryBase {
   CBTypeInfo compose(const CBInstanceData &data) {
-    if (data.inputType.basicType != Seq) {
+    if (data.inputType.basicType != CBType::Seq) {
       throw ComposeError("Transpose expected a Seq matrix array as input.");
     }
     return data.inputType;
@@ -423,27 +423,27 @@ struct Transpose : public VectorUnaryBase {
 
     size_t width = 0;
     switch (input.payload.seqValue.elements[0].valueType) {
-    case Float2:
+    case CBType::Float2:
       width = 2;
       break;
-    case Float3:
+    case CBType::Float3:
       width = 3;
       break;
-    case Float4:
+    case CBType::Float4:
       width = 4;
       break;
     default:
       break;
     }
 
-    _result.valueType = Seq;
+    _result.valueType = CBType::Seq;
     chainblocks::arrayResize(_result.payload.seqValue, width);
 
     double v1{}, v2{}, v3{}, v4{};
     for (size_t w = 0; w < width; w++) {
       switch (height) {
       case 2:
-        _result.payload.seqValue.elements[w].valueType = Float2;
+        _result.payload.seqValue.elements[w].valueType = CBType::Float2;
         switch (width) {
         case 2:
           v1 = input.payload.seqValue.elements[0].payload.float2Value[w];
@@ -464,7 +464,7 @@ struct Transpose : public VectorUnaryBase {
         _result.payload.seqValue.elements[w].payload.float2Value[1] = v2;
         break;
       case 3:
-        _result.payload.seqValue.elements[w].valueType = Float3;
+        _result.payload.seqValue.elements[w].valueType = CBType::Float3;
         switch (width) {
         case 2:
           v1 = input.payload.seqValue.elements[0].payload.float2Value[w];
@@ -489,7 +489,7 @@ struct Transpose : public VectorUnaryBase {
         _result.payload.seqValue.elements[w].payload.float3Value[2] = v3;
         break;
       case 4:
-        _result.payload.seqValue.elements[w].valueType = Float4;
+        _result.payload.seqValue.elements[w].valueType = CBType::Float4;
         switch (width) {
         case 2:
           v1 = input.payload.seqValue.elements[0].payload.float2Value[w];
@@ -530,11 +530,11 @@ struct Orthographic : VectorUnaryBase {
   double _far = 1000.0;
 
   void setup() {
-    _result.valueType = Seq;
+    _result.valueType = CBType::Seq;
     chainblocks::arrayResize(_result.payload.seqValue, 4);
     for (auto i = 0; i < 4; i++) {
       _result.payload.seqValue.elements[i] = Var::Empty;
-      _result.payload.seqValue.elements[i].valueType = Float4;
+      _result.payload.seqValue.elements[i].valueType = CBType::Float4;
     }
   }
 

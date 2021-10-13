@@ -583,7 +583,7 @@ private:
     void before_stop(CBChain *chain) {
       // Collect fitness last result
       auto fitnessVar = chain->finishedOutput;
-      if (fitnessVar.valueType == Float) {
+      if (fitnessVar.valueType == CBType::Float) {
         self.fitness = fitnessVar.payload.floatValue;
       }
     }
@@ -684,12 +684,12 @@ struct Mutant {
     case 2: {
       destroyBlocks();
       _mutations = value;
-      if (_mutations.valueType == Seq) {
+      if (_mutations.valueType == CBType::Seq) {
         for (auto &mut : _mutations) {
-          if (mut.valueType == Block) {
+          if (mut.valueType == CBType::Block) {
             auto blk = mut.payload.blockValue;
             blk->owned = true;
-          } else if (mut.valueType == Seq) {
+          } else if (mut.valueType == CBType::Seq) {
             for (auto &bv : mut) {
               auto blk = bv.payload.blockValue;
               blk->owned = true;
@@ -722,12 +722,12 @@ struct Mutant {
   }
 
   void cleanupMutations() const {
-    if (_mutations.valueType == Seq) {
+    if (_mutations.valueType == CBType::Seq) {
       for (auto &mut : _mutations) {
-        if (mut.valueType == Block) {
+        if (mut.valueType == CBType::Block) {
           auto blk = mut.payload.blockValue;
           blk->cleanup(blk);
-        } else if (mut.valueType == Seq) {
+        } else if (mut.valueType == CBType::Seq) {
           for (auto &bv : mut) {
             auto blk = bv.payload.blockValue;
             blk->cleanup(blk);
@@ -738,13 +738,13 @@ struct Mutant {
   }
 
   void warmupMutations(CBContext *ctx) const {
-    if (_mutations.valueType == Seq) {
+    if (_mutations.valueType == CBType::Seq) {
       for (auto &mut : _mutations) {
-        if (mut.valueType == Block) {
+        if (mut.valueType == CBType::Block) {
           auto blk = mut.payload.blockValue;
           if (blk->warmup)
             blk->warmup(blk, ctx);
-        } else if (mut.valueType == Seq) {
+        } else if (mut.valueType == CBType::Seq) {
           for (auto &bv : mut) {
             auto blk = bv.payload.blockValue;
             if (blk->warmup)
@@ -761,13 +761,13 @@ struct Mutant {
   }
 
   void destroyBlocks() {
-    if (_mutations.valueType == Seq) {
+    if (_mutations.valueType == CBType::Seq) {
       for (auto &mut : _mutations) {
-        if (mut.valueType == Block) {
+        if (mut.valueType == CBType::Block) {
           auto blk = mut.payload.blockValue;
           blk->cleanup(blk);
           blk->destroy(blk);
-        } else if (mut.valueType == Seq) {
+        } else if (mut.valueType == CBType::Seq) {
           for (auto &bv : mut) {
             auto blk = bv.payload.blockValue;
             blk->cleanup(blk);
@@ -785,7 +785,7 @@ struct Mutant {
   CBTypeInfo compose(const CBInstanceData &data) {
     auto inner = mutant();
     // validate parameters
-    if (_mutations.valueType == Seq && inner) {
+    if (_mutations.valueType == CBType::Seq && inner) {
       auto dataCopy = data;
       int idx = 0;
       auto innerParams = inner->parameters(inner);
@@ -794,7 +794,7 @@ struct Mutant {
           break;
         TypeInfo ptype(inner->getParam(inner, idx), data);
         dataCopy.inputType = ptype;
-        if (mut.valueType == Block) {
+        if (mut.valueType == CBType::Block) {
           auto blk = mut.payload.blockValue;
           if (blk->compose) {
             auto res = blk->compose(blk, dataCopy);
@@ -803,7 +803,7 @@ struct Mutant {
                                 "mutation chain's output.");
             }
           }
-        } else if (mut.valueType == Seq) {
+        } else if (mut.valueType == CBType::Seq) {
           auto res = composeChain(
               mut.payload.seqValue,
               [](const CBlock *errorBlock, const char *errorTxt,
@@ -942,7 +942,7 @@ inline void Evolve::gatherMutants(CBChain *chain,
       auto mutator = reinterpret_cast<const BlockWrapper<Mutant> *>(info.block);
       auto &minfo = out.emplace_back(mutator->block);
       auto mutant = mutator->block.mutant();
-      if (mutator->block._indices.valueType == Seq) {
+      if (mutator->block._indices.valueType == CBType::Seq) {
         for (auto &idx : mutator->block._indices) {
           auto i = int(idx.payload.intValue);
           minfo.originalParams.emplace_back(i, mutant->getParam(mutant, i));
@@ -972,7 +972,7 @@ inline void Evolve::crossover(Individual &child, const Individual &parent0,
       }
       // check if we have mutant params and cross them over
       auto &indices = cmuts->block.get()._indices;
-      if (indices.valueType == Seq) {
+      if (indices.valueType == CBType::Seq) {
         for (auto &idx : indices) {
           const auto i = int(idx.payload.intValue);
           const auto r = Random::nextDouble();
@@ -1014,12 +1014,12 @@ inline void Evolve::mutate(Evolve::Individual &individual) {
         if (info.block.get().mutant()) {
           auto mutant = info.block.get().mutant();
           auto &indices = mutator._indices;
-          if (mutant->mutate && (indices.valueType == None || rand() < 0.5)) {
+          if (mutant->mutate && (indices.valueType == CBType::None || rand() < 0.5)) {
             // In the case the block has `mutate`
-            auto table = options.valueType == Table ? options.payload.tableValue
+            auto table = options.valueType == CBType::Table ? options.payload.tableValue
                                                     : CBTable();
             mutant->mutate(mutant, table);
-          } else if (indices.valueType == Seq) {
+          } else if (indices.valueType == CBType::Seq) {
             auto &iseq = indices.payload.seqValue;
             // do stuff on the param
             // select a random one
@@ -1028,16 +1028,16 @@ inline void Evolve::mutate(Evolve::Individual &individual) {
                 mutant, int(iseq.elements[rparam].payload.intValue));
             // if we have mutation blocks use them
             // if not use default operation
-            if (mutator._mutations.valueType == Seq &&
+            if (mutator._mutations.valueType == CBType::Seq &&
                 uint32_t(rparam) < mutator._mutations.payload.seqValue.len) {
               // we need to warmup / cleanup in this case
               // mutant mini chain also currently is not composed! FIXME?
               mutator.warmupMutations(&ctx);
               auto mblks = mutator._mutations.payload.seqValue.elements[rparam];
-              if (mblks.valueType == Block) {
+              if (mblks.valueType == CBType::Block) {
                 auto blk = mblks.payload.blockValue;
                 current = blk->activate(blk, &ctx, &current);
-              } else if (mblks.valueType == Seq) {
+              } else if (mblks.valueType == CBType::Seq) {
                 auto blks = mblks.payload.seqValue;
                 CBVar out{};
                 activateBlocks(blks, &ctx, current, out);
@@ -1119,7 +1119,7 @@ struct DBlock {
       return Var(_name);
     case 1: {
       CBVar res{};
-      res.valueType = Seq;
+      res.valueType = CBType::Seq;
       const auto nparams = _wrappedParams.size();
       res.payload.seqValue.elements =
           nparams > 0 ? &_wrappedParams.front() : nullptr;

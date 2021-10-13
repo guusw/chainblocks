@@ -36,7 +36,7 @@ struct Log : public LoggingBase {
     auto res = CBVar();
     switch (index) {
     case 0:
-      res.valueType = String;
+      res.valueType = CBType::String;
       res.payload.stringValue = msg.c_str();
       break;
     default:
@@ -80,7 +80,7 @@ struct Msg : public LoggingBase {
     auto res = CBVar();
     switch (index) {
     case 0:
-      res.valueType = String;
+      res.valueType = CBType::String;
       res.payload.stringValue = msg.c_str();
       break;
     default:

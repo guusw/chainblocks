@@ -730,7 +730,7 @@ public:
 
   // implicit converter
   IterableArray(const CBVar &v) : _seq(v.payload.seqValue), _owned(false) {
-    assert(v.valueType == Seq);
+    assert(v.valueType == CBType::Seq);
   }
 
   IterableArray(size_t s) : _seq({}), _owned(true) { arrayResize(_seq, s); }
@@ -768,7 +768,7 @@ public:
   }
 
   IterableArray &operator=(CBVar &var) {
-    assert(var.valueType == Seq);
+    assert(var.valueType == CBType::Seq);
     _seq = var.payload.seqValue;
     _owned = false;
     return *this;
@@ -860,29 +860,29 @@ NO_INLINE void _cloneVarSlow(CBVar &dst, const CBVar &src);
 
 ALWAYS_INLINE inline void destroyVar(CBVar &var) {
   switch (var.valueType) {
-  case Table:
+  case CBType::Table:
   case CBType::Set:
-  case Seq:
+  case CBType::Seq:
     _destroyVarSlow(var);
     break;
   case CBType::Path:
   case CBType::String:
-  case ContextVar:
+  case CBType::ContextVar:
     delete[] var.payload.stringValue;
     break;
-  case Image:
+  case CBType::Image:
     delete[] var.payload.imageValue.data;
     break;
-  case Audio:
+  case CBType::Audio:
     delete[] var.payload.audioValue.samples;
     break;
-  case Bytes:
+  case CBType::Bytes:
     delete[] var.payload.bytesValue;
     break;
   case CBType::Array:
     arrayFree(var.payload.arrayValue);
     break;
-  case Object:
+  case CBType::Object:
     if ((var.flags & CBVAR_FLAGS_USES_OBJINFO) == CBVAR_FLAGS_USES_OBJINFO &&
         var.objectInfo && var.objectInfo->release) {
       // in this case the custom object needs actual destruction
@@ -901,11 +901,11 @@ ALWAYS_INLINE inline void destroyVar(CBVar &var) {
 }
 
 ALWAYS_INLINE inline void cloneVar(CBVar &dst, const CBVar &src) {
-  if (src.valueType < EndOfBlittableTypes &&
-      dst.valueType < EndOfBlittableTypes) {
+  if (src.valueType < CBType::EndOfBlittableTypes &&
+      dst.valueType < CBType::EndOfBlittableTypes) {
     dst.valueType = src.valueType;
     memcpy(&dst.payload, &src.payload, sizeof(CBVarPayload));
-  } else if (src.valueType < EndOfBlittableTypes) {
+  } else if (src.valueType < CBType::EndOfBlittableTypes) {
     destroyVar(dst);
     dst.valueType = src.valueType;
     memcpy(&dst.payload, &src.payload, sizeof(CBVarPayload));
@@ -1225,15 +1225,15 @@ struct VarStringStream {
     if (var != previousValue) {
       cache.reset();
       std::ostream stream(&cache);
-      if (var.valueType == Int) {
+      if (var.valueType == CBType::Int) {
         stream << "0x" << std::hex << std::setw(2) << std::setfill('0')
                << var.payload.intValue;
-      } else if (var.valueType == Bytes) {
+      } else if (var.valueType == CBType::Bytes) {
         stream << "0x" << std::hex;
         for (uint32_t i = 0; i < var.payload.bytesSize; i++)
           stream << std::setw(2) << std::setfill('0')
                  << (int)var.payload.bytesValue[i];
-      } else if (var.valueType == String) {
+      } else if (var.valueType == CBType::String) {
         stream << "0x" << std::hex;
         auto len = var.payload.stringLen;
         if (len == 0 && var.payload.stringValue) {

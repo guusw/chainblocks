@@ -70,7 +70,10 @@ void cbInitExtras() {
   registerEmscriptenShaderCompiler();
 #endif
 
+#if CHAINBLOCKS_WITH_RUST_BLOCKS
   BGFX::registerBGFXBlocks();
+#endif
+  
   chainblocks::ImGui::registerImGuiBlocks();
   chainblocks::Gizmo::registerGizmoBlocks();
   XR::registerBlocks();

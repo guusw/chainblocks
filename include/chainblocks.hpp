@@ -593,70 +593,70 @@ struct Var : public CBVar {
   }
 
   explicit operator bool() const {
-    if (valueType != Bool) {
-      throw InvalidVarTypeError("Invalid variable casting! expected Bool");
+    if (valueType != CBType::Bool) {
+      throw InvalidVarTypeError("Invalid variable casting! expected CBType::Bool");
     }
     return payload.boolValue;
   }
 
   explicit operator int() const {
-    if (valueType != Int) {
-      throw InvalidVarTypeError("Invalid variable casting! expected Int");
+    if (valueType != CBType::Int) {
+      throw InvalidVarTypeError("Invalid variable casting! expected CBType::Intype::Int");
     }
     return static_cast<int>(payload.intValue);
   }
 
   explicit operator uintptr_t() const {
-    if (valueType != Int) {
-      throw InvalidVarTypeError("Invalid variable casting! expected Int");
+    if (valueType != CBType::Int) {
+      throw InvalidVarTypeError("Invalid variable casting! expected CBType::Int");
     }
     return static_cast<uintptr_t>(payload.intValue);
   }
 
   explicit operator int16_t() const {
-    if (valueType != Int) {
-      throw InvalidVarTypeError("Invalid variable casting! expected Int");
+    if (valueType != CBType::Int) {
+      throw InvalidVarTypeError("Invalid variable casting! expected CBType::Int");
     }
     return static_cast<int16_t>(payload.intValue);
   }
 
   explicit operator uint8_t() const {
-    if (valueType != Int) {
-      throw InvalidVarTypeError("Invalid variable casting! expected Int");
+    if (valueType != CBType::Int) {
+      throw InvalidVarTypeError("Invalid variable casting! expected CBType::Int");
     }
     return static_cast<uint8_t>(payload.intValue);
   }
 
   explicit operator int64_t() const {
-    if (valueType != Int) {
-      throw InvalidVarTypeError("Invalid variable casting! expected Int");
+    if (valueType != CBType::Int) {
+      throw InvalidVarTypeError("Invalid variable casting! expected CBType::Int");
     }
     return payload.intValue;
   }
 
   explicit operator float() const {
-    if (valueType == Float) {
+    if (valueType == CBType::Float) {
       return static_cast<float>(payload.floatValue);
-    } else if (valueType == Int) {
+    } else if (valueType == CBType::Int) {
       return static_cast<float>(payload.intValue);
     } else {
-      throw InvalidVarTypeError("Invalid variable casting! expected Float");
+      throw InvalidVarTypeError("Invalid variable casting! expected CBType::Float");
     }
   }
 
   explicit operator double() const {
-    if (valueType == Float) {
+    if (valueType == CBType::Float) {
       return payload.floatValue;
-    } else if (valueType == Int) {
+    } else if (valueType == CBType::Int) {
       return static_cast<double>(payload.intValue);
     } else {
-      throw InvalidVarTypeError("Invalid variable casting! expected Float");
+      throw InvalidVarTypeError("Invalid variable casting! expected CBType::Float");
     }
   }
 
   template <typename T> explicit operator std::vector<T>() const {
-    if (valueType != Seq) {
-      throw InvalidVarTypeError("Invalid variable casting! expected Seq");
+    if (valueType != CBType::Seq) {
+      throw InvalidVarTypeError("Invalid variable casting! expected CBType::Seq");
     }
     std::vector<T> res;
     res.resize(payload.seqValue.len);
@@ -667,8 +667,8 @@ struct Var : public CBVar {
   }
 
   explicit operator std::vector<Var>() const {
-    if (valueType != Seq) {
-      throw InvalidVarTypeError("Invalid variable casting! expected Seq");
+    if (valueType != CBType::Seq) {
+      throw InvalidVarTypeError("Invalid variable casting! expected CBType::Seq");
     }
     std::vector<Var> res{size_t(payload.seqValue.len)};
     for (uint32_t i = 0; i < payload.seqValue.len; i++) {
@@ -705,13 +705,13 @@ struct Var : public CBVar {
   }
 
   Var(uint8_t *ptr, uint32_t size) : CBVar() {
-    valueType = Bytes;
+    valueType = CBType::Bytes;
     payload.bytesSize = size;
     payload.bytesValue = ptr;
   }
 
   Var(const std::vector<uint8_t> &bytes) : CBVar() {
-    valueType = Bytes;
+    valueType = CBType::Bytes;
     const auto size = bytes.size();
     if (size > UINT32_MAX)
       throw CBException(
@@ -732,40 +732,40 @@ struct Var : public CBVar {
   }
 
   explicit Var(int src) : CBVar() {
-    valueType = Int;
+    valueType = CBType::Int;
     payload.intValue = src;
   }
 
   explicit Var(uint8_t src) : CBVar() {
-    valueType = Int;
+    valueType = CBType::Int;
     payload.intValue = int64_t(src);
   }
 
   explicit Var(char src) : CBVar() {
-    valueType = Int;
+    valueType = CBType::Int;
     payload.intValue = int64_t(src);
   }
 
   explicit Var(unsigned int src) : CBVar() {
-    valueType = Int;
+    valueType = CBType::Int;
     payload.intValue = int64_t(src);
   }
 
   explicit Var(int a, int b) : CBVar() {
-    valueType = Int2;
+    valueType = CBType::Int2;
     payload.int2Value[0] = a;
     payload.int2Value[1] = b;
   }
 
   explicit Var(int a, int b, int c) : CBVar() {
-    valueType = Int3;
+    valueType = CBType::Int3;
     payload.int3Value[0] = a;
     payload.int3Value[1] = b;
     payload.int3Value[2] = c;
   }
 
   explicit Var(int a, int b, int c, int d) : CBVar() {
-    valueType = Int4;
+    valueType = CBType::Int4;
     payload.int4Value[0] = a;
     payload.int4Value[1] = b;
     payload.int4Value[2] = c;
@@ -775,7 +775,7 @@ struct Var : public CBVar {
   explicit Var(int16_t a, int16_t b, int16_t c, int16_t d, int16_t e, int16_t f,
                int16_t g, int16_t h)
       : CBVar() {
-    valueType = Int8;
+    valueType = CBType::Int8;
     payload.int8Value[0] = a;
     payload.int8Value[1] = b;
     payload.int8Value[2] = c;
@@ -790,7 +790,7 @@ struct Var : public CBVar {
                int8_t g, int8_t h, int8_t i, int8_t j, int8_t k, int8_t l,
                int8_t m, int8_t n, int8_t o, int8_t p)
       : CBVar() {
-    valueType = Int16;
+    valueType = CBType::Int16;
     payload.int16Value[0] = a;
     payload.int16Value[1] = b;
     payload.int16Value[2] = c;
@@ -810,26 +810,26 @@ struct Var : public CBVar {
   }
 
   explicit Var(int64_t a, int64_t b) : CBVar() {
-    valueType = Int2;
+    valueType = CBType::Int2;
     payload.int2Value[0] = a;
     payload.int2Value[1] = b;
   }
 
   explicit Var(double a, double b) : CBVar() {
-    valueType = Float2;
+    valueType = CBType::Float2;
     payload.float2Value[0] = a;
     payload.float2Value[1] = b;
   }
 
   explicit Var(double a, double b, double c) : CBVar() {
-    valueType = Float3;
+    valueType = CBType::Float3;
     payload.float3Value[0] = a;
     payload.float3Value[1] = b;
     payload.float3Value[2] = c;
   }
 
   explicit Var(double a, double b, double c, double d) : CBVar() {
-    valueType = Float4;
+    valueType = CBType::Float4;
     payload.float4Value[0] = a;
     payload.float4Value[1] = b;
     payload.float4Value[2] = c;
@@ -837,23 +837,23 @@ struct Var : public CBVar {
   }
 
   explicit Var(float a, float b) : CBVar() {
-    valueType = Float2;
+    valueType = CBType::Float2;
     payload.float2Value[0] = a;
     payload.float2Value[1] = b;
   }
 
   explicit Var(double src) : CBVar() {
-    valueType = Float;
+    valueType = CBType::Float;
     payload.floatValue = src;
   }
 
   explicit Var(bool src) : CBVar() {
-    valueType = Bool;
+    valueType = CBType::Bool;
     payload.boolValue = src;
   }
 
   explicit Var(CBSeq seq) : CBVar() {
-    valueType = Seq;
+    valueType = CBType::Seq;
     payload.seqValue = seq;
   }
 
@@ -881,17 +881,17 @@ struct Var : public CBVar {
   }
 
   explicit Var(CBImage img) : CBVar() {
-    valueType = Image;
+    valueType = CBType::Image;
     payload.imageValue = img;
   }
 
   explicit Var(uint64_t src) : CBVar() {
-    valueType = Int;
+    valueType = CBType::Int;
     payload.intValue = src;
   }
 
   explicit Var(int64_t src) : CBVar() {
-    valueType = Int;
+    valueType = CBType::Int;
     payload.intValue = src;
   }
 
@@ -923,12 +923,12 @@ struct Var : public CBVar {
   }
 
   explicit Var(CBTable &src) : CBVar() {
-    valueType = Table;
+    valueType = CBType::Table;
     payload.tableValue = src;
   }
 
   explicit Var(CBColor color) : CBVar() {
-    valueType = Color;
+    valueType = CBType::Color;
     payload.colorValue = color;
   }
 
@@ -943,8 +943,8 @@ struct Var : public CBVar {
   }
 
   uint32_t colorToInt() {
-    if (valueType != Color) {
-      throw InvalidVarTypeError("Invalid variable casting! expected Color");
+    if (valueType != CBType::Color) {
+      throw InvalidVarTypeError("Invalid variable casting! expected CBType::Color");
     }
     uint32_t res = 0;
     res |= (uint32_t(payload.colorValue.r) << 24);
@@ -955,7 +955,7 @@ struct Var : public CBVar {
   }
 
   explicit Var(const CBVar *data, size_t size) : CBVar() {
-    valueType = Seq;
+    valueType = CBType::Seq;
     payload.seqValue.len = uint32_t(size);
     payload.seqValue.elements =
         payload.seqValue.len > 0 ? const_cast<CBVar *>(data) : nullptr;
@@ -970,7 +970,7 @@ struct Var : public CBVar {
 
   template <typename TVAR>
   explicit Var(const std::vector<TVAR> &vectorRef) : CBVar() {
-    valueType = Seq;
+    valueType = CBType::Seq;
     payload.seqValue.len = uint32_t(vectorRef.size());
     payload.seqValue.elements = payload.seqValue.len > 0
                                     ? const_cast<TVAR *>(vectorRef.data())
@@ -979,7 +979,7 @@ struct Var : public CBVar {
 
   template <typename TVAR, size_t N>
   explicit Var(const std::array<TVAR, N> &arrRef) : CBVar() {
-    valueType = Seq;
+    valueType = CBType::Seq;
     payload.seqValue.elements =
         N > 0 ? const_cast<TVAR *>(arrRef.data()) : nullptr;
     payload.seqValue.len = N;
@@ -1064,7 +1064,7 @@ public:
 
   operator CBVar() {
     CBVar res{};
-    res.valueType = Object;
+    res.valueType = CBType::Object;
     res.payload.objectVendorId = CoreCC;
     res.payload.objectTypeId = 'chnp';
     res.payload.objectValue = &_provider;

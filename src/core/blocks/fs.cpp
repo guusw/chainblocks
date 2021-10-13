@@ -314,7 +314,7 @@ struct Write {
 
   CBVar activate(CBContext *context, const CBVar &input) {
     auto contents = _contents.get();
-    if (contents.valueType != None) {
+    if (contents.valueType != CBType::None) {
       fs::path p(input.payload.stringValue);
       if (!_overwrite && !_append && fs::exists(p)) {
         throw ActivationError(
@@ -331,7 +331,7 @@ struct Write {
         flags |= std::ios::app;
       }
       std::ofstream file(p.string(), flags);
-      if (contents.valueType == String) {
+      if (contents.valueType == CBType::String) {
         auto len = contents.payload.stringLen > 0 ||
                            contents.payload.stringValue == nullptr
                        ? contents.payload.stringLen
@@ -416,7 +416,7 @@ struct Copy {
     }
 
     const auto dstVar = _destination.get();
-    if (dstVar.valueType != String && dstVar.valueType != Path)
+    if (dstVar.valueType != CBType::String && dstVar.valueType != CBType::Path)
       throw ActivationError("Destination is not a valid");
     const auto dst = fs::path(dstVar.payload.stringValue);
 

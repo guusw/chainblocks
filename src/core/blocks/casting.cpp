@@ -549,7 +549,7 @@ template <CBType ET> struct ExpectX {
 };
 
 #define EXPECT_BLOCK(_name_, _cbtype_)                                         \
-  struct Expect##_name_ : public ExpectX<_cbtype_> {};                         \
+  struct Expect##_name_ : public ExpectX<CBType::_cbtype_> {};                         \
   RUNTIME_CORE_BLOCK(Expect##_name_);                                          \
   RUNTIME_BLOCK_inputTypes(Expect##_name_);                                    \
   RUNTIME_BLOCK_outputTypes(Expect##_name_);                                   \
@@ -570,7 +570,7 @@ EXPECT_BLOCK(String, String);
 EXPECT_BLOCK(Image, Image);
 EXPECT_BLOCK(Seq, Seq);
 EXPECT_BLOCK(Table, Table);
-EXPECT_BLOCK(Chain, CBType::Chain);
+EXPECT_BLOCK(Chain, Chain);
 
 template <Type &ET> struct ExpectXComplex {
   static inline Parameters params{
@@ -646,7 +646,7 @@ struct ExpectLike {
   }
 
   void destroy() {
-    if (_expectedType.basicType != None && _dispose) {
+    if (_expectedType.basicType != CBType::None && _dispose) {
       freeDerivedInfo(_expectedType);
       _expectedType = {};
       _dispose = false;
@@ -658,7 +658,7 @@ struct ExpectLike {
       throw ComposeError(
           "The example value of ExpectLike cannot be a variable");
     } else {
-      if (_expectedType.basicType != None && _dispose) {
+      if (_expectedType.basicType != CBType::None && _dispose) {
         freeDerivedInfo(_expectedType);
         _expectedType = {};
         _dispose = false;
@@ -702,7 +702,7 @@ struct ToBase64 {
   static CBTypesInfo outputTypes() { return CoreInfo::StringType; }
   CBVar activate(CBContext *context, const CBVar &input) {
     output.clear();
-    if (input.valueType == Bytes) {
+    if (input.valueType == CBType::Bytes) {
       auto req =
           boost::beast::detail::base64::encoded_size(input.payload.bytesSize);
       output.resize(req);

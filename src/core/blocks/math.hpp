@@ -88,27 +88,27 @@ struct BinaryBase : public Base {
 
   CBTypeInfo compose(const CBInstanceData &data) {
     CBVar operandSpec = _operand;
-    if (operandSpec.valueType == ContextVar) {
+    if (operandSpec.valueType == CBType::ContextVar) {
       for (uint32_t i = 0; i < data.shared.len; i++) {
         // normal variable
         if (strcmp(data.shared.elements[i].name,
                    operandSpec.payload.stringValue) == 0) {
-          if (data.shared.elements[i].exposedType.basicType != Seq &&
-              data.inputType.basicType != Seq) {
+          if (data.shared.elements[i].exposedType.basicType != CBType::Seq &&
+              data.inputType.basicType != CBType::Seq) {
             if (data.shared.elements[i].exposedType != data.inputType)
               throw ComposeError(
                   "Operation not supported between different types");
             _opType = Normal;
-          } else if (data.shared.elements[i].exposedType.basicType != Seq &&
-                     data.inputType.basicType == Seq) {
+          } else if (data.shared.elements[i].exposedType.basicType != CBType::Seq &&
+                     data.inputType.basicType == CBType::Seq) {
             if (data.inputType.seqTypes.len != 1 ||
                 data.shared.elements[i].exposedType !=
                     data.inputType.seqTypes.elements[0])
               throw ComposeError(
                   "Operation not supported between different types");
             _opType = Seq1;
-          } else if (data.shared.elements[i].exposedType.basicType == Seq &&
-                     data.inputType.basicType == Seq) {
+          } else if (data.shared.elements[i].exposedType.basicType == CBType::Seq &&
+                     data.inputType.basicType == CBType::Seq) {
             // TODO need to have deeper types compatibility at least
             _opType = SeqSeq;
           } else {
@@ -122,19 +122,19 @@ struct BinaryBase : public Base {
                            std::string(operandSpec.payload.stringValue));
       }
     } else {
-      if (operandSpec.valueType != Seq && data.inputType.basicType != Seq) {
+      if (operandSpec.valueType != CBType::Seq && data.inputType.basicType != CBType::Seq) {
         if (operandSpec.valueType != data.inputType.basicType)
           throw ComposeError("Operation not supported between different types");
         _opType = Normal;
-      } else if (operandSpec.valueType != Seq &&
-                 data.inputType.basicType == Seq) {
+      } else if (operandSpec.valueType != CBType::Seq &&
+                 data.inputType.basicType == CBType::Seq) {
         if (data.inputType.seqTypes.len != 1 ||
             operandSpec.valueType !=
                 data.inputType.seqTypes.elements[0].basicType)
           throw ComposeError("Operation not supported between different types");
         _opType = Seq1;
-      } else if (operandSpec.valueType == Seq &&
-                 data.inputType.basicType == Seq) {
+      } else if (operandSpec.valueType == CBType::Seq &&
+                 data.inputType.basicType == CBType::Seq) {
         // TODO need to have deeper types compatibility at least
         _opType = SeqSeq;
       } else {
@@ -147,7 +147,7 @@ struct BinaryBase : public Base {
 
   CBExposedTypesInfo requiredVariables() {
     CBVar operandSpec = _operand;
-    if (operandSpec.valueType == ContextVar) {
+    if (operandSpec.valueType == CBType::ContextVar) {
       _requiredInfo = ExposedInfo(ExposedInfo::Variable(
           operandSpec.payload.stringValue, CBCCSTR("The required operand."),
           CoreInfo::AnyType));
@@ -169,9 +169,9 @@ template <class OP> struct BinaryOperation : public BinaryBase {
   }
   void operate(OpType opType, CBVar &output, const CBVar &a, const CBVar &b) {
     if (opType == SeqSeq) {
-      if (output.valueType != Seq) {
+      if (output.valueType != CBType::Seq) {
         destroyVar(output);
-        output.valueType = Seq;
+        output.valueType = CBType::Seq;
       }
       // TODO auto-parallelize with taskflow (should be optional)
       auto olen = b.payload.seqValue.len;
@@ -180,9 +180,9 @@ template <class OP> struct BinaryOperation : public BinaryBase {
         const auto &sa = a.payload.seqValue.elements[i];
         const auto &sb = b.payload.seqValue.elements[i % olen];
         auto type = Normal;
-        if (likely(sa.valueType == Seq && sb.valueType == Seq)) {
+        if (likely(sa.valueType == CBType::Seq && sb.valueType == CBType::Seq)) {
           type = SeqSeq;
-        } else if (sa.valueType == Seq && sb.valueType != Seq) {
+        } else if (sa.valueType == CBType::Seq && sb.valueType != CBType::Seq) {
           type = Seq1;
         }
         const auto len = output.payload.seqValue.len;
@@ -190,7 +190,7 @@ template <class OP> struct BinaryOperation : public BinaryBase {
         operate(type, output.payload.seqValue.elements[len], sa, sb);
       }
     } else {
-      if (opType == Normal && output.valueType == Seq) {
+      if (opType == Normal && output.valueType == CBType::Seq) {
         // something changed, avoid leaking
         // this should happen only here, because compose of SeqSeq is loose
         // we are going from an seq to a regular value, this could be expensive!
@@ -208,9 +208,9 @@ template <class OP> struct BinaryOperation : public BinaryBase {
     if (likely(opType == Normal)) {
       op(output, a, b, this);
     } else if (opType == Seq1) {
-      if (output.valueType != Seq) {
+      if (output.valueType != CBType::Seq) {
         destroyVar(output);
-        output.valueType = Seq;
+        output.valueType = CBType::Seq;
       }
       chainblocks::arrayResize(output.payload.seqValue, 0);
       for (uint32_t i = 0; i < a.payload.seqValue.len; i++) {
@@ -252,58 +252,58 @@ template <class OP> struct BinaryIntOperation : public BinaryOperation<OP> {
     ALWAYS_INLINE void operator()(CBVar &output, const CBVar &input,           \
                                   const CBVar &operand, void *) {              \
       switch (input.valueType) {                                               \
-      case Int:                                                                \
-        output.valueType = Int;                                                \
+      case CBType::Int:                                                                \
+        output.valueType = CBType::Int;                                                \
         output.payload.intValue =                                              \
             input.payload.intValue OPERATOR operand.payload.intValue;          \
         break;                                                                 \
-      case Int2:                                                               \
-        output.valueType = Int2;                                               \
+      case CBType::Int2:                                                               \
+        output.valueType = CBType::Int2;                                               \
         output.payload.int2Value =                                             \
             input.payload.int2Value OPERATOR operand.payload.int2Value;        \
         break;                                                                 \
-      case Int3:                                                               \
-        output.valueType = Int3;                                               \
+      case CBType::Int3:                                                               \
+        output.valueType = CBType::Int3;                                               \
         output.payload.int3Value =                                             \
             input.payload.int3Value OPERATOR operand.payload.int3Value;        \
         break;                                                                 \
-      case Int4:                                                               \
-        output.valueType = Int4;                                               \
+      case CBType::Int4:                                                               \
+        output.valueType = CBType::Int4;                                               \
         output.payload.int4Value =                                             \
             input.payload.int4Value OPERATOR operand.payload.int4Value;        \
         break;                                                                 \
-      case Int8:                                                               \
-        output.valueType = Int8;                                               \
+      case CBType::Int8:                                                               \
+        output.valueType = CBType::Int8;                                               \
         output.payload.int8Value =                                             \
             input.payload.int8Value OPERATOR operand.payload.int8Value;        \
         break;                                                                 \
-      case Int16:                                                              \
-        output.valueType = Int16;                                              \
+      case CBType::Int16:                                                              \
+        output.valueType = CBType::Int16;                                              \
         output.payload.int16Value =                                            \
             input.payload.int16Value OPERATOR operand.payload.int16Value;      \
         break;                                                                 \
-      case Float:                                                              \
-        output.valueType = Float;                                              \
+      case CBType::Float:                                                              \
+        output.valueType = CBType::Float;                                              \
         output.payload.floatValue =                                            \
             input.payload.floatValue OPERATOR operand.payload.floatValue;      \
         break;                                                                 \
-      case Float2:                                                             \
-        output.valueType = Float2;                                             \
+      case CBType::Float2:                                                             \
+        output.valueType = CBType::Float2;                                             \
         output.payload.float2Value =                                           \
             input.payload.float2Value OPERATOR operand.payload.float2Value;    \
         break;                                                                 \
-      case Float3:                                                             \
-        output.valueType = Float3;                                             \
+      case CBType::Float3:                                                             \
+        output.valueType = CBType::Float3;                                             \
         output.payload.float3Value =                                           \
             input.payload.float3Value OPERATOR operand.payload.float3Value;    \
         break;                                                                 \
-      case Float4:                                                             \
-        output.valueType = Float4;                                             \
+      case CBType::Float4:                                                             \
+        output.valueType = CBType::Float4;                                             \
         output.payload.float4Value =                                           \
             input.payload.float4Value OPERATOR operand.payload.float4Value;    \
         break;                                                                 \
-      case Color:                                                              \
-        output.valueType = Color;                                              \
+      case CBType::Color:                                                              \
+        output.valueType = CBType::Color;                                              \
         output.payload.colorValue.r =                                          \
             input.payload.colorValue.r OPERATOR operand.payload.colorValue.r;  \
         output.payload.colorValue.g =                                          \
@@ -327,38 +327,38 @@ template <class OP> struct BinaryIntOperation : public BinaryOperation<OP> {
     ALWAYS_INLINE void operator()(CBVar &output, const CBVar &input,           \
                                   const CBVar &operand, void *) {              \
       switch (input.valueType) {                                               \
-      case Int:                                                                \
-        output.valueType = Int;                                                \
+      case CBType::Int:                                                                \
+        output.valueType = CBType::Int;                                                \
         output.payload.intValue =                                              \
             input.payload.intValue OPERATOR operand.payload.intValue;          \
         break;                                                                 \
-      case Int2:                                                               \
-        output.valueType = Int2;                                               \
+      case CBType::Int2:                                                               \
+        output.valueType = CBType::Int2;                                               \
         output.payload.int2Value =                                             \
             input.payload.int2Value OPERATOR operand.payload.int2Value;        \
         break;                                                                 \
-      case Int3:                                                               \
-        output.valueType = Int3;                                               \
+      case CBType::Int3:                                                               \
+        output.valueType = CBType::Int3;                                               \
         output.payload.int3Value =                                             \
             input.payload.int3Value OPERATOR operand.payload.int3Value;        \
         break;                                                                 \
-      case Int4:                                                               \
-        output.valueType = Int4;                                               \
+      case CBType::Int4:                                                               \
+        output.valueType = CBType::Int4;                                               \
         output.payload.int4Value =                                             \
             input.payload.int4Value OPERATOR operand.payload.int4Value;        \
         break;                                                                 \
-      case Int8:                                                               \
-        output.valueType = Int8;                                               \
+      case CBType::Int8:                                                               \
+        output.valueType = CBType::Int8;                                               \
         output.payload.int8Value =                                             \
             input.payload.int8Value OPERATOR operand.payload.int8Value;        \
         break;                                                                 \
-      case Int16:                                                              \
-        output.valueType = Int16;                                              \
+      case CBType::Int16:                                                              \
+        output.valueType = CBType::Int16;                                              \
         output.payload.int16Value =                                            \
             input.payload.int16Value OPERATOR operand.payload.int16Value;      \
         break;                                                                 \
-      case Color:                                                              \
-        output.valueType = Color;                                              \
+      case CBType::Color:                                                              \
+        output.valueType = CBType::Color;                                              \
         output.payload.colorValue.r =                                          \
             input.payload.colorValue.r OPERATOR operand.payload.colorValue.r;  \
         output.payload.colorValue.g =                                          \
@@ -435,19 +435,19 @@ template <CBType CBT, typename FuncD, typename FuncF> struct UnaryOperation {
     FuncD fd;
     FuncF ff;
     if constexpr (CBT == CBType::Float) {
-      output.valueType = Float;
+      output.valueType = CBType::Float;
       output.payload.floatValue = fd(input.payload.floatValue);
     } else if constexpr (CBT == CBType::Float2) {
-      output.valueType = Float2;
+      output.valueType = CBType::Float2;
       output.payload.float2Value[0] = fd(input.payload.float2Value[0]);
       output.payload.float2Value[1] = fd(input.payload.float2Value[1]);
     } else if constexpr (CBT == CBType::Float3) {
-      output.valueType = Float3;
+      output.valueType = CBType::Float3;
       output.payload.float3Value[0] = ff(input.payload.float3Value[0]);
       output.payload.float3Value[1] = ff(input.payload.float3Value[1]);
       output.payload.float3Value[2] = ff(input.payload.float3Value[2]);
     } else if constexpr (CBT == CBType::Float4) {
-      output.valueType = Float4;
+      output.valueType = CBType::Float4;
       output.payload.float4Value[0] = ff(input.payload.float4Value[0]);
       output.payload.float4Value[1] = ff(input.payload.float4Value[1]);
       output.payload.float4Value[2] = ff(input.payload.float4Value[2]);
@@ -481,23 +481,23 @@ template <CBType CBT, typename FuncD, typename FuncF> struct UnaryOperation {
                                                                                \
     ALWAYS_INLINE void operate(CBVar &output, const CBVar &input) {            \
       switch (input.valueType) {                                               \
-      case Float:                                                              \
-        output.valueType = Float;                                              \
+      case CBType::Float:                                                              \
+        output.valueType = CBType::Float;                                              \
         output.payload.floatValue = FUNC(input.payload.floatValue);            \
         break;                                                                 \
-      case Float2:                                                             \
-        output.valueType = Float2;                                             \
+      case CBType::Float2:                                                             \
+        output.valueType = CBType::Float2;                                             \
         output.payload.float2Value[0] = FUNC(input.payload.float2Value[0]);    \
         output.payload.float2Value[1] = FUNC(input.payload.float2Value[1]);    \
         break;                                                                 \
-      case Float3:                                                             \
-        output.valueType = Float3;                                             \
+      case CBType::Float3:                                                             \
+        output.valueType = CBType::Float3;                                             \
         output.payload.float3Value[0] = FUNCF(input.payload.float3Value[0]);   \
         output.payload.float3Value[1] = FUNCF(input.payload.float3Value[1]);   \
         output.payload.float3Value[2] = FUNCF(input.payload.float3Value[2]);   \
         break;                                                                 \
-      case Float4:                                                             \
-        output.valueType = Float4;                                             \
+      case CBType::Float4:                                                             \
+        output.valueType = CBType::Float4;                                             \
         output.payload.float4Value[0] = FUNCF(input.payload.float4Value[0]);   \
         output.payload.float4Value[1] = FUNCF(input.payload.float4Value[1]);   \
         output.payload.float4Value[2] = FUNCF(input.payload.float4Value[2]);   \
@@ -510,7 +510,7 @@ template <CBType CBT, typename FuncD, typename FuncF> struct UnaryOperation {
     }                                                                          \
                                                                                \
     ALWAYS_INLINE CBVar activateSeq(CBContext *context, const CBVar &input) {  \
-      _result.valueType = Seq;                                                 \
+      _result.valueType = CBType::Seq;                                                 \
       chainblocks::arrayResize(_result.payload.seqValue, 0);                   \
       for (uint32_t i = 0; i < input.payload.seqValue.len; i++) {              \
         CBVar scratch;                                                         \
@@ -722,7 +722,7 @@ template <class T> struct UnaryBin : public T {
           throw ComposeError(
               "Math.Inc/Dec attempt to write immutable variable");
         switch (share.exposedType.basicType) {
-        case Seq: {
+        case CBType::Seq: {
           if (share.exposedType.seqTypes.len != 1)
             throw ComposeError(
                 "Math.Inc/Dec expected a Seq with just one type as input");
@@ -774,20 +774,20 @@ using Min = BinaryOperation<MinOp>;
     ALWAYS_INLINE void operator()(CBVar &output, const CBVar &input,           \
                                   const CBVar &operand, void *) {              \
       switch (input.valueType) {                                               \
-      case Float:                                                              \
-        output.valueType = Float;                                              \
+      case CBType::Float:                                                              \
+        output.valueType = CBType::Float;                                              \
         output.payload.floatValue =                                            \
             PROC(input.payload.floatValue, operand.payload.floatValue);        \
         break;                                                                 \
-      case Float2:                                                             \
-        output.valueType = Float2;                                             \
+      case CBType::Float2:                                                             \
+        output.valueType = CBType::Float2;                                             \
         output.payload.float2Value[0] = PROC(input.payload.float2Value[0],     \
                                              operand.payload.float2Value[0]);  \
         output.payload.float2Value[1] = PROC(input.payload.float2Value[1],     \
                                              operand.payload.float2Value[1]);  \
         break;                                                                 \
-      case Float3:                                                             \
-        output.valueType = Float3;                                             \
+      case CBType::Float3:                                                             \
+        output.valueType = CBType::Float3;                                             \
         output.payload.float3Value[0] = PROC(input.payload.float3Value[0],     \
                                              operand.payload.float3Value[0]);  \
         output.payload.float3Value[1] = PROC(input.payload.float3Value[1],     \
@@ -795,8 +795,8 @@ using Min = BinaryOperation<MinOp>;
         output.payload.float3Value[2] = PROC(input.payload.float3Value[2],     \
                                              operand.payload.float3Value[2]);  \
         break;                                                                 \
-      case Float4:                                                             \
-        output.valueType = Float4;                                             \
+      case CBType::Float4:                                                             \
+        output.valueType = CBType::Float4;                                             \
         output.payload.float4Value[0] = PROC(input.payload.float4Value[0],     \
                                              operand.payload.float4Value[0]);  \
         output.payload.float4Value[1] = PROC(input.payload.float4Value[1],     \

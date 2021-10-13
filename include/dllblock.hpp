@@ -273,7 +273,7 @@ public:
 
   // implicit converter
   IterableArray(const CBVar &v) : _seq(v.payload.seqValue), _owned(false) {
-    assert(v.valueType == Seq);
+    assert(v.valueType == CBType::Seq);
   }
 
   IterableArray(size_t s) : _seq({}), _owned(true) { arrayResize(_seq, s); }
@@ -303,7 +303,7 @@ public:
   }
 
   IterableArray &operator=(CBVar &var) {
-    assert(var.valueType == Seq);
+    assert(var.valueType == CBType::Seq);
     _seq = var.payload.seqValue;
     _owned = false;
     return *this;

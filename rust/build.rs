@@ -23,6 +23,7 @@ fn bindgen_it() {
     .header(header_path)
     .clang_arg("-DCB_NO_ANON")
     .clang_arg("-DCB_USE_ENUMS")
+    .clang_arg("-DRUST_BINDGEN")
     .derive_default(true)
     .use_core()
     .generate()

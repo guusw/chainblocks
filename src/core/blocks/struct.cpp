@@ -254,63 +254,63 @@ struct Pack : public StructBase {
     for (auto &member : _members) {
       switch (member.tag) {
       case Tags::i8Array:
-        ensureType(seq.elements[idx], Seq);
-        writeMany<int8_t, Int>(seq.elements[idx].payload.seqValue,
+        ensureType(seq.elements[idx], CBType::Seq);
+        writeMany<int8_t, CBType::Int>(seq.elements[idx].payload.seqValue,
                                &CBVarPayload::intValue, member.offset,
                                member.arrlen);
         break;
       case Tags::i8:
-        ensureType(seq.elements[idx], Int);
+        ensureType(seq.elements[idx], CBType::Int);
         write<int8_t>(seq.elements[idx].payload.intValue, member.offset);
         break;
       case Tags::i16Array:
-        ensureType(seq.elements[idx], Seq);
-        writeMany<int16_t, Int>(seq.elements[idx].payload.seqValue,
+        ensureType(seq.elements[idx], CBType::Seq);
+        writeMany<int16_t, CBType::Int>(seq.elements[idx].payload.seqValue,
                                 &CBVarPayload::intValue, member.offset,
                                 member.arrlen);
         break;
       case Tags::i16:
-        ensureType(seq.elements[idx], Int);
+        ensureType(seq.elements[idx], CBType::Int);
         write<int16_t>(seq.elements[idx].payload.intValue, member.offset);
         break;
       case Tags::i32Array:
-        ensureType(seq.elements[idx], Seq);
-        writeMany<int32_t, Int>(seq.elements[idx].payload.seqValue,
+        ensureType(seq.elements[idx], CBType::Seq);
+        writeMany<int32_t, CBType::Int>(seq.elements[idx].payload.seqValue,
                                 &CBVarPayload::intValue, member.offset,
                                 member.arrlen);
         break;
       case Tags::i32:
-        ensureType(seq.elements[idx], Int);
+        ensureType(seq.elements[idx], CBType::Int);
         write<int32_t>(seq.elements[idx].payload.intValue, member.offset);
         break;
       case Tags::i64Array:
-        ensureType(seq.elements[idx], Seq);
-        writeMany<int64_t, Int>(seq.elements[idx].payload.seqValue,
+        ensureType(seq.elements[idx], CBType::Seq);
+        writeMany<int64_t, CBType::Int>(seq.elements[idx].payload.seqValue,
                                 &CBVarPayload::intValue, member.offset,
                                 member.arrlen);
         break;
       case Tags::i64:
-        ensureType(seq.elements[idx], Int);
+        ensureType(seq.elements[idx], CBType::Int);
         write<int64_t>(seq.elements[idx].payload.intValue, member.offset);
         break;
       case Tags::f32Array:
-        ensureType(seq.elements[idx], Seq);
-        writeMany<float, Float>(seq.elements[idx].payload.seqValue,
+        ensureType(seq.elements[idx], CBType::Seq);
+        writeMany<float, CBType::Float>(seq.elements[idx].payload.seqValue,
                                 &CBVarPayload::floatValue, member.offset,
                                 member.arrlen);
         break;
       case Tags::f32:
-        ensureType(seq.elements[idx], Float);
+        ensureType(seq.elements[idx], CBType::Float);
         write<float>(seq.elements[idx].payload.floatValue, member.offset);
         break;
       case Tags::f64Array:
-        ensureType(seq.elements[idx], Seq);
-        writeMany<double, Float>(seq.elements[idx].payload.seqValue,
+        ensureType(seq.elements[idx], CBType::Seq);
+        writeMany<double, CBType::Float>(seq.elements[idx].payload.seqValue,
                                  &CBVarPayload::floatValue, member.offset,
                                  member.arrlen);
         break;
       case Tags::f64:
-        ensureType(seq.elements[idx], Float);
+        ensureType(seq.elements[idx], CBType::Float);
         write<double>(seq.elements[idx].payload.floatValue, member.offset);
         break;
       case Tags::Bool:
@@ -318,7 +318,7 @@ struct Pack : public StructBase {
         write<bool>(seq.elements[idx].payload.boolValue, member.offset);
         break;
       case Tags::Pointer:
-        ensureType(seq.elements[idx], Int);
+        ensureType(seq.elements[idx], CBType::Int);
         write<uintptr_t>(seq.elements[idx].payload.intValue, member.offset);
         break;
       case Tags::String:
@@ -353,7 +353,7 @@ struct Unpack : public StructBase {
     if (_output.elements) {
       // cleanup sub seqs
       for (size_t i = 0; i < _members.size(); i++) {
-        if (_output.elements[i].valueType == Seq) {
+        if (_output.elements[i].valueType == CBType::Seq) {
           chainblocks::arrayFree(_output.elements[i].payload.seqValue);
         }
       }
@@ -368,7 +368,7 @@ struct Unpack : public StructBase {
     if (_members.size() < curLen) {
       // need to destroy leftovers if arrays
       for (size_t i = _members.size(); i < curLen; i++) {
-        if (_output.elements[i].valueType == Seq) {
+        if (_output.elements[i].valueType == CBType::Seq) {
           chainblocks::arrayFree(_output.elements[i].payload.seqValue);
         }
       }
@@ -382,37 +382,37 @@ struct Unpack : public StructBase {
       case Tags::i16Array:
       case Tags::i32Array:
       case Tags::i64Array:
-        _output.elements[idx].valueType = Seq;
+        _output.elements[idx].valueType = CBType::Seq;
         chainblocks::arrayResize(_output.elements[idx].payload.seqValue,
                                  member.arrlen);
         for (size_t i = 0; i < member.arrlen; i++) {
-          arr.elements[i].valueType = Int;
+          arr.elements[i].valueType = CBType::Int;
         }
         break;
       case Tags::i8:
       case Tags::i16:
       case Tags::i32:
       case Tags::i64:
-        _output.elements[idx].valueType = Int;
+        _output.elements[idx].valueType = CBType::Int;
         break;
       case Tags::f32Array:
       case Tags::f64Array:
-        _output.elements[idx].valueType = Seq;
+        _output.elements[idx].valueType = CBType::Seq;
         chainblocks::arrayResize(_output.elements[idx].payload.seqValue,
                                  member.arrlen);
         for (size_t i = 0; i < member.arrlen; i++) {
-          arr.elements[i].valueType = Float;
+          arr.elements[i].valueType = CBType::Float;
         }
         break;
       case Tags::f32:
       case Tags::f64:
-        _output.elements[idx].valueType = Float;
+        _output.elements[idx].valueType = CBType::Float;
         break;
       case Tags::Bool:
         _output.elements[idx].valueType = CBType::Bool;
         break;
       case Tags::Pointer:
-        _output.elements[idx].valueType = Int;
+        _output.elements[idx].valueType = CBType::Int;
         break;
       case Tags::String:
         _output.elements[idx].valueType = CBType::String;

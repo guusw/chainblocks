@@ -207,7 +207,7 @@ void to_json(json &j, const CBVar &var) {
              {"data", buffer}};
     break;
   }
-  case Enum: {
+  case CBType::Enum: {
     j = json{{"type", valType},
              {"value", int32_t(var.payload.enumValue)},
              {"vendorId", var.payload.enumVendorId},
@@ -537,7 +537,7 @@ void from_json(const json &j, CBVar &var) {
     for (auto jparam : jparams) {
       auto paramName = jparam.at("name").get<std::string>();
       auto value = jparam.at("value").get<CBVar>();
-      if (value.valueType != None) {
+      if (value.valueType != CBType::None) {
         for (uint32_t i = 0; blkParams.len > i; i++) {
           auto &paramInfo = blkParams.elements[i];
           if (paramName == paramInfo.name) {
@@ -657,7 +657,7 @@ struct ToJson {
 
   void anyDump(json &j, const CBVar &input) {
     switch (input.valueType) {
-    case Table: {
+    case CBType::Table: {
       std::unordered_map<std::string, json> table;
       auto &tab = input.payload.tableValue;
       ForEach(tab, [&](auto key, auto &val) {
@@ -668,7 +668,7 @@ struct ToJson {
       });
       j = table;
     } break;
-    case Seq: {
+    case CBType::Seq: {
       std::vector<json> array;
       auto &seq = input.payload.seqValue;
       for (uint32_t i = 0; i < seq.len; i++) {
@@ -678,19 +678,19 @@ struct ToJson {
       }
       j = array;
     } break;
-    case String: {
+    case CBType::String: {
       j = input.payload.stringValue;
     } break;
-    case Int: {
+    case CBType::Int: {
       j = input.payload.intValue;
     } break;
-    case Float: {
+    case CBType::Float: {
       j = input.payload.floatValue;
     } break;
-    case Bool: {
+    case CBType::Bool: {
       j = input.payload.boolValue;
     } break;
-    case None: {
+    case CBType::None: {
       j = nullptr;
     } break;
     default: {
@@ -747,20 +747,20 @@ struct FromJson {
 
   void anyParse(json &j, CBVar &storage) {
     if (j.is_array()) {
-      storage.valueType = Seq;
+      storage.valueType = CBType::Seq;
       for (json::iterator it = j.begin(); it != j.end(); ++it) {
         const auto len = storage.payload.seqValue.len;
         arrayResize(storage.payload.seqValue, len + 1);
         anyParse(*it, storage.payload.seqValue.elements[len]);
       }
     } else if (j.is_number_integer()) {
-      storage.valueType = Int;
+      storage.valueType = CBType::Int;
       storage.payload.intValue = j.get<int64_t>();
     } else if (j.is_number_float()) {
-      storage.valueType = Float;
+      storage.valueType = CBType::Float;
       storage.payload.floatValue = j.get<double>();
     } else if (j.is_string()) {
-      storage.valueType = String;
+      storage.valueType = CBType::String;
       auto strVal = j.get<std::string>();
       const auto strLen = strVal.length();
       storage.payload.stringValue = new char[strLen + 1];
@@ -768,10 +768,10 @@ struct FromJson {
       memcpy((void *)storage.payload.stringValue, strVal.c_str(), strLen);
       ((char *)storage.payload.stringValue)[strLen] = 0;
     } else if (j.is_boolean()) {
-      storage.valueType = Bool;
+      storage.valueType = CBType::Bool;
       storage.payload.boolValue = j.get<bool>();
     } else if (j.is_object()) {
-      storage.valueType = Table;
+      storage.valueType = CBType::Table;
       auto map = new chainblocks::CBMap();
       storage.payload.tableValue.api =
           &chainblocks::GetGlobals().TableInterface;

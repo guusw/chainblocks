@@ -245,7 +245,7 @@ public:
   }
 
   void warmup(CBContext *ctx) {
-    if (_v.valueType == ContextVar) {
+    if (_v.valueType == CBType::ContextVar) {
       assert(!_cp);
       _cp = CB_CORE::referenceVariable(ctx, _v.payload.stringValue);
     } else {
@@ -255,7 +255,7 @@ public:
   }
 
   void cleanup() {
-    if (_v.valueType == ContextVar) {
+    if (_v.valueType == CBType::ContextVar) {
       CB_CORE::releaseVariable(_cp);
     }
     _cp = nullptr;
@@ -275,7 +275,7 @@ public:
     return *_cp;
   }
 
-  bool isVariable() { return _v.valueType == ContextVar; }
+  bool isVariable() { return _v.valueType == CBType::ContextVar; }
 
   const char *variableName() {
     if (isVariable())
@@ -445,13 +445,13 @@ public:
   }
 
   CBVar &operator=(const CBVar &value) {
-    cbassert(value.valueType == None || value.valueType == Block ||
-             value.valueType == Seq);
+    cbassert(value.valueType == CBType::None || value.valueType == CBType::Block ||
+             value.valueType == CBType::Seq);
 
     CB_CORE::cloneVar(_blocksParam, value);
 
     destroy();
-    if (_blocksParam.valueType == Block) {
+    if (_blocksParam.valueType == CBType::Block) {
       assert(!_blocksParam.payload.blockValue->owned);
       _blocksParam.payload.blockValue->owned = true;
       _blocksArray.push_back(_blocksParam.payload.blockValue);

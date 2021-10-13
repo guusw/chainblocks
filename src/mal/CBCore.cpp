@@ -912,7 +912,7 @@ std::vector<malCBlockPtr> blockify(const malValuePtr &arg) {
     WRAP_TO_CONST(var);
   } else if (const malString *v = DYNAMIC_CAST(malString, arg)) {
     CBVar strVar{};
-    strVar.valueType = String;
+    strVar.valueType = CBType::String;
     auto &s = v->ref();
     strVar.payload.stringValue = s.c_str();
     WRAP_TO_CONST(strVar);
@@ -920,21 +920,21 @@ std::vector<malCBlockPtr> blockify(const malValuePtr &arg) {
     auto value = v->value();
     CBVar var{};
     if (v->isInteger()) {
-      var.valueType = Int;
+      var.valueType = CBType::Int;
       var.payload.intValue = value;
     } else {
-      var.valueType = Float;
+      var.valueType = CBType::Float;
       var.payload.floatValue = value;
     }
     WRAP_TO_CONST(var);
   } else if (arg == mal::trueValue()) {
     CBVar var{};
-    var.valueType = Bool;
+    var.valueType = CBType::Bool;
     var.payload.boolValue = true;
     WRAP_TO_CONST(var);
   } else if (arg == mal::falseValue()) {
     CBVar var{};
-    var.valueType = Bool;
+    var.valueType = CBType::Bool;
     var.payload.boolValue = false;
     WRAP_TO_CONST(var);
   } else if (malCBVar *v = DYNAMIC_CAST(malCBVar, arg)) {
@@ -964,7 +964,7 @@ std::vector<malCBlockPtr> blockify(const malValuePtr &arg) {
       // key is either a quoted string or a keyword (starting with ':')
       cbMap[k[0] == '"' ? unescape(k) : k.substr(1)] = cbv->value();
     }
-    var.valueType = Table;
+    var.valueType = CBType::Table;
     var.payload.tableValue.api = &chainblocks::GetGlobals().TableInterface;
     var.payload.tableValue.opaque = &cbMap;
     WRAP_TO_CONST(var);
@@ -997,7 +997,7 @@ malCBVarPtr varify(const malValuePtr &arg) {
   } else if (malString *v = DYNAMIC_CAST(malString, arg)) {
     auto &s = v->ref();
     CBVar var{};
-    var.valueType = String;
+    var.valueType = CBType::String;
     var.payload.stringValue = s.c_str();
     auto svar = new malCBVar(var);
     svar->reference(v);
@@ -1007,10 +1007,10 @@ malCBVarPtr varify(const malValuePtr &arg) {
     auto value = v->value();
     CBVar var{};
     if (v->isInteger()) {
-      var.valueType = Int;
+      var.valueType = CBType::Int;
       var.payload.intValue = value;
     } else {
-      var.valueType = Float;
+      var.valueType = CBType::Float;
       var.payload.floatValue = value;
     }
     auto res = new malCBVar(var);
@@ -1018,7 +1018,7 @@ malCBVarPtr varify(const malValuePtr &arg) {
     return malCBVarPtr(res);
   } else if (malSequence *v = DYNAMIC_CAST(malSequence, arg)) {
     CBVar tmp{};
-    tmp.valueType = Seq;
+    tmp.valueType = CBType::Seq;
     tmp.payload.seqValue = {};
     auto count = v->count();
     std::vector<malCBVarPtr> vars;
@@ -1047,7 +1047,7 @@ malCBVarPtr varify(const malValuePtr &arg) {
       cbMap[k[0] == '"' ? unescape(k) : k.substr(1)] = cbv->value();
     }
     CBVar tmp{};
-    tmp.valueType = Table;
+    tmp.valueType = CBType::Table;
     tmp.payload.tableValue.api = &chainblocks::GetGlobals().TableInterface;
     tmp.payload.tableValue.opaque = &cbMap;
     CBVar var{};
@@ -1060,14 +1060,14 @@ malCBVarPtr varify(const malValuePtr &arg) {
     return malCBVarPtr(mvar);
   } else if (arg == mal::trueValue()) {
     CBVar var{};
-    var.valueType = Bool;
+    var.valueType = CBType::Bool;
     var.payload.boolValue = true;
     auto v = new malCBVar(var);
     v->line = arg->line;
     return malCBVarPtr(v);
   } else if (arg == mal::falseValue()) {
     CBVar var{};
-    var.valueType = Bool;
+    var.valueType = CBType::Bool;
     var.payload.boolValue = false;
     auto v = new malCBVar(var);
     v->line = arg->line;
@@ -1087,7 +1087,7 @@ malCBVarPtr varify(const malValuePtr &arg) {
   } else if (malCBlock *v = DYNAMIC_CAST(malCBlock, arg)) {
     auto block = v->value();
     CBVar var{};
-    var.valueType = Block;
+    var.valueType = CBType::Block;
     var.payload.blockValue = block;
     auto bvar = new malCBVar(var);
     v->consume();
@@ -1187,7 +1187,7 @@ void setBlockParameters(malCBlock *malblock, malValueIter begin,
 
 malValuePtr newEnum(int32_t vendor, int32_t type, CBEnum value) {
   CBVar var{};
-  var.valueType = Enum;
+  var.valueType = CBType::Enum;
   var.payload.enumVendorId = vendor;
   var.payload.enumTypeId = type;
   var.payload.enumValue = value;
@@ -1220,7 +1220,7 @@ struct Observer : public chainblocks::RuntimeObserver {
     malBuiltIn::ApplyFunc *func = [](const MalString &name,
                                      malValueIter argsBegin,
                                      malValueIter argsEnd) {
-      auto block = chainblocks::createBlock(name.c_str());
+      auto block = chainblocks::createBlock(name.c_str()); 
       block->setup(block);
       auto malblock = new malCBlock(block);
       setBlockParameters(malblock, argsBegin, argsEnd);
@@ -1230,7 +1230,7 @@ struct Observer : public chainblocks::RuntimeObserver {
     builtIns.emplace(mname, bi);
     _env->set(fullName, bi);
     // destroy our sample block
-    block->destroy(block);
+    block->destroy(block); 
   }
 
   void registerEnumType(int32_t vendorId, int32_t typeId,
@@ -1280,7 +1280,7 @@ std::vector<malCBlockPtr> chainify(malValueIter begin, malValueIter end) {
   while (begin != end) {
     auto next = *begin++;
     if (auto *v = DYNAMIC_CAST(malCBVar, next)) {
-      if (v->value().valueType == ContextVar) {
+      if (v->value().valueType == CBType::ContextVar) {
         if (state == Get) {
           res.emplace_back(makeVarBlock(v, "Get"));
         } else if (state == Set) {
@@ -1748,7 +1748,7 @@ BUILTIN("path") {
   ARG(malString, value);
   auto &s = value->ref();
   CBVar var{};
-  var.valueType = Path;
+  var.valueType = CBType::Path;
   var.payload.stringValue = s.c_str();
   auto mvar = new malCBVar(var);
   mvar->reference(value);
@@ -1761,7 +1761,7 @@ BUILTIN("enum") {
   ARG(malNumber, value1);
   ARG(malNumber, value2);
   CBVar var{};
-  var.valueType = Enum;
+  var.valueType = CBType::Enum;
   var.payload.enumVendorId = static_cast<int32_t>(value0->value());
   var.payload.enumTypeId = static_cast<int32_t>(value1->value());
   var.payload.enumValue = static_cast<CBEnum>(value2->value());
@@ -1772,7 +1772,7 @@ BUILTIN("string") {
   CHECK_ARGS_IS(1);
   ARG(malString, value);
   CBVar var{};
-  var.valueType = String;
+  var.valueType = CBType::String;
   auto &s = value->ref();
   var.payload.stringValue = s.c_str();
   auto mvar = new malCBVar(var);
@@ -1784,7 +1784,7 @@ BUILTIN("bytes") {
   CHECK_ARGS_IS(1);
   ARG(malString, value);
   CBVar var{};
-  var.valueType = Bytes;
+  var.valueType = CBType::Bytes;
   auto &s = value->ref();
   var.payload.bytesValue = (uint8_t *)s.data();
   var.payload.bytesSize = s.size();
@@ -1797,7 +1797,7 @@ BUILTIN("context-var") {
   CHECK_ARGS_IS(1);
   ARG(malString, value);
   CBVar var{};
-  var.valueType = ContextVar;
+  var.valueType = CBType::ContextVar;
   auto &s = value->ref();
   var.payload.stringValue = s.c_str();
   auto mvar = new malCBVar(var);
@@ -1809,7 +1809,7 @@ BUILTIN("int") {
   CHECK_ARGS_IS(1);
   ARG(malNumber, value);
   CBVar var{};
-  var.valueType = Int;
+  var.valueType = CBType::Int;
   var.payload.intValue = value->value();
   return malValuePtr(new malCBVar(var));
 }
@@ -1819,7 +1819,7 @@ BUILTIN("int2") {
   ARG(malNumber, value0);
   ARG(malNumber, value1);
   CBVar var{};
-  var.valueType = Int2;
+  var.valueType = CBType::Int2;
   var.payload.int2Value[0] = value0->value();
   var.payload.int2Value[1] = value1->value();
   return malValuePtr(new malCBVar(var));
@@ -1831,7 +1831,7 @@ BUILTIN("int3") {
   ARG(malNumber, value1);
   ARG(malNumber, value2);
   CBVar var{};
-  var.valueType = Int3;
+  var.valueType = CBType::Int3;
   var.payload.int3Value[0] = value0->value();
   var.payload.int3Value[1] = value1->value();
   var.payload.int3Value[2] = value2->value();
@@ -1845,7 +1845,7 @@ BUILTIN("int4") {
   ARG(malNumber, value2);
   ARG(malNumber, value3);
   CBVar var{};
-  var.valueType = Int4;
+  var.valueType = CBType::Int4;
   var.payload.int4Value[0] = value0->value();
   var.payload.int4Value[1] = value1->value();
   var.payload.int4Value[2] = value2->value();
@@ -1860,7 +1860,7 @@ BUILTIN("color") {
   ARG(malNumber, value2);
   ARG(malNumber, value3);
   CBVar var{};
-  var.valueType = Color;
+  var.valueType = CBType::Color;
   var.payload.colorValue.r = static_cast<uint8_t>(value0->value());
   var.payload.colorValue.g = static_cast<uint8_t>(value1->value());
   var.payload.colorValue.b = static_cast<uint8_t>(value2->value());
@@ -1872,7 +1872,7 @@ BUILTIN("float") {
   CHECK_ARGS_IS(1);
   ARG(malNumber, value);
   CBVar var{};
-  var.valueType = Float;
+  var.valueType = CBType::Float;
   var.payload.floatValue = value->value();
   return malValuePtr(new malCBVar(var));
 }
@@ -1882,7 +1882,7 @@ BUILTIN("float2") {
   ARG(malNumber, value0);
   ARG(malNumber, value1);
   CBVar var{};
-  var.valueType = Float2;
+  var.valueType = CBType::Float2;
   var.payload.float2Value[0] = value0->value();
   var.payload.float2Value[1] = value1->value();
   return malValuePtr(new malCBVar(var));
@@ -1894,7 +1894,7 @@ BUILTIN("float3") {
   ARG(malNumber, value1);
   ARG(malNumber, value2);
   CBVar var{};
-  var.valueType = Float3;
+  var.valueType = CBType::Float3;
   var.payload.float3Value[0] = value0->value();
   var.payload.float3Value[1] = value1->value();
   var.payload.float3Value[2] = value2->value();
@@ -1908,7 +1908,7 @@ BUILTIN("float4") {
   ARG(malNumber, value2);
   ARG(malNumber, value3);
   CBVar var{};
-  var.valueType = Float4;
+  var.valueType = CBType::Float4;
   var.payload.float4Value[0] = value0->value();
   var.payload.float4Value[1] = value1->value();
   var.payload.float4Value[2] = value2->value();

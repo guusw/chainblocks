@@ -54,7 +54,7 @@ struct FileBase {
   bool getFilename(CBContext *context, std::string &filename,
                    bool checkExists = true) {
     auto &ctxFile = _filename.get();
-    if (ctxFile.valueType != String)
+    if (ctxFile.valueType != CBType::String)
       return false;
 
     filename = ctxFile.payload.stringValue;
@@ -302,7 +302,7 @@ struct LoadImage : public FileBase {
   BPP _bpp{BPP::u8};
 
   void cleanup() {
-    if (_output.valueType == Image && _output.payload.imageValue.data) {
+    if (_output.valueType == CBType::Image && _output.payload.imageValue.data) {
       stbi_image_free(_output.payload.imageValue.data);
       _output = Var::Empty;
     }
@@ -316,12 +316,12 @@ struct LoadImage : public FileBase {
       throw ActivationError("File not found!");
     }
 
-    if (_output.valueType == Image && _output.payload.imageValue.data) {
+    if (_output.valueType == CBType::Image && _output.payload.imageValue.data) {
       stbi_image_free(_output.payload.imageValue.data);
       _output = Var::Empty;
     }
 
-    _output.valueType = Image;
+    _output.valueType = CBType::Image;
     int x, y, n;
     if (_bpp == BPP::u8) {
       _output.payload.imageValue.data =

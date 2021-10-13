@@ -103,7 +103,7 @@ struct Pop {
 
     for (auto info : data.shared) {
       if (strcmp(info.name, _pseq.variableName()) == 0) {
-        if (info.exposedType.basicType != Seq ||
+        if (info.exposedType.basicType != CBType::Seq ||
             info.exposedType.seqTypes.len != 2)
           throw ComposeError("Time.Pop expected a sequence of pairs");
 

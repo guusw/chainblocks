@@ -772,21 +772,21 @@ bool matchTypes(const CBTypeInfo &inputType, const CBTypeInfo &receiverType,
   }
 
   switch (inputType.basicType) {
-  case Object: {
+  case CBType::Object: {
     if (inputType.object.vendorId != receiverType.object.vendorId ||
         inputType.object.typeId != receiverType.object.typeId) {
       return false;
     }
     break;
   }
-  case Enum: {
+  case CBType::Enum: {
     if (inputType.enumeration.vendorId != receiverType.enumeration.vendorId ||
         inputType.enumeration.typeId != receiverType.enumeration.typeId) {
       return false;
     }
     break;
   }
-  case Seq: {
+  case CBType::Seq: {
     if (strict) {
       if (inputType.seqTypes.len > 0 && receiverType.seqTypes.len > 0) {
         // all input types must be in receiver, receiver can have more ofc
@@ -820,7 +820,7 @@ bool matchTypes(const CBTypeInfo &inputType, const CBTypeInfo &receiverType,
     }
     break;
   }
-  case Table: {
+  case CBType::Table: {
     if (strict) {
       // Table is a complicated one
       // We use it as many things.. one of it as structured data
@@ -944,7 +944,7 @@ void validateConnection(ValidationContext &ctx) {
   auto inputInfos = ctx.bottom->inputTypes(ctx.bottom);
   auto inputMatches = false;
   // validate our generic input
-  if (inputInfos.len == 1 && inputInfos.elements[0].basicType == None) {
+  if (inputInfos.len == 1 && inputInfos.elements[0].basicType == CBType::None) {
     // in this case a None always matches
     inputMatches = true;
   } else {
@@ -1064,12 +1064,12 @@ void validateConnection(ValidationContext &ctx) {
       flowStopper ||
       std::any_of(otypes.begin(), otypes.end(), [&](const auto &t) {
         return t.basicType == CBType::Any ||
-               (t.basicType == Seq && t.seqTypes.len == 1 &&
+               (t.basicType == CBType::Seq && t.seqTypes.len == 1 &&
                 t.seqTypes.elements[0].basicType == CBType::Any &&
-                ctx.previousOutputType.basicType == Seq) || // any seq
-               (t.basicType == Table &&
+                ctx.previousOutputType.basicType == CBType::Seq) || // any seq
+               (t.basicType == CBType::Table &&
                 // TODO find Any in table types
-                ctx.previousOutputType.basicType == Table) || // any table
+                ctx.previousOutputType.basicType == CBType::Table) || // any table
                t == ctx.previousOutputType;
       });
   assert(ctx.bottom->compose || valid_block_outputTypes);
@@ -1294,7 +1294,7 @@ CBComposeResult composeChain(const CBChain *chain,
     // If first block is a plain None, mark this chain has None input
     // But make sure we have no (Input) blocks
     auto inTypes = chain->blocks[0]->inputTypes(chain->blocks[0]);
-    if (inTypes.len == 1 && inTypes.elements[0].basicType == None)
+    if (inTypes.len == 1 && inTypes.elements[0].basicType == CBType::None)
       chain->inputType = CBTypeInfo{};
     else
       chain->inputType = data.inputType;
@@ -1343,7 +1343,7 @@ CBComposeResult composeChain(const CBSeq chain, CBValidationCallback callback,
 
 void freeDerivedInfo(CBTypeInfo info) {
   switch (info.basicType) {
-  case Seq: {
+  case CBType::Seq: {
     for (uint32_t i = 0; info.seqTypes.len > i; i++) {
       freeDerivedInfo(info.seqTypes.elements[i]);
     }
@@ -1355,7 +1355,7 @@ void freeDerivedInfo(CBTypeInfo info) {
     }
     chainblocks::arrayFree(info.setTypes);
   } break;
-  case Table: {
+  case CBType::Table: {
     for (uint32_t i = 0; info.table.types.len > i; i++) {
       freeDerivedInfo(info.table.types.elements[i]);
     }
@@ -1379,17 +1379,17 @@ CBTypeInfo deriveTypeInfo(const CBVar &value, const CBInstanceData &data,
   varType.basicType = value.valueType;
   varType.innerType = value.innerType;
   switch (value.valueType) {
-  case Object: {
+  case CBType::Object: {
     varType.object.vendorId = value.payload.objectVendorId;
     varType.object.typeId = value.payload.objectTypeId;
     break;
   }
-  case Enum: {
+  case CBType::Enum: {
     varType.enumeration.vendorId = value.payload.enumVendorId;
     varType.enumeration.typeId = value.payload.enumTypeId;
     break;
   }
-  case Seq: {
+  case CBType::Seq: {
     std::unordered_set<CBTypeInfo> types;
     for (uint32_t i = 0; i < value.payload.seqValue.len; i++) {
       auto derived = deriveTypeInfo(value.payload.seqValue.elements[i], data,
@@ -1402,7 +1402,7 @@ CBTypeInfo deriveTypeInfo(const CBVar &value, const CBInstanceData &data,
     varType.fixedSize = value.payload.seqValue.len;
     break;
   }
-  case Table: {
+  case CBType::Table: {
     auto &t = value.payload.tableValue;
     CBTableIterator tit;
     t.api->tableGetIterator(t, &tit);
@@ -1455,7 +1455,7 @@ CBTypeInfo cloneTypeInfo(const CBTypeInfo &other) {
   CBTypeInfo varType;
   memcpy(&varType, &other, sizeof(CBTypeInfo));
   switch (varType.basicType) {
-  case Seq: {
+  case CBType::Seq: {
     varType.seqTypes = {};
     for (uint32_t i = 0; i < other.seqTypes.len; i++) {
       auto cloned = cloneTypeInfo(other.seqTypes.elements[i]);
@@ -1471,7 +1471,7 @@ CBTypeInfo cloneTypeInfo(const CBTypeInfo &other) {
     }
     break;
   }
-  case Table: {
+  case CBType::Table: {
     varType.table = {};
     for (uint32_t i = 0; i < other.table.types.len; i++) {
       auto cloned = cloneTypeInfo(other.table.types.elements[i]);
@@ -1502,21 +1502,21 @@ void updateTypeHash(const CBVar &var, XXH3_state_s *state) {
   XXH3_64bits_update(state, &var.innerType, sizeof(var.innerType));
 
   switch (var.valueType) {
-  case Object: {
+  case CBType::Object: {
     XXH3_64bits_update(state, &var.payload.objectVendorId,
                        sizeof(var.payload.objectVendorId));
     XXH3_64bits_update(state, &var.payload.objectTypeId,
                        sizeof(var.payload.objectTypeId));
     break;
   }
-  case Enum: {
+  case CBType::Enum: {
     XXH3_64bits_update(state, &var.payload.enumVendorId,
                        sizeof(var.payload.enumVendorId));
     XXH3_64bits_update(state, &var.payload.enumTypeId,
                        sizeof(var.payload.enumTypeId));
     break;
   }
-  case Seq: {
+  case CBType::Seq: {
     std::set<uint64_t, std::less<uint64_t>, stack_allocator<uint64_t>> hashes;
     for (uint32_t i = 0; i < var.payload.seqValue.len; i++) {
       auto typeHash = _deriveTypeHash(var.payload.seqValue.elements[i]);
@@ -1528,7 +1528,7 @@ void updateTypeHash(const CBVar &var, XXH3_state_s *state) {
       XXH3_64bits_update(state, &hash, sizeof(uint64_t));
     }
   } break;
-  case Table: {
+  case CBType::Table: {
     // this is unsafe because allocates on the stack
     // but we need to sort hashes
     std::vector<std::pair<uint64_t, CBString>,
@@ -1602,17 +1602,17 @@ void updateTypeHash(const CBTypeInfo &t, XXH3_state_s *state) {
   XXH3_64bits_update(state, &t.innerType, sizeof(t.innerType));
 
   switch (t.basicType) {
-  case Object: {
+  case CBType::Object: {
     XXH3_64bits_update(state, &t.object.vendorId, sizeof(t.object.vendorId));
     XXH3_64bits_update(state, &t.object.typeId, sizeof(t.object.typeId));
   } break;
-  case Enum: {
+  case CBType::Enum: {
     XXH3_64bits_update(state, &t.enumeration.vendorId,
                        sizeof(t.enumeration.vendorId));
     XXH3_64bits_update(state, &t.enumeration.typeId,
                        sizeof(t.enumeration.typeId));
   } break;
-  case Seq: {
+  case CBType::Seq: {
     // this is unsafe because allocates on the stack, but faster...
     std::set<uint64_t, std::less<uint64_t>, stack_allocator<uint64_t>> hashes;
     bool recursive = false;
@@ -1630,7 +1630,7 @@ void updateTypeHash(const CBTypeInfo &t, XXH3_state_s *state) {
       XXH3_64bits_update(state, &hash, sizeof(hash));
     }
   } break;
-  case Table: {
+  case CBType::Table: {
     if (t.table.keys.len == t.table.types.len) {
       std::vector<std::pair<uint64_t, CBString>,
                   stack_allocator<std::pair<uint64_t, CBString>>>
@@ -2092,14 +2092,14 @@ NO_INLINE void arrayGrow(T &arr, size_t addlen, size_t min_cap) {
 
 NO_INLINE void _destroyVarSlow(CBVar &var) {
   switch (var.valueType) {
-  case Seq: {
+  case CBType::Seq: {
     // notice we use .cap! because we make sure to 0 new empty elements
     for (size_t i = var.payload.seqValue.cap; i > 0; i--) {
       destroyVar(var.payload.seqValue.elements[i - 1]);
     }
     chainblocks::arrayFree(var.payload.seqValue);
   } break;
-  case Table: {
+  case CBType::Table: {
     assert(var.payload.tableValue.api == &GetGlobals().TableInterface);
     assert(var.payload.tableValue.opaque);
     auto map = (CBMap *)var.payload.tableValue.opaque;
@@ -2118,13 +2118,13 @@ NO_INLINE void _destroyVarSlow(CBVar &var) {
 
 NO_INLINE void _cloneVarSlow(CBVar &dst, const CBVar &src) {
   switch (src.valueType) {
-  case Seq: {
+  case CBType::Seq: {
     uint32_t srcLen = src.payload.seqValue.len;
 
     // try our best to re-use memory
-    if (dst.valueType != Seq) {
+    if (dst.valueType != CBType::Seq) {
       destroyVar(dst);
-      dst.valueType = Seq;
+      dst.valueType = CBType::Seq;
     }
 
     if (src.payload.seqValue.elements == dst.payload.seqValue.elements)
@@ -2136,14 +2136,14 @@ NO_INLINE void _cloneVarSlow(CBVar &dst, const CBVar &src) {
       cloneVar(dst.payload.seqValue.elements[i], subsrc);
     }
   } break;
-  case Path:
-  case ContextVar:
-  case String: {
+  case CBType::Path:
+  case CBType::ContextVar:
+  case CBType::String: {
     auto srcSize =
         src.payload.stringLen > 0 || src.payload.stringValue == nullptr
             ? src.payload.stringLen
             : uint32_t(strlen(src.payload.stringValue));
-    if ((dst.valueType != String && dst.valueType != ContextVar) ||
+    if ((dst.valueType != CBType::String && dst.valueType != CBType::ContextVar) ||
         dst.payload.stringCapacity < srcSize) {
       destroyVar(dst);
       // allocate a 0 terminator too
@@ -2161,7 +2161,7 @@ NO_INLINE void _cloneVarSlow(CBVar &dst, const CBVar &src) {
     // fill the optional len field
     dst.payload.stringLen = srcSize;
   } break;
-  case Image: {
+  case CBType::Image: {
     auto spixsize = 1;
     auto dpixsize = 1;
     if ((src.payload.imageValue.flags & CBIMAGE_FLAGS_16BITS_INT) ==
@@ -2183,9 +2183,9 @@ NO_INLINE void _cloneVarSlow(CBVar &dst, const CBVar &src) {
     size_t dstCapacity = dst.payload.imageValue.height *
                          dst.payload.imageValue.width *
                          dst.payload.imageValue.channels * dpixsize;
-    if (dst.valueType != Image || srcImgSize > dstCapacity) {
+    if (dst.valueType != CBType::Image || srcImgSize > dstCapacity) {
       destroyVar(dst);
-      dst.valueType = Image;
+      dst.valueType = CBType::Image;
       dst.payload.imageValue.data = new uint8_t[srcImgSize];
     }
 
@@ -2200,14 +2200,14 @@ NO_INLINE void _cloneVarSlow(CBVar &dst, const CBVar &src) {
     memcpy(dst.payload.imageValue.data, src.payload.imageValue.data,
            srcImgSize);
   } break;
-  case Audio: {
+  case CBType::Audio: {
     size_t srcSize = src.payload.audioValue.nsamples *
                      src.payload.audioValue.channels * sizeof(float);
     size_t dstCapacity = dst.payload.audioValue.nsamples *
                          dst.payload.audioValue.channels * sizeof(float);
-    if (dst.valueType != Audio || srcSize > dstCapacity) {
+    if (dst.valueType != CBType::Audio || srcSize > dstCapacity) {
       destroyVar(dst);
-      dst.valueType = Audio;
+      dst.valueType = CBType::Audio;
       dst.payload.audioValue.samples =
           new float[src.payload.audioValue.nsamples *
                     src.payload.audioValue.channels];
@@ -2223,9 +2223,9 @@ NO_INLINE void _cloneVarSlow(CBVar &dst, const CBVar &src) {
     memcpy(dst.payload.audioValue.samples, src.payload.audioValue.samples,
            srcSize);
   } break;
-  case Table: {
+  case CBType::Table: {
     CBMap *map;
-    if (dst.valueType == Table) {
+    if (dst.valueType == CBType::Table) {
       if (src.payload.tableValue.opaque == dst.payload.tableValue.opaque)
         return;
       assert(dst.payload.tableValue.api == &GetGlobals().TableInterface);
@@ -2233,14 +2233,14 @@ NO_INLINE void _cloneVarSlow(CBVar &dst, const CBVar &src) {
       map->clear();
     } else {
       destroyVar(dst);
-      dst.valueType = Table;
+      dst.valueType = CBType::Table;
       dst.payload.tableValue.api = &GetGlobals().TableInterface;
       map = new CBMap();
       dst.payload.tableValue.opaque = map;
     }
 
     auto &t = src.payload.tableValue;
-    CBTableIterator tit;
+    CBTableIterator tit{0};
     t.api->tableGetIterator(t, &tit);
     CBString k;
     CBVar v;
@@ -2272,11 +2272,11 @@ NO_INLINE void _cloneVarSlow(CBVar &dst, const CBVar &src) {
       (*set).emplace(v);
     }
   } break;
-  case Bytes: {
-    if (dst.valueType != Bytes ||
+  case CBType::Bytes: {
+    if (dst.valueType != CBType::Bytes ||
         dst.payload.bytesCapacity < src.payload.bytesSize) {
       destroyVar(dst);
-      dst.valueType = Bytes;
+      dst.valueType = CBType::Bytes;
       dst.payload.bytesValue = new uint8_t[src.payload.bytesSize];
       dst.payload.bytesCapacity = src.payload.bytesSize;
     }
@@ -2293,9 +2293,9 @@ NO_INLINE void _cloneVarSlow(CBVar &dst, const CBVar &src) {
     auto srcLen = src.payload.arrayValue.len;
 
     // try our best to re-use memory
-    if (dst.valueType != Array) {
+    if (dst.valueType != CBType::Array) {
       destroyVar(dst);
-      dst.valueType = Array;
+      dst.valueType = CBType::Array;
     }
 
     if (src.payload.arrayValue.elements == dst.payload.arrayValue.elements)
@@ -2375,12 +2375,12 @@ void _gatherBlocks(const BlocksCollection &coll, std::vector<CBlockInfo> &out) {
       bool potential = false;
       for (uint32_t j = 0; j < types.len; j++) {
         const auto &type = types.elements[j];
-        if (type.basicType == Block || type.basicType == CBType::Chain) {
+        if (type.basicType == CBType::Block || type.basicType == CBType::Chain) {
           potential = true;
-        } else if (type.basicType == Seq) {
+        } else if (type.basicType == CBType::Seq) {
           const auto &stypes = type.seqTypes;
           for (uint32_t k = 0; k < stypes.len; k++) {
-            if (stypes.elements[k].basicType == Block) {
+            if (stypes.elements[k].basicType == CBType::Block) {
               potential = true;
             }
           }
@@ -2400,12 +2400,12 @@ void _gatherBlocks(const BlocksCollection &coll, std::vector<CBlockInfo> &out) {
   case 3: {
     // Var
     auto var = std::get<CBVar>(coll);
-    if (var.valueType == Block) {
+    if (var.valueType == CBType::Block) {
       _gatherBlocks(var.payload.blockValue, out);
     } else if (var.valueType == CBType::Chain) {
       auto chain = CBChain::sharedFromRef(var.payload.chainValue);
       _gatherBlocks(chain.get(), out);
-    } else if (var.valueType == Seq) {
+    } else if (var.valueType == CBType::Seq) {
       auto bs = var.payload.seqValue;
       for (uint32_t i = 0; i < bs.len; i++) {
         _gatherBlocks(bs.elements[i], out);

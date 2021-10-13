@@ -172,7 +172,7 @@ struct Style : public Base {
     case AntiAliasedFill:
     case CurveTessellationTol:
     case Alpha:
-      if (data.inputType.basicType != Float) {
+      if (data.inputType.basicType != CBType::Float) {
         throw CBException(
             "this ImGui Style block expected a Float variable as input!");
       }
@@ -188,7 +188,7 @@ struct Style : public Base {
     case SelectableTextAlign:
     case DisplayWindowPadding:
     case DisplaySafeAreaPadding:
-      if (data.inputType.basicType != Float2) {
+      if (data.inputType.basicType != CBType::Float2) {
         throw CBException(
             "this ImGui Style block expected a Float2 variable as input!");
       }
@@ -241,7 +241,7 @@ struct Style : public Base {
     case NavWindowingHighlightColor:
     case NavWindowingDimBgColor:
     case ModalWindowDimBgColor:
-      if (data.inputType.basicType != Color) {
+      if (data.inputType.basicType != CBType::Color) {
         throw CBException(
             "this ImGui Style block expected a Color variable as input!");
       }
@@ -659,11 +659,11 @@ struct Window : public Base {
     if (firstActivation) {
       const ImGuiIO &io = ::ImGui::GetIO();
 
-      if (_pos.valueType == Int2) {
+      if (_pos.valueType == CBType::Int2) {
         ImVec2 pos = {float(_pos.payload.int2Value[0]),
                       float(_pos.payload.int2Value[1])};
         ::ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
-      } else if (_pos.valueType == Float2) {
+      } else if (_pos.valueType == CBType::Float2) {
         const auto x = double(io.DisplaySize.x) * _pos.payload.float2Value[0];
         const auto y = double(io.DisplaySize.y) * _pos.payload.float2Value[1];
         ImVec2 pos = {float(x), float(y)};
@@ -671,16 +671,16 @@ struct Window : public Base {
       }
 
       ImVec2 size;
-      if (_width.valueType == Int) {
+      if (_width.valueType == CBType::Int) {
         size.x = float(_width.payload.intValue);
-      } else if (_width.valueType == Float) {
+      } else if (_width.valueType == CBType::Float) {
         size.x = io.DisplaySize.x * float(_width.payload.floatValue);
       } else {
         assert(false);
       }
-      if (_height.valueType == Int) {
+      if (_height.valueType == CBType::Int) {
         size.y = float(_height.payload.intValue);
-      } else if (_height.valueType == Float) {
+      } else if (_height.valueType == CBType::Float) {
         size.y = io.DisplaySize.y * float(_height.payload.floatValue);
       } else {
         assert(false);
@@ -773,7 +773,7 @@ struct ChildWindow : public Base {
       return input;
 
     ImVec2 size{0, 0};
-    if (_width.valueType == Int && _height.valueType == Int) {
+    if (_width.valueType == CBType::Int && _height.valueType == CBType::Int) {
       size = {float(_width.payload.intValue), float(_height.payload.intValue)};
     }
 
@@ -871,14 +871,14 @@ template <CBType CT> struct Variable : public Base {
   void setParam(int index, const CBVar &value) {
     switch (index) {
     case 0: {
-      if (value.valueType == None) {
+      if (value.valueType == CBType::None) {
         _label.clear();
       } else {
         _label = value.payload.stringValue;
       }
     } break;
     case 1: {
-      if (value.valueType == None) {
+      if (value.valueType == CBType::None) {
         _variable_name.clear();
       } else {
         _variable_name = value.payload.stringValue;
@@ -941,7 +941,7 @@ struct Text : public Base {
   void setParam(int index, const CBVar &value) {
     switch (index) {
     case 0: {
-      if (value.valueType == None) {
+      if (value.valueType == CBType::None) {
         _label.clear();
       } else {
         _label = value.payload.stringValue;
@@ -971,7 +971,7 @@ struct Text : public Base {
 
     _text.write(input);
 
-    if (_color.valueType == Color)
+    if (_color.valueType == CBType::Color)
       ::ImGui::PushStyleColor(ImGuiCol_Text, Style::color2Vec4(_color));
 
     if (_label.size() > 0) {
@@ -980,7 +980,7 @@ struct Text : public Base {
       ::ImGui::Text("%s", _text.str());
     }
 
-    if (_color.valueType == Color)
+    if (_color.valueType == CBType::Color)
       ::ImGui::PopStyleColor();
 
     return input;
@@ -1313,7 +1313,7 @@ template <CBType CBT> struct DragBase : public Variable<CBT> {
       if (!_variable && _variable_name.size() > 0) {                           \
         _variable = referenceVariable(context, _variable_name.c_str());        \
         if (_exposing) {                                                       \
-          _variable->valueType = _CBT_;                                        \
+          _variable->valueType = CBType::_CBT_;                                        \
         }                                                                      \
       }                                                                        \
                                                                                \
@@ -1345,7 +1345,7 @@ IMGUIDRAG(Float, double, FloatType, ImGuiDataType_Double, floatValue);
       if (!_variable && _variable_name.size() > 0) {                           \
         _variable = referenceVariable(context, _variable_name.c_str());        \
         if (_exposing) {                                                       \
-          _variable->valueType = _CBT_;                                        \
+          _variable->valueType = CBType::_CBT_;                                        \
         }                                                                      \
       }                                                                        \
                                                                                \
@@ -1355,7 +1355,7 @@ IMGUIDRAG(Float, double, FloatType, ImGuiDataType_Double, floatValue);
                              _speed);                                          \
         return *_variable;                                                     \
       } else {                                                                 \
-        _tmp.valueType = _CBT_;                                                \
+        _tmp.valueType = CBType::_CBT_;                                                \
         ::ImGui::DragScalarN(_label.c_str(), _IMT_,                            \
                              (void *)&_tmp.payload._VAL_, _CMP_, _speed);      \
         return _tmp;                                                           \
@@ -1384,7 +1384,7 @@ IMGUIDRAG2(Float4, float, Float4Type, ImGuiDataType_Float, float4Value, 4);
       if (!_variable && _variable_name.size() > 0) {                           \
         _variable = referenceVariable(context, _variable_name.c_str());        \
         if (_exposing) {                                                       \
-          _variable->valueType = _CBT_;                                        \
+          _variable->valueType = CBType::_CBT_;                                        \
         }                                                                      \
       }                                                                        \
                                                                                \
@@ -1420,7 +1420,7 @@ IMGUIINPUT(Float, double, FloatType, ImGuiDataType_Double, floatValue, "%f");
       if (!_variable && _variable_name.size() > 0) {                           \
         _variable = referenceVariable(context, _variable_name.c_str());        \
         if (_exposing) {                                                       \
-          _variable->valueType = _CBT_;                                        \
+          _variable->valueType = CBType::_CBT_;                                        \
         }                                                                      \
       }                                                                        \
                                                                                \
@@ -1432,7 +1432,7 @@ IMGUIINPUT(Float, double, FloatType, ImGuiDataType_Double, floatValue, "%f");
                               &step_fast, _FMT_, 0);                           \
         return *_variable;                                                     \
       } else {                                                                 \
-        _tmp.valueType = _CBT_;                                                \
+        _tmp.valueType = CBType::_CBT_;                                                \
         ::ImGui::InputScalarN(_label.c_str(), _IMT_,                           \
                               (void *)&_tmp.payload._VAL_, _CMP_, &step,       \
                               &step_fast, _FMT_, 0);                           \
@@ -1485,7 +1485,7 @@ struct TextInput : public Variable<CBType::String> {
       _variable = referenceVariable(context, _variable_name.c_str());
       if (_exposing) {
         // we own the variable so let's run some init
-        _variable->valueType = String;
+        _variable->valueType = CBType::String;
         _variable->payload.stringValue = new char[32];
         _variable->payload.stringCapacity = 32;
         memset((void *)_variable->payload.stringValue, 0x0, 32);
@@ -1519,7 +1519,7 @@ struct ColorInput : public Variable<CBType::Color> {
       _variable = referenceVariable(context, _variable_name.c_str());
       if (_exposing) {
         // we own the variable so let's run some init
-        _variable->valueType = Color;
+        _variable->valueType = CBType::Color;
         _variable->payload.colorValue.r = 0;
         _variable->payload.colorValue.g = 0;
         _variable->payload.colorValue.b = 0;
@@ -1731,7 +1731,7 @@ struct Plot : public Base {
   }
 
   CBVar activate(CBContext *context, const CBVar &input) {
-    if (_xlimits.get().valueType == Float2) {
+    if (_xlimits.get().valueType == CBType::Float2) {
       auto limitx = _xlimits.get().payload.float2Value[0];
       auto limity = _xlimits.get().payload.float2Value[1];
       auto locked = _lockx.get().payload.boolValue;
@@ -1739,7 +1739,7 @@ struct Plot : public Base {
                                  locked ? ImGuiCond_Always : ImGuiCond_Once);
     }
 
-    if (_ylimits.get().valueType == Float2) {
+    if (_ylimits.get().valueType == CBType::Float2) {
       auto limitx = _ylimits.get().payload.float2Value[0];
       auto limity = _ylimits.get().payload.float2Value[1];
       auto locked = _locky.get().payload.boolValue;
@@ -1806,14 +1806,14 @@ struct PlottableBase : Base {
   }
 
   CBTypeInfo compose(const CBInstanceData &data) {
-    assert(data.inputType.basicType == Seq);
+    assert(data.inputType.basicType == CBType::Seq);
     if (data.inputType.seqTypes.len != 1 ||
-        (data.inputType.seqTypes.elements[0].basicType != Float &&
-         data.inputType.seqTypes.elements[0].basicType != Float2)) {
-      throw ComposeError("Expected either a Float or Float2 sequence.");
+        (data.inputType.seqTypes.elements[0].basicType != CBType::Float &&
+         data.inputType.seqTypes.elements[0].basicType != CBType::Float2)) {
+      throw ComposeError("Expected either a Float or CBType::Float2 sequence.");
     }
 
-    if (data.inputType.seqTypes.elements[0].basicType == Float)
+    if (data.inputType.seqTypes.elements[0].basicType == CBType::Float)
       _kind = Kind::xAndIndex;
     else
       _kind = Kind::xAndY;
@@ -1838,7 +1838,7 @@ struct PlottableBase : Base {
 
   static bool isInputValid(const CBVar &input) {
     // prevent division by zero
-    return !(input.valueType == Seq && input.payload.seqValue.len == 0);
+    return !(input.valueType == CBType::Seq && input.payload.seqValue.len == 0);
   }
 };
 

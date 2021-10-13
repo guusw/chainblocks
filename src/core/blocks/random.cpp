@@ -26,12 +26,12 @@ template <Type &OUTTYPE, CBType CBTYPE> struct Rand : public RandBase {
     CBVar res{};
     res.valueType = CBTYPE;
     if constexpr (CBTYPE == CBType::Int) {
-      if (_max.valueType == None)
+      if (_max.valueType == CBType::None)
         res.payload.intValue = _uintdis(_gen);
       else
         res.payload.intValue = _uintdis(_gen) % _max.payload.intValue;
     } else if constexpr (CBTYPE == CBType::Float) {
-      if (_max.valueType == None)
+      if (_max.valueType == CBType::None)
         res.payload.floatValue = _udis(_gen);
       else
         res.payload.floatValue = _udis(_gen) * _max.payload.floatValue;

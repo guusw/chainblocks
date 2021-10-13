@@ -42,16 +42,16 @@ struct ToBigInt {
   CBVar activate(CBContext *context, const CBVar &input) {
     cpp_int bi;
     switch (input.valueType) {
-    case Int: {
+    case CBType::Int: {
       bi = input.payload.intValue;
     } break;
-    case Float: {
+    case CBType::Float: {
       bi = cpp_int(input.payload.floatValue);
     } break;
-    case String: {
+    case CBType::String: {
       bi = cpp_int(input.payload.stringValue);
     } break;
-    case Bytes: {
+    case CBType::Bytes: {
       import_bits(bi, input.payload.bytesValue,
                   input.payload.bytesValue + input.payload.bytesSize);
     } break;
@@ -143,7 +143,7 @@ struct BigOperandBase {
 
   const CBVar &getOperand() {
     CBVar &op = _op.get();
-    if (op.valueType == None) {
+    if (op.valueType == CBType::None) {
       throw ActivationError("Operand is None, should be valid bigint bytes");
     }
     return op;
@@ -181,7 +181,7 @@ struct RegOperandBase {
 
   const CBVar &getOperand() {
     CBVar &op = _op.get();
-    if (op.valueType == None) {
+    if (op.valueType == CBType::None) {
       throw ActivationError("Operand is None, should be an integer");
     }
     return op;
@@ -248,7 +248,7 @@ BIGINT_BINARY_OP(Max, std::max);
     CBVar activate(CBContext *context, const CBVar &input) {                   \
       cpp_int bia = from_var(input);                                           \
       auto op = getOperand();                                                  \
-      if (op.valueType != Int)                                                 \
+      if (op.valueType != CBType::Int)                                                 \
         throw ActivationError("Pow operand should be an Int");                 \
       cpp_int bres = __OP__(bia, op.payload.intValue);                         \
       return to_var(bres, _buffer);                                            \

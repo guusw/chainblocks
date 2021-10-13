@@ -10,7 +10,11 @@
 
 // All the available types
 #if defined(__cplusplus) || defined(CB_USE_ENUMS)
+#ifdef RUST_BINDGEN
 enum CBType : uint8_t {
+#else
+enum class CBType : uint8_t {
+#endif
   None,
   Any,
   Enum,

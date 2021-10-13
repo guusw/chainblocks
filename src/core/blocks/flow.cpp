@@ -117,7 +117,7 @@ struct Cond {
       _conditions.clear();
       _actions.clear();
       cloneVar(_chains, value);
-      if (value.valueType == Seq) {
+      if (value.valueType == CBType::Seq) {
         auto counter = value.payload.seqValue.len;
         if (counter % 2)
           throw CBException("Cond: first parameter must contain a sequence of "
@@ -129,13 +129,13 @@ struct Cond {
         for (uint32_t i = 0; i < counter; i++) {
           auto val = value.payload.seqValue.elements[i];
           if (i % 2) { // action
-            if (val.valueType == Block) {
+            if (val.valueType == CBType::Block) {
               assert(!val.payload.blockValue->owned);
               val.payload.blockValue->owned = true;
               _actions[idx].push_back(val.payload.blockValue);
             } else { // seq
               for (uint32_t y = 0; y < val.payload.seqValue.len; y++) {
-                assert(val.payload.seqValue.elements[y].valueType == Block);
+                assert(val.payload.seqValue.elements[y].valueType == CBType::Block);
                 auto blk = val.payload.seqValue.elements[y].payload.blockValue;
                 assert(!blk->owned);
                 blk->owned = true;
@@ -145,13 +145,13 @@ struct Cond {
 
             idx++;
           } else { // condition
-            if (val.valueType == Block) {
+            if (val.valueType == CBType::Block) {
               assert(!val.payload.blockValue->owned);
               val.payload.blockValue->owned = true;
               _conditions[idx].push_back(val.payload.blockValue);
             } else { // seq
               for (uint32_t y = 0; y < val.payload.seqValue.len; y++) {
-                assert(val.payload.seqValue.elements[y].valueType == Block);
+                assert(val.payload.seqValue.elements[y].valueType == CBType::Block);
                 auto blk = val.payload.seqValue.elements[y].payload.blockValue;
                 assert(!blk->owned);
                 blk->owned = true;
@@ -296,7 +296,7 @@ struct Cond {
       if (_passthrough)
         return input;
       else
-        return {}; // None
+        return {}; // CBType::None
     }
 
     auto idx = 0;
@@ -447,7 +447,7 @@ struct Maybe : public BaseSubFlow {
 
     const auto nextIsNone = data.outputTypes.len == 0 ||
                             (data.outputTypes.len == 1 &&
-                             data.outputTypes.elements[0].basicType == None);
+                             data.outputTypes.elements[0].basicType == CBType::None);
 
     if (!nextIsNone && !elseComp.flowStopper &&
         _composition.outputType != elseComp.outputType) {
@@ -648,7 +648,7 @@ template <bool COND> struct When {
 
     const auto nextIsNone = data.outputTypes.len == 0 ||
                             (data.outputTypes.len == 1 &&
-                             data.outputTypes.elements[0].basicType == None);
+                             data.outputTypes.elements[0].basicType == CBType::None);
 
     if (!nextIsNone && !ares.flowStopper && !_passth) {
       if (cres.outputType != data.inputType) {
@@ -754,7 +754,7 @@ struct IfBlock {
 
     const auto nextIsNone = data.outputTypes.len == 0 ||
                             (data.outputTypes.len == 1 &&
-                             data.outputTypes.elements[0].basicType == None);
+                             data.outputTypes.elements[0].basicType == CBType::None);
 
     if (!nextIsNone && !tres.flowStopper && !eres.flowStopper && !_passth) {
       if (tres.outputType != eres.outputType) {
@@ -887,7 +887,7 @@ struct Match {
 
   CBTypeInfo compose(const CBInstanceData &data) {
     for (auto &case_ : _pcases) {
-      if (case_.valueType != None) {
+      if (case_.valueType != CBType::None) {
         // must compare deeply
         bool hasVariables = false;
         TypeInfo cinfo(case_, data, &hasVariables);
@@ -948,7 +948,7 @@ struct Match {
     for (auto i = 0; i < _ncases; i++) {
       auto &case_ = _cases[i];
       auto &action = _actions[i];
-      if (case_ == input || case_.valueType == None) {
+      if (case_ == input || case_.valueType == CBType::None) {
         action.activate(context, input, finalOutput);
         matched = true;
         break;

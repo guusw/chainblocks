@@ -61,33 +61,33 @@ struct Reader {
 
 TEST_CASE("CBType-type2Name", "[ops]") {
   REQUIRE_THROWS(type2Name(CBType::EndOfBlittableTypes));
-  REQUIRE(type2Name(CBType::None) == "None");
-  REQUIRE(type2Name(CBType::Any) == "Any");
-  REQUIRE(type2Name(CBType::Object) == "Object");
-  REQUIRE(type2Name(CBType::Enum) == "Enum");
-  REQUIRE(type2Name(CBType::Bool) == "Bool");
-  REQUIRE(type2Name(CBType::Bytes) == "Bytes");
-  REQUIRE(type2Name(CBType::Color) == "Color");
-  REQUIRE(type2Name(CBType::Int) == "Int");
-  REQUIRE(type2Name(CBType::Int2) == "Int2");
-  REQUIRE(type2Name(CBType::Int3) == "Int3");
-  REQUIRE(type2Name(CBType::Int4) == "Int4");
-  REQUIRE(type2Name(CBType::Int8) == "Int8");
-  REQUIRE(type2Name(CBType::Int16) == "Int16");
-  REQUIRE(type2Name(CBType::Float) == "Float");
-  REQUIRE(type2Name(CBType::Float2) == "Float2");
-  REQUIRE(type2Name(CBType::Float3) == "Float3");
-  REQUIRE(type2Name(CBType::Float4) == "Float4");
-  REQUIRE(type2Name(CBType::Block) == "Block");
-  REQUIRE(type2Name(CBType::String) == "String");
-  REQUIRE(type2Name(CBType::ContextVar) == "ContextVar");
-  REQUIRE(type2Name(CBType::Path) == "Path");
-  REQUIRE(type2Name(CBType::Image) == "Image");
-  REQUIRE(type2Name(CBType::Seq) == "Seq");
-  REQUIRE(type2Name(CBType::Table) == "Table");
-  REQUIRE(type2Name(CBType::Set) == "Set");
-  REQUIRE(type2Name(CBType::Array) == "Array");
-  REQUIRE(type2Name(CBType::Audio) == "Audio");
+  REQUIRE(type2Name(CBType::None) == "CBType::None");
+  REQUIRE(type2Name(CBType::Any) == "CBType::Any");
+  REQUIRE(type2Name(CBType::Object) == "CBType::Object");
+  REQUIRE(type2Name(CBType::Enum) == "CBType::Enum");
+  REQUIRE(type2Name(CBType::Bool) == "CBType::Bool");
+  REQUIRE(type2Name(CBType::Bytes) == "CBType::Bytes");
+  REQUIRE(type2Name(CBType::Color) == "CBType::Color");
+  REQUIRE(type2Name(CBType::Int) == "CBType::Int");
+  REQUIRE(type2Name(CBType::Int2) == "CBType::Int2");
+  REQUIRE(type2Name(CBType::Int3) == "CBType::Int3");
+  REQUIRE(type2Name(CBType::Int4) == "CBType::Int4");
+  REQUIRE(type2Name(CBType::Int8) == "CBType::Int8");
+  REQUIRE(type2Name(CBType::Int16) == "CBType::Int16");
+  REQUIRE(type2Name(CBType::Float) == "CBType::Float");
+  REQUIRE(type2Name(CBType::Float2) == "CBType::Float2");
+  REQUIRE(type2Name(CBType::Float3) == "CBType::Float3");
+  REQUIRE(type2Name(CBType::Float4) == "CBType::Float4");
+  REQUIRE(type2Name(CBType::Block) == "CBType::Block");
+  REQUIRE(type2Name(CBType::String) == "CBType::String");
+  REQUIRE(type2Name(CBType::ContextVar) == "CBType::ContextVar");
+  REQUIRE(type2Name(CBType::Path) == "CBType::Path");
+  REQUIRE(type2Name(CBType::Image) == "CBType::Image");
+  REQUIRE(type2Name(CBType::Seq) == "CBType::Seq");
+  REQUIRE(type2Name(CBType::Table) == "CBType::Table");
+  REQUIRE(type2Name(CBType::Set) == "CBType::Set");
+  REQUIRE(type2Name(CBType::Array) == "CBType::Array");
+  REQUIRE(type2Name(CBType::Audio) == "CBType::Audio");
 }
 
 TEST_CASE("CBVar-comparison", "[ops]") {

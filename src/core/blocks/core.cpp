@@ -75,13 +75,13 @@ struct JointOp {
   }
 
   void ensureJoinSetup(CBContext *context) {
-    if (_columns.valueType != None) {
+    if (_columns.valueType != CBType::None) {
       auto len = _input->payload.seqValue.len;
       if (_multiSortColumns.size() == 0) {
-        if (_columns.valueType == Seq) {
+        if (_columns.valueType == CBType::Seq) {
           for (const auto &col : _columns) {
             auto target = referenceVariable(context, col.payload.stringValue);
-            if (target && target->valueType == Seq) {
+            if (target && target->valueType == CBType::Seq) {
               auto mseqLen = target->payload.seqValue.len;
               if (len != mseqLen) {
                 throw ActivationError(
@@ -92,10 +92,10 @@ struct JointOp {
             }
           }
         } else if (_columns.valueType ==
-                   ContextVar) { // normal single context var
+                   CBType::ContextVar) { // normal single context var
           auto target =
               referenceVariable(context, _columns.payload.stringValue);
-          if (target && target->valueType == Seq) {
+          if (target && target->valueType == CBType::Seq) {
             auto mseqLen = target->payload.seqValue.len;
             if (len != mseqLen) {
               throw ActivationError(
@@ -184,7 +184,7 @@ struct Sort : public ActionJointOp {
   }
 
   CBTypeInfo compose(CBInstanceData &data) {
-    if (_inputVar.valueType != ContextVar)
+    if (_inputVar.valueType != CBType::ContextVar)
       throw CBException("From variable was empty!");
 
     CBExposedTypeInfo info{};
@@ -346,7 +346,7 @@ struct Remove : public ActionJointOp {
   }
 
   CBTypeInfo compose(CBInstanceData &data) {
-    if (_inputVar.valueType != ContextVar)
+    if (_inputVar.valueType != CBType::ContextVar)
       throw CBException("From variable was empty!");
 
     CBExposedTypeInfo info{};
@@ -518,7 +518,7 @@ struct XpendTo : public XPendBase {
           throw ComposeError(
               "AppendTo/PrependTo expects a mutable variable (Set/Push).");
         }
-        if (cons.exposedType.basicType == Seq &&
+        if (cons.exposedType.basicType == CBType::Seq &&
             (cons.exposedType.seqTypes.len != 1 ||
              cons.exposedType.seqTypes.elements[0] != data.inputType)) {
           throw ComposeError("AppendTo/PrependTo input type is not compatible "
@@ -560,14 +560,14 @@ struct AppendTo : public XpendTo {
   CBVar activate(CBContext *context, const CBVar &input) {
     auto &collection = _collection.get();
     switch (collection.valueType) {
-    case Seq: {
+    case CBType::Seq: {
       auto &arr = collection.payload.seqValue;
       const auto len = arr.len;
       chainblocks::arrayResize(arr, len + 1);
       cloneVar(arr.elements[len], input);
       break;
     }
-    case String: {
+    case CBType::String: {
       // variable is mutable, so we are sure we manage the memory
       // specifically in Set, cloneVar is used, which uses `new` to allocate
       // all we have to do use to clone our scratch on top of it
@@ -579,7 +579,7 @@ struct AppendTo : public XpendTo {
       cloneVar(collection, tmp);
       break;
     }
-    case Bytes: {
+    case CBType::Bytes: {
       // we know it's a mutable variable so must be compatible with our
       // arrayPush and such routines just do like string for now basically
       _scratchStr().clear();
@@ -601,7 +601,7 @@ struct PrependTo : public XpendTo {
   CBVar activate(CBContext *context, const CBVar &input) {
     auto &collection = _collection.get();
     switch (collection.valueType) {
-    case Seq: {
+    case CBType::Seq: {
       auto &arr = collection.payload.seqValue;
       const auto len = arr.len;
       chainblocks::arrayResize(arr, len + 1);
@@ -609,7 +609,7 @@ struct PrependTo : public XpendTo {
       cloneVar(arr.elements[0], input);
       break;
     }
-    case String: {
+    case CBType::String: {
       // variable is mutable, so we are sure we manage the memory
       // specifically in Set, cloneVar is used, which uses `new` to allocate
       // all we have to do use to clone our scratch on top of it
@@ -621,7 +621,7 @@ struct PrependTo : public XpendTo {
       cloneVar(collection, tmp);
       break;
     }
-    case Bytes: {
+    case CBType::Bytes: {
       // we know it's a mutable variable so must be compatible with our
       // arrayPush and such routines just do like string for now basically
       _scratchStr().clear();
@@ -653,15 +653,15 @@ struct ForEachBlock {
   CBVar getParam(int index) { return _blocks; }
 
   CBTypeInfo compose(const CBInstanceData &data) {
-    if (data.inputType.basicType != Seq && data.inputType.basicType != Table) {
+    if (data.inputType.basicType != CBType::Seq && data.inputType.basicType != CBType::Table) {
       throw ComposeError(
           "ForEach block expected a sequence or a table as input.");
     }
 
     auto dataCopy = data;
-    if (data.inputType.basicType == Seq && data.inputType.seqTypes.len == 1) {
+    if (data.inputType.basicType == CBType::Seq && data.inputType.seqTypes.len == 1) {
       dataCopy.inputType = data.inputType.seqTypes.elements[0];
-    } else if (data.inputType.basicType == Table) {
+    } else if (data.inputType.basicType == CBType::Table) {
       dataCopy.inputType = CoreInfo::AnySeqType;
     } else {
       dataCopy.inputType = CoreInfo::AnyType;
@@ -669,7 +669,7 @@ struct ForEachBlock {
 
     _blocks.compose(dataCopy);
 
-    if (data.inputType.basicType == Table) {
+    if (data.inputType.basicType == CBType::Table) {
       OVERRIDE_ACTIVATE(data, activateTable);
     } else {
       OVERRIDE_ACTIVATE(data, activateSeq);
@@ -754,7 +754,7 @@ struct Map {
   }
 
   void warmup(CBContext *ctx) {
-    _output.valueType = Seq;
+    _output.valueType = CBType::Seq;
     _blocks.warmup(ctx);
   }
 
@@ -903,35 +903,35 @@ struct Erase : SeqUser {
 
   CBTypeInfo compose(const CBInstanceData &data) {
     bool valid = false;
-    _isTable = data.inputType.basicType == Table;
+    _isTable = data.inputType.basicType == CBType::Table;
     // Figure if we output a sequence or not
-    if (_indices->valueType == Seq) {
+    if (_indices->valueType == CBType::Seq) {
       if (_indices->payload.seqValue.len > 0) {
-        if ((_indices->payload.seqValue.elements[0].valueType == Int &&
+        if ((_indices->payload.seqValue.elements[0].valueType == CBType::Int &&
              !_isTable) ||
-            (_indices->payload.seqValue.elements[0].valueType == String &&
+            (_indices->payload.seqValue.elements[0].valueType == CBType::String &&
              _isTable)) {
           valid = true;
         }
       }
-    } else if ((!_isTable && _indices->valueType == Int) ||
-               (_isTable && _indices->valueType == String)) {
+    } else if ((!_isTable && _indices->valueType == CBType::Int) ||
+               (_isTable && _indices->valueType == CBType::String)) {
       valid = true;
-    } else { // ContextVar
+    } else { // CBType::ContextVar
       for (auto &info : data.shared) {
         if (strcmp(info.name, _indices->payload.stringValue) == 0) {
-          if (info.exposedType.basicType == Seq &&
+          if (info.exposedType.basicType == CBType::Seq &&
               info.exposedType.seqTypes.len == 1 &&
-              ((info.exposedType.seqTypes.elements[0].basicType == Int &&
+              ((info.exposedType.seqTypes.elements[0].basicType == CBType::Int &&
                 !_isTable) ||
-               (info.exposedType.seqTypes.elements[0].basicType == String &&
+               (info.exposedType.seqTypes.elements[0].basicType == CBType::String &&
                 _isTable))) {
             valid = true;
             break;
-          } else if (info.exposedType.basicType == Int && !_isTable) {
+          } else if (info.exposedType.basicType == CBType::Int && !_isTable) {
             valid = true;
             break;
-          } else if (info.exposedType.basicType == String && _isTable) {
+          } else if (info.exposedType.basicType == CBType::String && _isTable) {
             valid = true;
             break;
           } else {
@@ -950,8 +950,8 @@ struct Erase : SeqUser {
 
   CBVar activate(CBContext *context, const CBVar &input) {
     const auto &indices = _indices.get();
-    if (unlikely(_isTable && _target->valueType == Table)) {
-      if (indices.valueType == String) {
+    if (unlikely(_isTable && _target->valueType == CBType::Table)) {
+      if (indices.valueType == CBType::String) {
         // single key
         const auto key = indices.payload.stringValue;
         _target->payload.tableValue.api->tableRemove(
@@ -967,7 +967,7 @@ struct Erase : SeqUser {
         }
       }
     } else {
-      if (indices.valueType == Int) {
+      if (indices.valueType == CBType::Int) {
         const auto index = indices.payload.intValue;
         arrayDel(_target->payload.seqValue, index);
       } else {
@@ -1068,11 +1068,11 @@ struct Assoc : public VariableBase {
 
       auto n = input.payload.seqValue.len / 2;
 
-      if (_cell->valueType == Seq) {
+      if (_cell->valueType == CBType::Seq) {
         auto &s = _cell->payload.seqValue;
         for (uint32_t i = 0; i < n; i++) {
           auto &idx = input.payload.seqValue.elements[(i * 2) + 0];
-          if (idx.valueType != Int) {
+          if (idx.valueType != CBType::Int) {
             throw ActivationError("Expected an Int for index.");
           }
           auto index = uint32_t(idx.payload.intValue);
@@ -1082,11 +1082,11 @@ struct Assoc : public VariableBase {
           auto &v = input.payload.seqValue.elements[(i * 2) + 1];
           cloneVar(s.elements[index], v);
         }
-      } else if (_cell->valueType == Table) {
+      } else if (_cell->valueType == CBType::Table) {
         auto &t = _cell->payload.tableValue;
         for (uint32_t i = 0; i < n; i++) {
           auto &k = input.payload.seqValue.elements[(i * 2) + 0];
-          if (k.valueType != String) {
+          if (k.valueType != CBType::String) {
             throw ActivationError("Expected a String for key.");
           }
           auto &v = input.payload.seqValue.elements[(i * 2) + 1];
@@ -1103,7 +1103,7 @@ struct Assoc : public VariableBase {
       return input;
     } else {
       if (_isTable) {
-        if (_target->valueType == Table) {
+        if (_target->valueType == CBType::Table) {
           auto &kv = _key.get();
           if (_target->payload.tableValue.api->tableContains(
                   _target->payload.tableValue, kv.payload.stringValue)) {
@@ -1119,7 +1119,7 @@ struct Assoc : public VariableBase {
           throw ActivationError("Table is empty or does not exist yet.");
         }
       } else {
-        if (_target->valueType == Seq || _target->valueType == Table) {
+        if (_target->valueType == CBType::Seq || _target->valueType == CBType::Table) {
           // Pin fast cell
           _cell = _target;
         } else {
@@ -1180,13 +1180,13 @@ struct Replace {
   }
 
   CBTypeInfo compose(const CBInstanceData &data) {
-    if (_patterns->valueType == None) {
+    if (_patterns->valueType == CBType::None) {
       data.block->inlineBlockId = NoopBlock;
     } else {
       data.block->inlineBlockId = NotInline;
     }
 
-    if (data.inputType.basicType == String) {
+    if (data.inputType.basicType == CBType::String) {
       OVERRIDE_ACTIVATE(data, activateString);
       return CoreInfo::StringType;
     } else {
@@ -1211,7 +1211,7 @@ struct Replace {
     IterableSeq o(_vectorOutput);
     const auto &patterns = _patterns.get();
     const auto &replacements = _replacements.get();
-    if (replacements.valueType == Seq) {
+    if (replacements.valueType == CBType::Seq) {
       if (patterns.payload.seqValue.len != replacements.payload.seqValue.len) {
         throw ActivationError("Translate patterns size mismatch, must be equal "
                               "to replacements size.");
@@ -1239,7 +1239,7 @@ struct Replace {
     _stringOutput.assign(source);
     const auto &patterns = _patterns.get();
     const auto &replacements = _replacements.get();
-    if (replacements.valueType == Seq) {
+    if (replacements.valueType == CBType::Seq) {
       if (patterns.payload.seqValue.len != replacements.payload.seqValue.len) {
         throw ActivationError("Translate patterns size mismatch, must be equal "
                               "to replacements size.");

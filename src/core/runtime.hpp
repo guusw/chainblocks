@@ -1202,7 +1202,7 @@ struct Serialization {
       for (uint32_t i = 0; i < len; i++) {
         CBVar blockVar{};
         deserialize(read, blockVar);
-        assert(blockVar.valueType == Block);
+        assert(blockVar.valueType == CBType::Block);
         chain->addBlock(blockVar.payload.blockValue);
         // blow's owner is the chain
       }

@@ -735,7 +735,7 @@ struct MainWindow : public BaseWindow {
 
     // try to see if global native window is set
     _nativeWnd = referenceVariable(context, "fragcolor.gfx.nativewindow");
-    if (_nativeWnd->valueType == Object &&
+    if (_nativeWnd->valueType == CBType::Object &&
         _nativeWnd->payload.objectVendorId == CoreCC &&
         _nativeWnd->payload.objectTypeId == BgfxNativeWindowCC) {
       _sysWnd = decltype(_sysWnd)(_nativeWnd->payload.objectValue);
@@ -797,7 +797,7 @@ struct MainWindow : public BaseWindow {
 #endif
     }
 
-    _nativeWnd->valueType = Object;
+    _nativeWnd->valueType = CBType::Object;
     _nativeWnd->payload.objectValue = _sysWnd;
     _nativeWnd->payload.objectVendorId = CoreCC;
     _nativeWnd->payload.objectTypeId = BgfxNativeWindowCC;
@@ -1547,7 +1547,7 @@ struct Model : public BaseConsumer {
       }
     }
 
-    assert(vertices.valueType == Seq && indices.valueType == Seq);
+    assert(vertices.valueType == CBType::Seq && indices.valueType == CBType::Seq);
 
     if (!_output) {
       _output = ModelHandle::Var.New();
@@ -2310,10 +2310,10 @@ struct Draw : public BaseConsumer {
       return std::make_tuple(s, d, o);
     };
 
-    if (_blend.valueType == Table) {
+    if (_blend.valueType == CBType::Table) {
       const auto [s, d, o] = getBlends(_blend);
       state |= BGFX_STATE_BLEND_FUNC(s, d) | BGFX_STATE_BLEND_EQUATION(o);
-    } else if (_blend.valueType == Seq) {
+    } else if (_blend.valueType == CBType::Seq) {
       assert(_blend.payload.seqValue.len == 2);
       const auto [sc, dc, oc] = getBlends(_blend.payload.seqValue.elements[0]);
       const auto [sa, da, oa] = getBlends(_blend.payload.seqValue.elements[1]);

@@ -90,7 +90,7 @@ struct BaseOpsBin {
   void destroy() { destroyVar(_value); }
 
   void cleanup() {
-    if (_target && _value.valueType == ContextVar) {
+    if (_target && _value.valueType == CBType::ContextVar) {
       releaseVariable(_target);
     }
     _target = nullptr;
@@ -124,7 +124,7 @@ struct BaseOpsBin {
 
   void warmup(CBContext *context) {
     // TODO deep resolve variables like const
-    _target = _value.valueType == ContextVar
+    _target = _value.valueType == CBType::ContextVar
                   ? referenceVariable(context, _value.payload.stringValue)
                   : &_value;
   }
@@ -154,7 +154,7 @@ LOGIC_OP(IsLessEqual, <=);
   struct NAME : public BaseOpsBin {                                            \
     CBVar activate(CBContext *context, const CBVar &input) {                   \
       const auto &value = *_target;                                            \
-      if (input.valueType == Seq && value.valueType == Seq) {                  \
+      if (input.valueType == CBType::Seq && value.valueType == CBType::Seq) {                  \
         auto vlen = value.payload.seqValue.len;                                \
         auto ilen = input.payload.seqValue.len;                                \
         if (ilen > vlen)                                                       \
@@ -166,21 +166,21 @@ LOGIC_OP(IsLessEqual, <=);
           }                                                                    \
         }                                                                      \
         return Var::False;                                                     \
-      } else if (input.valueType == Seq && value.valueType != Seq) {           \
+      } else if (input.valueType == CBType::Seq && value.valueType != CBType::Seq) {           \
         for (uint32_t i = 0; i < input.payload.seqValue.len; i++) {            \
           if (input.payload.seqValue.elements[i] OP value) {                   \
             return Var::True;                                                  \
           }                                                                    \
         }                                                                      \
         return Var::False;                                                     \
-      } else if (input.valueType != Seq && value.valueType == Seq) {           \
+      } else if (input.valueType != CBType::Seq && value.valueType == CBType::Seq) {           \
         for (uint32_t i = 0; i < value.payload.seqValue.len; i++) {            \
           if (input OP value.payload.seqValue.elements[i]) {                   \
             return Var::True;                                                  \
           }                                                                    \
         }                                                                      \
         return Var::False;                                                     \
-      } else if (input.valueType != Seq && value.valueType != Seq) {           \
+      } else if (input.valueType != CBType::Seq && value.valueType != CBType::Seq) {           \
         if (input OP value) {                                                  \
           return Var::True;                                                    \
         }                                                                      \
@@ -195,7 +195,7 @@ LOGIC_OP(IsLessEqual, <=);
   struct NAME : public BaseOpsBin {                                            \
     CBVar activate(CBContext *context, const CBVar &input) {                   \
       const auto &value = *_target;                                            \
-      if (input.valueType == Seq && value.valueType == Seq) {                  \
+      if (input.valueType == CBType::Seq && value.valueType == CBType::Seq) {                  \
         auto vlen = value.payload.seqValue.len;                                \
         auto ilen = input.payload.seqValue.len;                                \
         if (ilen > vlen)                                                       \
@@ -207,21 +207,21 @@ LOGIC_OP(IsLessEqual, <=);
           }                                                                    \
         }                                                                      \
         return Var::True;                                                      \
-      } else if (input.valueType == Seq && value.valueType != Seq) {           \
+      } else if (input.valueType == CBType::Seq && value.valueType != CBType::Seq) {           \
         for (uint32_t i = 0; i < input.payload.seqValue.len; i++) {            \
           if (!(input.payload.seqValue.elements[i] OP value)) {                \
             return Var::False;                                                 \
           }                                                                    \
         }                                                                      \
         return Var::True;                                                      \
-      } else if (input.valueType != Seq && value.valueType == Seq) {           \
+      } else if (input.valueType != CBType::Seq && value.valueType == CBType::Seq) {           \
         for (uint32_t i = 0; i < value.payload.seqValue.len; i++) {            \
           if (!(input OP value.payload.seqValue.elements[i])) {                \
             return Var::False;                                                 \
           }                                                                    \
         }                                                                      \
         return Var::True;                                                      \
-      } else if (input.valueType != Seq && value.valueType != Seq) {           \
+      } else if (input.valueType != CBType::Seq && value.valueType != CBType::Seq) {           \
         if (!(input OP value)) {                                               \
           return Var::False;                                                   \
         }                                                                      \
@@ -308,9 +308,9 @@ struct Pause {
 
   FLATTEN ALWAYS_INLINE CBVar activate(CBContext *context, const CBVar &input) {
     const auto &t = time.get();
-    if (t.valueType == None)
+    if (t.valueType == CBType::None)
       suspend(context, 0.0);
-    else if (t.valueType == Int)
+    else if (t.valueType == CBType::Int)
       suspend(context, double(t.payload.intValue));
     else
       suspend(context, t.payload.floatValue);
@@ -339,7 +339,7 @@ struct PauseMs : public Pause {
 
   CBVar activate(CBContext *context, const CBVar &input) {
     const auto &t = time.get();
-    if (t.valueType == None)
+    if (t.valueType == CBType::None)
       suspend(context, 0.0);
     else
       suspend(context, double(t.payload.intValue) / 1000.0);
@@ -479,7 +479,7 @@ struct IsNone {
   static CBTypesInfo inputTypes() { return CoreInfo::AnyType; }
   static CBTypesInfo outputTypes() { return CoreInfo::BoolType; }
   CBVar activate(CBContext *context, const CBVar &input) {
-    return Var(input.valueType == None);
+    return Var(input.valueType == CBType::None);
   }
 };
 
@@ -487,7 +487,7 @@ struct IsNotNone {
   static CBTypesInfo inputTypes() { return CoreInfo::AnyType; }
   static CBTypesInfo outputTypes() { return CoreInfo::BoolType; }
   CBVar activate(CBContext *context, const CBVar &input) {
-    return Var(input.valueType != None);
+    return Var(input.valueType != CBType::None);
   }
 };
 
@@ -542,7 +542,7 @@ struct NaNTo0 {
   static CBTypesInfo outputTypes() { return CoreInfo::FloatOrFloatSeq; }
 
   CBTypeInfo compose(const CBInstanceData &data) {
-    if (data.inputType.basicType == Float) {
+    if (data.inputType.basicType == CBType::Float) {
       OVERRIDE_ACTIVATE(data, activateSingle);
     } else {
       OVERRIDE_ACTIVATE(data, activateSeq);
@@ -626,7 +626,7 @@ struct VariableBase {
       _name = value.payload.stringValue;
       break;
     case 1:
-      if (value.valueType == None) {
+      if (value.valueType == CBType::None) {
         _isTable = false;
       } else {
         _isTable = true;
@@ -672,14 +672,14 @@ struct SetBase : public VariableBase {
       auto &reference = data.shared.elements[i];
       if (strcmp(reference.name, _name.c_str()) == 0) {
         if (_isTable && !reference.isTableEntry &&
-            reference.exposedType.basicType != Table) {
+            reference.exposedType.basicType != CBType::Table) {
           throw ComposeError("Set/Ref/Update, variable was not a table: " +
                              _name);
         } else if (!_isTable && reference.isTableEntry) {
           throw ComposeError("Set/Ref/Update, variable was a table: " + _name);
         } else if (!_isTable &&
                    // need to check if this was just a any table definition {}
-                   !(reference.exposedType.basicType == Table &&
+                   !(reference.exposedType.basicType == CBType::Table &&
                      reference.exposedType.table.types.len == 0) &&
                    data.inputType != reference.exposedType) {
           throw ComposeError("Set/Ref/Update, variable already set as another "
@@ -722,12 +722,12 @@ struct SetBase : public VariableBase {
     }
 
     if (_isTable) {
-      if (_target->valueType != Table) {
-        if (_target->valueType != None)
+      if (_target->valueType != CBType::Table) {
+        if (_target->valueType != CBType::None)
           destroyVar(*_target);
 
         // Not initialized yet
-        _target->valueType = Table;
+        _target->valueType = CBType::Table;
         _target->payload.tableValue.api = &GetGlobals().TableInterface;
         _target->payload.tableValue.opaque = new CBMap();
       }
@@ -875,9 +875,9 @@ struct Ref : public SetBase {
       memcpy(_cell, &input, sizeof(CBVar));
       return input;
     } else {
-      if (_target->valueType != Table) {
+      if (_target->valueType != CBType::Table) {
         // Not initialized yet
-        _target->valueType = Table;
+        _target->valueType = CBType::Table;
         _target->payload.tableValue.api = &GetGlobals().TableInterface;
         _target->payload.tableValue.opaque = new CBMap();
       }
@@ -917,7 +917,7 @@ struct Update : public SetBase {
       for (uint32_t i = 0; data.shared.len > i; i++) {
         auto &name = data.shared.elements[i].name;
         if (name == _name &&
-            data.shared.elements[i].exposedType.basicType == Table &&
+            data.shared.elements[i].exposedType.basicType == CBType::Table &&
             data.shared.elements[i].exposedType.table.types.elements) {
           auto &tableKeys = data.shared.elements[i].exposedType.table.keys;
           auto &tableTypes = data.shared.elements[i].exposedType.table.types;
@@ -1029,7 +1029,7 @@ struct Get : public VariableBase {
       for (uint32_t i = 0; data.shared.len > i; i++) {
         auto &name = data.shared.elements[i].name;
         if (strcmp(name, _name.c_str()) == 0 &&
-            data.shared.elements[i].exposedType.basicType == Table) {
+            data.shared.elements[i].exposedType.basicType == CBType::Table) {
           auto &tableKeys = data.shared.elements[i].exposedType.table.keys;
           auto &tableTypes = data.shared.elements[i].exposedType.table.types;
           if (tableKeys.len == tableTypes.len) {
@@ -1044,7 +1044,7 @@ struct Get : public VariableBase {
             }
           } else {
             // we got no key names
-            if (_defaultValue.valueType != None) {
+            if (_defaultValue.valueType != CBType::None) {
               freeDerivedInfo(_defaultType);
               _defaultType = deriveTypeInfo(_defaultValue, data);
               return _defaultType;
@@ -1064,7 +1064,7 @@ struct Get : public VariableBase {
           }
         }
       }
-      if (_defaultValue.valueType != None) {
+      if (_defaultValue.valueType != CBType::None) {
         freeDerivedInfo(_defaultType);
         _defaultType = deriveTypeInfo(_defaultValue, data);
         return _defaultType;
@@ -1118,7 +1118,7 @@ struct Get : public VariableBase {
       }
     }
 
-    if (_defaultValue.valueType != None) {
+    if (_defaultValue.valueType != CBType::None) {
       freeDerivedInfo(_defaultType);
       _defaultType = deriveTypeInfo(_defaultValue, data);
       return _defaultType;
@@ -1130,7 +1130,7 @@ struct Get : public VariableBase {
   }
 
   CBExposedTypesInfo requiredVariables() {
-    if (_defaultValue.valueType != None) {
+    if (_defaultValue.valueType != CBType::None) {
       return {};
     } else {
       if (_isTable) {
@@ -1196,7 +1196,7 @@ struct Get : public VariableBase {
       return Var::Empty;
     } else {
       if (_isTable) {
-        if (_target->valueType == Table) {
+        if (_target->valueType == CBType::Table) {
           auto &kv = _key.get();
           if (_target->payload.tableValue.api->tableContains(
                   _target->payload.tableValue, kv.payload.stringValue)) {
@@ -1204,7 +1204,7 @@ struct Get : public VariableBase {
             CBVar *vptr = _target->payload.tableValue.api->tableAt(
                 _target->payload.tableValue, kv.payload.stringValue);
 
-            if (unlikely(_defaultValue.valueType != None &&
+            if (unlikely(_defaultValue.valueType != CBType::None &&
                          !defaultTypeCheck(*vptr))) {
               return _defaultValue;
             } else {
@@ -1219,14 +1219,14 @@ struct Get : public VariableBase {
             }
           } else {
             // No record
-            if (_defaultType.basicType != None) {
+            if (_defaultType.basicType != CBType::None) {
               return _defaultValue;
             } else {
               throw ActivationError("Get - Key not found in table.");
             }
           }
         } else {
-          if (_defaultType.basicType != None) {
+          if (_defaultType.basicType != CBType::None) {
             return _defaultValue;
           } else {
             throw ActivationError(
@@ -1235,7 +1235,7 @@ struct Get : public VariableBase {
         }
       } else {
         auto &value = *_target;
-        if (unlikely(_defaultValue.valueType != None &&
+        if (unlikely(_defaultValue.valueType != CBType::None &&
                      !defaultTypeCheck(value))) {
           return _defaultValue;
         } else {
@@ -1326,9 +1326,9 @@ struct SeqBase : public VariableBase {
 
   void initSeq() {
     if (_isTable) {
-      if (_target->valueType != Table) {
+      if (_target->valueType != CBType::Table) {
         // Not initialized yet
-        _target->valueType = Table;
+        _target->valueType = CBType::Table;
         _target->payload.tableValue.api = &GetGlobals().TableInterface;
         _target->payload.tableValue.opaque = new CBMap();
       }
@@ -1339,16 +1339,16 @@ struct SeqBase : public VariableBase {
             _target->payload.tableValue, kv.payload.stringValue);
 
         auto &seq = *_cell;
-        if (seq.valueType != Seq) {
-          seq.valueType = Seq;
+        if (seq.valueType != CBType::Seq) {
+          seq.valueType = CBType::Seq;
           seq.payload.seqValue = {};
         }
       } else {
         return; // we will check during activate
       }
     } else {
-      if (_target->valueType != Seq) {
-        _target->valueType = Seq;
+      if (_target->valueType != CBType::Seq) {
+        _target->valueType = CBType::Seq;
         _target->payload.seqValue = {};
       }
       _cell = _target;
@@ -1363,8 +1363,8 @@ struct SeqBase : public VariableBase {
         _target->payload.tableValue, kv.payload.stringValue);
 
     auto &seq = *_cell;
-    if (seq.valueType != Seq) {
-      seq.valueType = Seq;
+    if (seq.valueType != CBType::Seq) {
+      seq.valueType = CBType::Seq;
       seq.payload.seqValue = {};
     }
   }
@@ -1429,7 +1429,7 @@ struct Push : public SeqBase {
 
   CBTypeInfo compose(const CBInstanceData &data) {
     const auto updateSeqInfo = [this, &data] {
-      _seqInfo.basicType = Seq;
+      _seqInfo.basicType = CBType::Seq;
       _seqInnerInfo = data.inputType;
       _seqInfo.seqTypes = {&_seqInnerInfo, 1, 0};
       if (_global) {
@@ -1442,14 +1442,14 @@ struct Push : public SeqBase {
     };
 
     const auto updateTableInfo = [this, &data] {
-      _tableInfo.basicType = Table;
+      _tableInfo.basicType = CBType::Table;
       if (_tableInfo.table.types.elements) {
         chainblocks::arrayFree(_tableInfo.table.types);
       }
       if (_tableInfo.table.keys.elements) {
         chainblocks::arrayFree(_tableInfo.table.keys);
       }
-      _seqInfo.basicType = Seq;
+      _seqInfo.basicType = CBType::Seq;
       _seqInnerInfo = data.inputType;
       _seqInfo.seqTypes = {&_seqInnerInfo, 1, 0};
       chainblocks::arrayPush(_tableInfo.table.types, _seqInfo);
@@ -1478,7 +1478,7 @@ struct Push : public SeqBase {
             // if we got key it's not a variable
             CBVar kv = _key;
             if (strcmp(kv.payload.stringValue, tableKeys.elements[y]) == 0 &&
-                tableTypes.elements[y].basicType == Seq) {
+                tableTypes.elements[y].basicType == CBType::Seq) {
               updateTableInfo();
               return data.inputType; // found lets escape
             }
@@ -1492,7 +1492,7 @@ struct Push : public SeqBase {
     } else {
       for (uint32_t i = 0; i < data.shared.len; i++) {
         auto &cv = data.shared.elements[i];
-        if (_name == cv.name && cv.exposedType.basicType == Seq) {
+        if (_name == cv.name && cv.exposedType.basicType == CBType::Seq) {
           // found, let's just update our info
           updateSeqInfo();
           return data.inputType; // found lets escape
@@ -1624,7 +1624,7 @@ struct Sequence : public SeqBase {
 
   void processTypes(Types &inner, const IterableSeq &s) {
     for (auto &v : s) {
-      if (v.valueType == Seq) {
+      if (v.valueType == CBType::Seq) {
         auto &sinner = _innerTypes.emplace_back();
         IterableSeq ss(v);
         processTypes(sinner, ss);
@@ -1640,7 +1640,7 @@ struct Sequence : public SeqBase {
 
   CBTypeInfo compose(const CBInstanceData &data) {
     const auto updateTableInfo = [this] {
-      _tableInfo.basicType = Table;
+      _tableInfo.basicType = CBType::Table;
       if (_tableInfo.table.types.elements) {
         chainblocks::arrayFree(_tableInfo.table.types);
       }
@@ -1695,7 +1695,7 @@ struct Sequence : public SeqBase {
     // cleaning up previous first
     _seqTypes._types.clear();
     _innerTypes.clear();
-    if (_types->valueType == Enum) {
+    if (_types->valueType == CBType::Enum) {
       // a single type
       addType(_seqTypes, BasicTypes(_types->payload.enumValue));
     } else {
@@ -1738,9 +1738,9 @@ struct TableDecl : public VariableBase {
 
   void initTable() {
     if (_isTable) {
-      if (_target->valueType != Table) {
+      if (_target->valueType != CBType::Table) {
         // Not initialized yet
-        _target->valueType = Table;
+        _target->valueType = CBType::Table;
         _target->payload.tableValue.api = &GetGlobals().TableInterface;
         _target->payload.tableValue.opaque = new CBMap();
       }
@@ -1751,9 +1751,9 @@ struct TableDecl : public VariableBase {
             _target->payload.tableValue, kv.payload.stringValue);
 
         auto table = _cell;
-        if (table->valueType != Table) {
+        if (table->valueType != CBType::Table) {
           // Not initialized yet
-          table->valueType = Table;
+          table->valueType = CBType::Table;
           table->payload.tableValue.api = &GetGlobals().TableInterface;
           table->payload.tableValue.opaque = new CBMap();
         }
@@ -1761,8 +1761,8 @@ struct TableDecl : public VariableBase {
         return; // we will check during activate
       }
     } else {
-      if (_target->valueType != Table) {
-        _target->valueType = Table;
+      if (_target->valueType != CBType::Table) {
+        _target->valueType = CBType::Table;
         _target->payload.tableValue.api = &GetGlobals().TableInterface;
         _target->payload.tableValue.opaque = new CBMap();
       }
@@ -1778,9 +1778,9 @@ struct TableDecl : public VariableBase {
         _target->payload.tableValue, kv.payload.stringValue);
 
     auto table = _cell;
-    if (table->valueType != Table) {
+    if (table->valueType != CBType::Table) {
       // Not initialized yet
-      table->valueType = Table;
+      table->valueType = CBType::Table;
       table->payload.tableValue.api = &GetGlobals().TableInterface;
       table->payload.tableValue.opaque = new CBMap();
     }
@@ -1904,7 +1904,7 @@ struct TableDecl : public VariableBase {
 
   void processTypes(Types &inner, const IterableSeq &s) {
     for (auto &v : s) {
-      if (v.valueType == Seq) {
+      if (v.valueType == CBType::Seq) {
         auto &sinner = _innerTypes.emplace_back();
         IterableSeq ss(v);
         processTypes(sinner, ss);
@@ -1920,7 +1920,7 @@ struct TableDecl : public VariableBase {
 
   CBTypeInfo compose(const CBInstanceData &data) {
     const auto updateTableInfo = [this] {
-      _tableInfo.basicType = Table;
+      _tableInfo.basicType = CBType::Table;
       if (_tableInfo.table.types.elements) {
         chainblocks::arrayFree(_tableInfo.table.types);
       }
@@ -1976,7 +1976,7 @@ struct TableDecl : public VariableBase {
     // cleaning up previous first
     _seqTypes._types.clear();
     _innerTypes.clear();
-    if (_types->valueType == Enum) {
+    if (_types->valueType == CBType::Enum) {
       // a single type
       addType(_seqTypes, BasicTypes(_types->payload.enumValue));
     } else {
@@ -2018,10 +2018,10 @@ struct SeqUser : VariableBase {
 
   void initSeq() {
     if (_isTable) {
-      if (_target->valueType != Table) {
+      if (_target->valueType != CBType::Table) {
         // We need to init this in order to fetch cell addr
         // Not initialized yet
-        _target->valueType = Table;
+        _target->valueType = CBType::Table;
         _target->payload.tableValue.api = &GetGlobals().TableInterface;
         _target->payload.tableValue.opaque = new CBMap();
       }
@@ -2084,14 +2084,14 @@ struct Count : SeqUser {
       fillVariableCell();
     }
 
-    if (likely(_cell->valueType == Seq)) {
+    if (likely(_cell->valueType == CBType::Seq)) {
       return Var(int64_t(_cell->payload.seqValue.len));
-    } else if (_cell->valueType == Table) {
+    } else if (_cell->valueType == CBType::Table) {
       return Var(int64_t(
           _cell->payload.tableValue.api->tableSize(_cell->payload.tableValue)));
-    } else if (_cell->valueType == Bytes) {
+    } else if (_cell->valueType == CBType::Bytes) {
       return Var(int64_t(_cell->payload.bytesSize));
-    } else if (_cell->valueType == String) {
+    } else if (_cell->valueType == CBType::String) {
       return Var(int64_t(_cell->payload.stringLen > 0 ||
                                  _cell->payload.stringValue == nullptr
                              ? _cell->payload.stringLen
@@ -2110,7 +2110,7 @@ struct Clear : SeqUser {
       fillVariableCell();
     }
 
-    if (likely(_cell->valueType == Seq)) {
+    if (likely(_cell->valueType == CBType::Seq)) {
       // notice this is fine because destroyVar will destroy .cap later
       // so we make sure we are not leaking Vars
       chainblocks::arrayResize(_cell->payload.seqValue, 0);
@@ -2134,7 +2134,7 @@ struct Drop : SeqUser {
       fillVariableCell();
     }
 
-    if (likely(_cell->valueType == Seq)) {
+    if (likely(_cell->valueType == CBType::Seq)) {
       auto len = _cell->payload.seqValue.len;
       // notice this is fine because destroyVar will destroy .cap later
       // so we make sure we are not leaking Vars
@@ -2163,7 +2163,7 @@ struct DropFront : SeqUser {
       fillVariableCell();
     }
 
-    if (likely(_cell->valueType == Seq) && _cell->payload.seqValue.len > 0) {
+    if (likely(_cell->valueType == CBType::Seq) && _cell->payload.seqValue.len > 0) {
       auto &arr = _cell->payload.seqValue;
       chainblocks::arrayDel(arr, 0);
       // sometimes we might have as input the same _cell!
@@ -2199,7 +2199,7 @@ struct Pop : SeqUser {
             // if here _key is not variable
             CBVar kv = _key;
             if (strcmp(kv.payload.stringValue, tableKeys.elements[y]) == 0 &&
-                tableTypes.elements[y].basicType == Seq) {
+                tableTypes.elements[y].basicType == CBType::Seq) {
               // if we have 1 type we can predict the output
               // with more just make us a any seq, will need ExpectX blocks
               // likely
@@ -2215,7 +2215,7 @@ struct Pop : SeqUser {
     } else {
       for (uint32_t i = 0; i < data.shared.len; i++) {
         auto &cv = data.shared.elements[i];
-        if (_name == cv.name && cv.exposedType.basicType == Seq) {
+        if (_name == cv.name && cv.exposedType.basicType == CBType::Seq) {
           // if we have 1 type we can predict the output
           // with more just make us a any seq, will need ExpectX blocks likely
           if (cv.exposedType.seqTypes.len == 1)
@@ -2233,7 +2233,7 @@ struct Pop : SeqUser {
       fillVariableCell();
     }
 
-    if (_cell->valueType != Seq) {
+    if (_cell->valueType != CBType::Seq) {
       throw ActivationError("Variable is not a sequence, failed to Pop.");
     }
 
@@ -2268,7 +2268,7 @@ struct PopFront : SeqUser {
             // if here _key is not variable
             CBVar kv = _key;
             if (strcmp(kv.payload.stringValue, tableKeys.elements[y]) == 0 &&
-                tableTypes.elements[y].basicType == Seq) {
+                tableTypes.elements[y].basicType == CBType::Seq) {
               // if we have 1 type we can predict the output
               // with more just make us a any seq, will need ExpectX blocks
               // likely
@@ -2284,7 +2284,7 @@ struct PopFront : SeqUser {
     } else {
       for (uint32_t i = 0; i < data.shared.len; i++) {
         auto &cv = data.shared.elements[i];
-        if (_name == cv.name && cv.exposedType.basicType == Seq) {
+        if (_name == cv.name && cv.exposedType.basicType == CBType::Seq) {
           // if we have 1 type we can predict the output
           // with more just make us a any seq, will need ExpectX blocks likely
           if (cv.exposedType.seqTypes.len == 1)
@@ -2302,7 +2302,7 @@ struct PopFront : SeqUser {
       fillVariableCell();
     }
 
-    if (_cell->valueType != Seq) {
+    if (_cell->valueType != CBType::Seq) {
       throw ActivationError("Variable is not a sequence, failed to Pop.");
     }
 
@@ -2377,39 +2377,39 @@ struct Take {
 
   CBTypeInfo compose(const CBInstanceData &data) {
     bool valid = false;
-    bool isTable = data.inputType.basicType == Table;
+    bool isTable = data.inputType.basicType == CBType::Table;
     // Figure if we output a sequence or not
-    if (_indices.valueType == Seq) {
+    if (_indices.valueType == CBType::Seq) {
       if (_indices.payload.seqValue.len > 0) {
-        if ((_indices.payload.seqValue.elements[0].valueType == Int &&
+        if ((_indices.payload.seqValue.elements[0].valueType == CBType::Int &&
              !isTable) ||
-            (_indices.payload.seqValue.elements[0].valueType == String &&
+            (_indices.payload.seqValue.elements[0].valueType == CBType::String &&
              isTable)) {
           _seqOutput = true;
           valid = true;
         }
       }
-    } else if ((!isTable && _indices.valueType == Int) ||
-               (isTable && _indices.valueType == String)) {
+    } else if ((!isTable && _indices.valueType == CBType::Int) ||
+               (isTable && _indices.valueType == CBType::String)) {
       _seqOutput = false;
       valid = true;
-    } else { // ContextVar
+    } else { // CBType::ContextVar
       for (auto &info : data.shared) {
         if (strcmp(info.name, _indices.payload.stringValue) == 0) {
-          if (info.exposedType.basicType == Seq &&
+          if (info.exposedType.basicType == CBType::Seq &&
               info.exposedType.seqTypes.len == 1 &&
-              ((info.exposedType.seqTypes.elements[0].basicType == Int &&
+              ((info.exposedType.seqTypes.elements[0].basicType == CBType::Int &&
                 !isTable) ||
-               (info.exposedType.seqTypes.elements[0].basicType == String &&
+               (info.exposedType.seqTypes.elements[0].basicType == CBType::String &&
                 isTable))) {
             _seqOutput = true;
             valid = true;
             break;
-          } else if (info.exposedType.basicType == Int && !isTable) {
+          } else if (info.exposedType.basicType == CBType::Int && !isTable) {
             _seqOutput = false;
             valid = true;
             break;
-          } else if (info.exposedType.basicType == String && isTable) {
+          } else if (info.exposedType.basicType == CBType::String && isTable) {
             _seqOutput = false;
             valid = true;
             break;
@@ -2427,8 +2427,7 @@ struct Take {
     if (!valid)
       throw CBException("Take, invalid indices or malformed input.");
 
-    if (data.inputType.basicType == Seq) {
-      OVERRIDE_ACTIVATE(data, activateSeq);
+    if (data.inputType.basicType == CBType::Seq) {
       if (_seqOutput) {
         // multiple values, leave Seq
         return data.inputType;
@@ -2561,7 +2560,7 @@ struct Take {
   }
 
   CBExposedTypesInfo requiredVariables() {
-    if (_indices.valueType == ContextVar) {
+    if (_indices.valueType == CBType::ContextVar) {
       if (_seqOutput)
         _exposedInfo = ExposedInfo(ExposedInfo::Variable(
             _indices.payload.stringValue, CBCCSTR("The required variables."),
@@ -2605,7 +2604,7 @@ struct Take {
   };
 
   void warmup(CBContext *context) {
-    if (_indices.valueType == ContextVar && !_indicesVar) {
+    if (_indices.valueType == CBType::ContextVar && !_indicesVar) {
       _indicesVar = referenceVariable(context, _indices.payload.stringValue);
     }
   }
@@ -2805,9 +2804,9 @@ struct Slice {
   CBTypeInfo compose(const CBInstanceData &data) {
     bool valid = false;
 
-    if (_from.valueType == Int) {
+    if (_from.valueType == CBType::Int) {
       valid = true;
-    } else { // ContextVar
+    } else { // CBType::ContextVar
       for (auto &info : data.shared) {
         if (strcmp(info.name, _from.payload.stringValue) == 0) {
           valid = true;
@@ -2819,9 +2818,9 @@ struct Slice {
     if (!valid)
       throw CBException("Slice, invalid From variable.");
 
-    if (_to.valueType == Int || _to.valueType == None) {
+    if (_to.valueType == CBType::Int || _to.valueType == CBType::None) {
       valid = true;
-    } else { // ContextVar
+    } else { // CBType::ContextVar
       for (auto &info : data.shared) {
         if (strcmp(info.name, _to.payload.stringValue) == 0) {
           valid = true;
@@ -2833,11 +2832,11 @@ struct Slice {
     if (!valid)
       throw CBException("Slice, invalid To variable.");
 
-    if (data.inputType.basicType == Seq) {
+    if (data.inputType.basicType == CBType::Seq) {
       OVERRIDE_ACTIVATE(data, activateSeq);
-    } else if (data.inputType.basicType == Bytes) {
+    } else if (data.inputType.basicType == CBType::Bytes) {
       OVERRIDE_ACTIVATE(data, activateBytes);
-    } else if (data.inputType.basicType == String) {
+    } else if (data.inputType.basicType == CBType::String) {
       OVERRIDE_ACTIVATE(data, activateString);
     }
 
@@ -2845,7 +2844,7 @@ struct Slice {
   }
 
   CBExposedTypesInfo requiredVariables() {
-    if (_from.valueType == ContextVar && _to.valueType == ContextVar) {
+    if (_from.valueType == CBType::ContextVar && _to.valueType == CBType::ContextVar) {
       _exposedInfo =
           ExposedInfo(ExposedInfo::Variable(_from.payload.stringValue,
                                             CBCCSTR("The required variable."),
@@ -2854,12 +2853,12 @@ struct Slice {
                                             CBCCSTR("The required variable."),
                                             CoreInfo::IntType));
       return CBExposedTypesInfo(_exposedInfo);
-    } else if (_from.valueType == ContextVar) {
+    } else if (_from.valueType == CBType::ContextVar) {
       _exposedInfo = ExposedInfo(ExposedInfo::Variable(
           _from.payload.stringValue, CBCCSTR("The required variable."),
           CoreInfo::IntType));
       return CBExposedTypesInfo(_exposedInfo);
-    } else if (_to.valueType == ContextVar) {
+    } else if (_to.valueType == CBType::ContextVar) {
       _exposedInfo = ExposedInfo(ExposedInfo::Variable(
           _to.payload.stringValue, CBCCSTR("The required variable."),
           CoreInfo::IntType));
@@ -2908,10 +2907,10 @@ struct Slice {
   };
 
   CBVar activateBytes(CBContext *context, const CBVar &input) {
-    if (_from.valueType == ContextVar && !_fromVar) {
+    if (_from.valueType == CBType::ContextVar && !_fromVar) {
       _fromVar = referenceVariable(context, _from.payload.stringValue);
     }
-    if (_to.valueType == ContextVar && !_toVar) {
+    if (_to.valueType == CBType::ContextVar && !_toVar) {
       _toVar = referenceVariable(context, _to.payload.stringValue);
     }
 
@@ -2922,7 +2921,7 @@ struct Slice {
     if (from < 0) {
       from = inputLen + from;
     }
-    auto to = vto.valueType == None ? inputLen : vto.payload.intValue;
+    auto to = vto.valueType == CBType::None ? inputLen : vto.payload.intValue;
     if (to < 0) {
       to = inputLen + to;
     }
@@ -2935,7 +2934,7 @@ struct Slice {
     if (_step == 1) {
       // we don't need to copy anything in this case
       CBVar output{};
-      output.valueType = Bytes;
+      output.valueType = CBType::Bytes;
       output.payload.bytesValue = &input.payload.bytesValue[from];
       output.payload.bytesSize = uint32_t(len);
       return output;
@@ -2954,10 +2953,10 @@ struct Slice {
   }
 
   CBVar activateString(CBContext *context, const CBVar &input) {
-    if (_from.valueType == ContextVar && !_fromVar) {
+    if (_from.valueType == CBType::ContextVar && !_fromVar) {
       _fromVar = referenceVariable(context, _from.payload.stringValue);
     }
-    if (_to.valueType == ContextVar && !_toVar) {
+    if (_to.valueType == CBType::ContextVar && !_toVar) {
       _toVar = referenceVariable(context, _to.payload.stringValue);
     }
 
@@ -2971,7 +2970,7 @@ struct Slice {
     if (from < 0) {
       from = inputLen + from;
     }
-    auto to = vto.valueType == None ? inputLen : vto.payload.intValue;
+    auto to = vto.valueType == CBType::None ? inputLen : vto.payload.intValue;
     if (to < 0) {
       to = inputLen + to;
     }
@@ -2997,10 +2996,10 @@ struct Slice {
   }
 
   CBVar activateSeq(CBContext *context, const CBVar &input) {
-    if (_from.valueType == ContextVar && !_fromVar) {
+    if (_from.valueType == CBType::ContextVar && !_fromVar) {
       _fromVar = referenceVariable(context, _from.payload.stringValue);
     }
-    if (_to.valueType == ContextVar && !_toVar) {
+    if (_to.valueType == CBType::ContextVar && !_toVar) {
       _toVar = referenceVariable(context, _to.payload.stringValue);
     }
 
@@ -3011,7 +3010,7 @@ struct Slice {
     if (from < 0) {
       from = inputLen + from;
     }
-    auto to = vto.valueType == None ? inputLen : vto.payload.intValue;
+    auto to = vto.valueType == CBType::None ? inputLen : vto.payload.intValue;
     if (to < 0) {
       to = inputLen + to;
     }
@@ -3024,7 +3023,7 @@ struct Slice {
     if (_step == 1) {
       // we don't need to copy anything in this case
       CBVar output{};
-      output.valueType = Seq;
+      output.valueType = CBType::Seq;
       output.payload.seqValue.elements = &input.payload.seqValue.elements[from];
       output.payload.seqValue.len = uint32_t(len);
       return output;
@@ -3073,11 +3072,11 @@ struct Limit {
   CBTypeInfo compose(const CBInstanceData &data) {
     // Figure if we output a sequence or not
     if (_max > 1) {
-      if (data.inputType.basicType == Seq) {
+      if (data.inputType.basicType == CBType::Seq) {
         return data.inputType; // multiple values
       }
     } else {
-      if (data.inputType.basicType == Seq && data.inputType.seqTypes.len == 1) {
+      if (data.inputType.basicType == CBType::Seq && data.inputType.seqTypes.len == 1) {
         // single unique type
         return data.inputType.seqTypes.elements[0];
       } else {
@@ -3173,7 +3172,7 @@ struct Repeat {
       _blks = value;
       break;
     case 1:
-      if (value.valueType == Int) {
+      if (value.valueType == CBType::Int) {
         _ctxVar.clear();
         _times = value.payload.intValue;
       } else {
@@ -3201,7 +3200,7 @@ struct Repeat {
         return Var(_times);
       } else {
         auto ctxTimes = Var(_ctxVar);
-        ctxTimes.valueType = ContextVar;
+        ctxTimes.valueType = CBType::ContextVar;
         return ctxTimes;
       }
     case 2:
@@ -3217,7 +3216,7 @@ struct Repeat {
   CBTypeInfo compose(const CBInstanceData &data) {
     _blks.compose(data);
     const auto predres = _pred.compose(data);
-    if (_pred && predres.outputType.basicType != Bool) {
+    if (_pred && predres.outputType.basicType != CBType::Bool) {
       throw ComposeError(
           "Repeat block Until predicate should output a boolean!");
     }
