@@ -1466,7 +1466,7 @@ static malValuePtr readVar(const CBVar &v) {
     malHash::Map map;
     auto &t = v.payload.tableValue;
     CBTableIterator tit;
-    t.api->tableGetIterator(t, &tit);
+    CB_GET_TABLE_ITERATOR_SCOPED(t, tit);
     CBString k;
     CBVar v;
     while (t.api->tableNext(t, &tit, &k, &v)) {

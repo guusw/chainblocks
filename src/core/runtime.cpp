@@ -1405,7 +1405,7 @@ CBTypeInfo deriveTypeInfo(const CBVar &value, const CBInstanceData &data,
   case CBType::Table: {
     auto &t = value.payload.tableValue;
     CBTableIterator tit;
-    t.api->tableGetIterator(t, &tit);
+    CB_GET_TABLE_ITERATOR_SCOPED(t, tit);
     CBString k;
     CBVar v;
     while (t.api->tableNext(t, &tit, &k, &v)) {
@@ -1417,7 +1417,7 @@ CBTypeInfo deriveTypeInfo(const CBVar &value, const CBInstanceData &data,
   case CBType::Set: {
     auto &s = value.payload.setValue;
     CBSetIterator sit;
-    s.api->setGetIterator(s, &sit);
+    CB_GET_SET_ITERATOR_SCOPED(s, sit);
     CBVar v;
     while (s.api->setNext(s, &sit, &v)) {
       auto derived = deriveTypeInfo(v, data, containsVariables);
@@ -1537,7 +1537,7 @@ void updateTypeHash(const CBVar &var, XXH3_state_s *state) {
     // table is unordered so just collect
     auto &t = var.payload.tableValue;
     CBTableIterator tit;
-    t.api->tableGetIterator(t, &tit);
+    CB_GET_TABLE_ITERATOR_SCOPED(t, tit);
     CBString k;
     CBVar v;
     while (t.api->tableNext(t, &tit, &k, &v)) {
@@ -1557,7 +1557,7 @@ void updateTypeHash(const CBVar &var, XXH3_state_s *state) {
     // set is unordered so just collect
     auto &s = var.payload.setValue;
     CBSetIterator sit;
-    s.api->setGetIterator(s, &sit);
+    CB_GET_SET_ITERATOR_SCOPED(s, sit);
     CBVar v;
     while (s.api->setNext(s, &sit, &v)) {
       hashes.insert(_deriveTypeHash(v));
@@ -2241,7 +2241,7 @@ NO_INLINE void _cloneVarSlow(CBVar &dst, const CBVar &src) {
 
     auto &t = src.payload.tableValue;
     CBTableIterator tit{0};
-    t.api->tableGetIterator(t, &tit);
+    CB_GET_TABLE_ITERATOR_SCOPED(t, tit);
     CBString k;
     CBVar v;
     while (t.api->tableNext(t, &tit, &k, &v)) {
@@ -2266,7 +2266,7 @@ NO_INLINE void _cloneVarSlow(CBVar &dst, const CBVar &src) {
 
     auto &s = src.payload.setValue;
     CBSetIterator sit;
-    s.api->setGetIterator(s, &sit);
+    CB_GET_SET_ITERATOR_SCOPED(s, sit);
     CBVar v;
     while (s.api->setNext(s, &sit, &v)) {
       (*set).emplace(v);
@@ -2515,7 +2515,7 @@ void hash_update(const CBVar &var, void *state) {
 
     auto &t = var.payload.tableValue;
     CBTableIterator it;
-    t.api->tableGetIterator(t, &it);
+    CB_GET_TABLE_ITERATOR_SCOPED(t, it);
     CBString key;
     CBVar value;
     while (t.api->tableNext(t, &it, &key, &value)) {
@@ -2537,7 +2537,7 @@ void hash_update(const CBVar &var, void *state) {
     // just store hashes, sort and actually combine later
     auto &s = var.payload.setValue;
     CBSetIterator it;
-    s.api->setGetIterator(s, &it);
+    CB_GET_SET_ITERATOR_SCOPED(s, it);
     CBVar value;
     while (s.api->setNext(s, &it, &value)) {
       hashes.emplace_back(hash(value));

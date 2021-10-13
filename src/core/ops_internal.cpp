@@ -3,6 +3,7 @@
 
 #include "ops_internal.hpp"
 #include "ops.hpp"
+#include "utility.hpp"
 #include <unordered_set>
 
 std::ostream &operator<<(std::ostream &os, const CBVar &var) {
@@ -178,7 +179,7 @@ std::ostream &operator<<(std::ostream &os, const CBVar &var) {
     auto &t = var.payload.tableValue;
     bool first = true;
     CBTableIterator tit;
-    t.api->tableGetIterator(t, &tit);
+    CB_GET_TABLE_ITERATOR_SCOPED(t, tit);
     CBString k;
     CBVar v;
     while (t.api->tableNext(t, &tit, &k, &v)) {
@@ -196,7 +197,7 @@ std::ostream &operator<<(std::ostream &os, const CBVar &var) {
     auto &s = var.payload.setValue;
     bool first = true;
     CBSetIterator sit;
-    s.api->setGetIterator(s, &sit);
+    CB_GET_SET_ITERATOR_SCOPED(s, sit);
     CBVar v;
     while (s.api->setNext(s, &sit, &v)) {
       if (first) {
@@ -324,7 +325,7 @@ bool _setEq(const CBVar &a, const CBVar &b) {
     return false;
 
   CBSetIterator it;
-  ta.api->setGetIterator(ta, &it);
+  CB_GET_SET_ITERATOR_SCOPED(ta, it);
   CBVar v;
   while (ta.api->setNext(ta, &it, &v)) {
     if (!tb.api->setContains(tb, v)) {
@@ -345,7 +346,7 @@ bool _tableEq(const CBVar &a, const CBVar &b) {
     return false;
 
   CBTableIterator it;
-  ta.api->tableGetIterator(ta, &it);
+  CB_GET_TABLE_ITERATOR_SCOPED(ta, it);
   CBString k;
   CBVar v;
   while (ta.api->tableNext(ta, &it, &k, &v)) {
@@ -391,7 +392,7 @@ bool _tableLess(const CBVar &a, const CBVar &b) {
     return false;
 
   CBTableIterator it;
-  ta.api->tableGetIterator(ta, &it);
+  CB_GET_TABLE_ITERATOR_SCOPED(ta, it);
   CBString k;
   CBVar v;
   size_t len = 0;
@@ -445,7 +446,7 @@ bool _tableLessEq(const CBVar &a, const CBVar &b) {
     return false;
 
   CBTableIterator it;
-  ta.api->tableGetIterator(ta, &it);
+  CB_GET_TABLE_ITERATOR_SCOPED(ta, it);
   CBString k;
   CBVar v;
   size_t len = 0;

@@ -1002,6 +1002,7 @@ inline void ForEach(const CBTable &table, Function &&f) {
   while (table.api->tableNext(table, &tit, &k, &v)) {
     f(k, v);
   }
+  table.api->tableFreeIterator(&tit);
 }
 
 template <class Function> inline void ForEach(const CBSet &set, Function &&f) {
@@ -1011,6 +1012,7 @@ template <class Function> inline void ForEach(const CBSet &set, Function &&f) {
   while (set.api->setNext(set, &sit, &v)) {
     f(v);
   }
+  set.api->setFreeIterator(&sit);
 }
 
 class ChainProvider {

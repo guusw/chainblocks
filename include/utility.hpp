@@ -445,7 +445,8 @@ public:
   }
 
   CBVar &operator=(const CBVar &value) {
-    cbassert(value.valueType == CBType::None || value.valueType == CBType::Block ||
+    cbassert(value.valueType == CBType::None ||
+             value.valueType == CBType::Block ||
              value.valueType == CBType::Seq);
 
     CB_CORE::cloneVar(_blocksParam, value);
@@ -665,6 +666,7 @@ template <class Function> struct Defer {
 #define DEFER_DEF(uniq, body)                                                  \
   ::chainblocks::Defer DEFER_NAME(uniq)([&]() { body; })
 #define DEFER(body) DEFER_DEF(__LINE__, body)
+
 }; // namespace chainblocks
 
 #endif

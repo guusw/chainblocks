@@ -172,6 +172,14 @@ struct CBSet {
   struct CBSetInterface *api;
 };
 
+#define CB_GET_TABLE_ITERATOR_SCOPED(_table, _it)                              \
+  _table.api->tableGetIterator(_table, &_it);                                  \
+  DEFER(_table.api->tableFreeIterator(&_it))
+
+#define CB_GET_SET_ITERATOR_SCOPED(_set, _it)                                  \
+  _set.api->setGetIterator(_set, &_it);                                        \
+  DEFER(_set.api->setFreeIterator(&_it))
+
 struct CBChain;
 struct CBChainRefOpaque;
 typedef struct CBChainRefOpaque *CBChainRef;
@@ -303,6 +311,7 @@ struct CBAudio {
 // table interface
 typedef void(__cdecl *CBTableGetIterator)(struct CBTable table,
                                           CBTableIterator *outIter);
+typedef void(__cdecl *CBTableFreeIterator)(CBTableIterator *outIter);
 typedef CBBool(__cdecl *CBTableNext)(struct CBTable table,
                                      CBTableIterator *inIter, CBString *outKey,
                                      struct CBVar *outValue);
@@ -315,6 +324,7 @@ typedef void(__cdecl *CBTableFree)(struct CBTable table);
 
 struct CBTableInterface {
   CBTableGetIterator tableGetIterator;
+  CBTableFreeIterator tableFreeIterator;
   CBTableNext tableNext;
   CBTableSize tableSize;
   CBTableContains tableContains;
@@ -327,6 +337,7 @@ struct CBTableInterface {
 // set interface
 typedef void(__cdecl *CBSetGetIterator)(struct CBSet set,
                                         CBSetIterator *outIter);
+typedef void(__cdecl *CBSetFreeIterator)(CBSetIterator *outIter);
 typedef CBBool(__cdecl *CBSetNext)(struct CBSet set, CBSetIterator *inIter,
                                    struct CBVar *outValue);
 typedef size_t(__cdecl *CBSetSize)(struct CBSet table);
@@ -338,6 +349,7 @@ typedef void(__cdecl *CBSetFree)(struct CBSet table);
 
 struct CBSetInterface {
   CBSetGetIterator setGetIterator;
+  CBSetFreeIterator setFreeIterator;
   CBSetNext setNext;
   CBSetSize setSize;
   CBSetContains setContains;
@@ -1128,7 +1140,7 @@ typedef CBCore *(__cdecl *CBChainblocksInterface)(uint32_t abi_version);
 #define CHAINBLOCKS_IMPORT
 #endif
 #else
-#define CHAINBLOCKS_EXPORT 
+#define CHAINBLOCKS_EXPORT
 #define CHAINBLOCKS_IMPORT
 #endif
 

@@ -168,7 +168,7 @@ struct Flatten {
     case CBType::Table: {
       auto &t = input.payload.tableValue;
       CBTableIterator tit;
-      t.api->tableGetIterator(t, &tit);
+      CB_GET_TABLE_ITERATOR_SCOPED(t, tit);
       CBString k;
       CBVar v;
       while (t.api->tableNext(t, &tit, &k, &v)) {
@@ -179,7 +179,7 @@ struct Flatten {
     case CBType::Set: {
       auto &s = input.payload.setValue;
       CBSetIterator sit;
-      s.api->setGetIterator(s, &sit);
+      CB_GET_SET_ITERATOR_SCOPED(s, sit);
       CBVar v;
       while (s.api->setNext(s, &sit, &v)) {
         add(v);

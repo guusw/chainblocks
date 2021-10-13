@@ -460,6 +460,7 @@ struct Globals {
 
   std::unordered_map<uint32_t, CBOptionalString> *CompressedStrings{nullptr};
 
+  template <typename T> static void destructHelper(T &obj) { obj.~T(); }
   CBTableInterface TableInterface{
       .tableGetIterator =
           [](CBTable table, CBTableIterator *outIter) {
@@ -467,15 +468,19 @@ struct Globals {
               CBLOG_FATAL("tableGetIterator - outIter was nullptr");
             chainblocks::CBMap *map =
                 reinterpret_cast<chainblocks::CBMap *>(table.opaque);
-            chainblocks::CBMapIt *mapIt =
-                reinterpret_cast<chainblocks::CBMapIt *>(outIter);
-            *mapIt = map->begin();
+            new (*outIter) chainblocks::CBMapIt(map->begin());
+          },
+      .tableFreeIterator =
+          [](CBTableIterator *outIter) {
+            chainblocks::CBMap::iterator *it =
+                reinterpret_cast<chainblocks::CBMap::iterator *>(*outIter);
+            destructHelper(*it);
           },
       .tableNext =
           [](CBTable table, CBTableIterator *inIter, CBString *outKey,
              CBVar *outVar) {
             if (inIter == nullptr)
-              CBLOG_FATAL("tableGetIterator - inIter was nullptr");
+              CBLOG_FATAL("tableNext - inIter was nullptr");
             chainblocks::CBMap *map =
                 reinterpret_cast<chainblocks::CBMap *>(table.opaque);
             chainblocks::CBMapIt *mapIt =
@@ -534,14 +539,18 @@ struct Globals {
               CBLOG_FATAL("setGetIterator - outIter was nullptr");
             chainblocks::CBHashSet *set =
                 reinterpret_cast<chainblocks::CBHashSet *>(cbset.opaque);
-            chainblocks::CBHashSetIt *setIt =
-                reinterpret_cast<chainblocks::CBHashSetIt *>(outIter);
-            *setIt = set->begin();
+            new (*outIter) chainblocks::CBHashSetIt(set->begin());
+          },
+      .setFreeIterator =
+          [](CBSetIterator *outIter) {
+            chainblocks::CBHashSet::iterator *it =
+                reinterpret_cast<chainblocks::CBHashSet::iterator *>(*outIter);
+            destructHelper(*it);
           },
       .setNext =
           [](CBSet cbset, CBSetIterator *inIter, CBVar *outVar) {
             if (inIter == nullptr)
-              CBLOG_FATAL("setGetIterator - inIter was nullptr");
+              CBLOG_FATAL("setNext - inIter was nullptr");
             chainblocks::CBHashSet *set =
                 reinterpret_cast<chainblocks::CBHashSet *>(cbset.opaque);
             chainblocks::CBHashSetIt *setIt =

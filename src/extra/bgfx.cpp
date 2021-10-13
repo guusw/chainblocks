@@ -1526,7 +1526,7 @@ struct Model : public BaseConsumer {
     // without hashing and possible allocations etc
     CBTable table = input.payload.tableValue;
     CBTableIterator it;
-    table.api->tableGetIterator(table, &it);
+    CB_GET_TABLE_ITERATOR_SCOPED(table, it);
     CBVar vertices{};
     CBVar indices{};
     while (true) {
@@ -1837,7 +1837,7 @@ struct Camera : public CameraBase {
       // without hashing and possible allocations etc
       CBTable table = input.payload.tableValue;
       CBTableIterator it;
-      table.api->tableGetIterator(table, &it);
+      CB_GET_TABLE_ITERATOR_SCOPED(table, it);
       CBVar position{};
       CBVar target{};
       while (true) {
@@ -2018,7 +2018,7 @@ struct CameraOrtho : public CameraBase {
       // without hashing and possible allocations etc
       CBTable table = input.payload.tableValue;
       CBTableIterator it;
-      table.api->tableGetIterator(table, &it);
+      CB_GET_TABLE_ITERATOR_SCOPED(table, it);
       CBVar position{};
       CBVar target{};
       while (true) {

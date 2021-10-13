@@ -227,7 +227,7 @@ void to_json(json &j, const CBVar &var) {
     std::vector<json> items;
     auto &t = var.payload.tableValue;
     CBTableIterator tit;
-    t.api->tableGetIterator(t, &tit);
+    CB_GET_TABLE_ITERATOR_SCOPED(t, tit);
     CBString k;
     CBVar v;
     while (t.api->tableNext(t, &tit, &k, &v)) {
@@ -241,7 +241,7 @@ void to_json(json &j, const CBVar &var) {
     std::vector<json> items;
     auto &s = var.payload.setValue;
     CBSetIterator sit;
-    s.api->setGetIterator(s, &sit);
+    CB_GET_SET_ITERATOR_SCOPED(s, sit);
     CBVar v;
     while (s.api->setNext(s, &sit, &v)) {
       items.emplace_back(v);
