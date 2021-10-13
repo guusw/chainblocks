@@ -11,32 +11,33 @@
 
 class RefCounted {
 public:
-  RefCounted() : m_refCount(0) {}
+  RefCounted() {}
   virtual ~RefCounted() {}
 
   const RefCounted *acquire() const {
     m_refCount++;
     return this;
   }
-  int release() const { return --m_refCount; }
+  int release() const {
+    ASSERT(m_refCount > 0, "invalid release");
+    return --m_refCount;
+  }
   int refCount() const { return m_refCount; }
 
 private:
   RefCounted(const RefCounted &) = delete;
   RefCounted &operator=(const RefCounted &) = delete;
 
-  mutable int m_refCount;
+  mutable int m_refCount = 0;
 };
 
 template <class T> class RefCountedPtr {
 public:
-  RefCountedPtr() : m_object(nullptr) {}
+  RefCountedPtr() {}
 
-  RefCountedPtr(T *object) : m_object(nullptr) { acquire(object); }
+  RefCountedPtr(T *object) { acquire(object); }
 
-  RefCountedPtr(const RefCountedPtr &rhs) : m_object(nullptr) {
-    acquire(rhs.m_object);
-  }
+  RefCountedPtr(const RefCountedPtr &rhs) { acquire(rhs.m_object); }
 
   const RefCountedPtr &operator=(const RefCountedPtr &rhs) {
     acquire(rhs.m_object);
@@ -68,12 +69,15 @@ private:
   }
 
   void release() {
-    if (m_object && (m_object->release() == 0)) {
-      delete m_object;
+    if (m_object) {
+      ASSERT(m_object->refCount() > 0, "invalid release");
+      if ((m_object->release() == 0)) {
+        delete m_object;
+      }
     }
   }
 
-  T *m_object;
+  T *m_object = nullptr;
 };
 
 #endif // INCLUDE_REFCOUNTEDPTR_H
