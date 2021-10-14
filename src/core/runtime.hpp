@@ -1693,7 +1693,7 @@ inline T emscripten_wait(CBContext *context, emscripten::val promise) {
 // limit to 4 under emscripten
 extern Shared<boost::asio::thread_pool, int, 4> SharedThreadPool;
 #else
-extern Shared<boost::asio::thread_pool> SharedThreadPool;
+extern boost::asio::thread_pool& SharedThreadPool();
 #endif
 
 template <typename FUNC, typename CANCELLATION>
