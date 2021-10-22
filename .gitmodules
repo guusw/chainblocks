@@ -1,97 +1,10 @@
-[submodule "deps/stb"]
-	path = deps/stb
-	url = https://github.com/chainblocks/stb.git
-[submodule "deps/json"]
-	path = deps/json
-	url = https://github.com/chainblocks/json.git
-[submodule "deps/bgfx"]
-	path = deps/bgfx
-	url = https://github.com/chainblocks/bgfx.git
-[submodule "deps/bx"]
-	path = deps/bx
-	url = https://github.com/chainblocks/bx.git
-[submodule "deps/bimg"]
-	path = deps/bimg
-	url = https://github.com/chainblocks/bimg.git
+
 [submodule "deps/imgui_club"]
 	path = deps/imgui_club
 	url = https://github.com/chainblocks/imgui_club.git
-[submodule "kcp"]
-	path = deps/kcp
-	url = https://github.com/chainblocks/kcp.git
-[submodule "magic_enum"]
-	path = deps/magic_enum
-	url = https://github.com/chainblocks/magic_enum.git
-[submodule "boost-context"]
-	path = deps/boost-context
-	url = https://github.com/chainblocks/context.git
-[submodule "cpp-taskflow"]
-	path = deps/cpp-taskflow
-	url = https://github.com/chainblocks/cpp-taskflow.git
-[submodule "deps/replxx"]
-	path = deps/replxx
-	url = https://github.com/chainblocks/replxx.git
-	branch = chainblocks
-[submodule "deps/nameof"]
-	path = deps/nameof
-	url = https://github.com/chainblocks/nameof.git
-[submodule "deps/pdqsort"]
-	path = deps/pdqsort
-	url = https://github.com/chainblocks/pdqsort.git
-[submodule "deps/SDL"]
-	path = deps/SDL
-	url = https://github.com/chainblocks/SDL-org.git
 [submodule "deps/implot"]
 	path = deps/implot
 	url = https://github.com/chainblocks/implot.git
-[submodule "deps/filesystem"]
-	path = deps/filesystem
-	url = https://github.com/chainblocks/filesystem.git
-[submodule "deps/libbacktrace"]
-	path = deps/libbacktrace
-	url = https://github.com/chainblocks/libbacktrace.git
-[submodule "deps/wasm3"]
-	path = deps/wasm3
-	url = https://github.com/chainblocks/wasm3.git
-	branch = cmake_cleanup
-[submodule "deps/xxHash"]
-	path = deps/xxHash
-	url = https://github.com/chainblocks/xxHash.git
-[submodule "deps/Catch2"]
-	path = deps/Catch2
-	url = https://github.com/chainblocks/Catch2.git
-  branch = devel
-[submodule "deps/linalg"]
-	path = deps/linalg
-	url = https://github.com/chainblocks/linalg.git
-[submodule "deps/tinygltf"]
-	path = deps/tinygltf
-	url = https://github.com/chainblocks/tinygltf.git
-[submodule "deps/miniaudio"]
-	path = deps/miniaudio
-	url = https://github.com/chainblocks/miniaudio.git
-[submodule "deps/utf8.h"]
-	path = deps/utf8.h
-	url = https://github.com/chainblocks/utf8.h.git
-[submodule "deps/spdlog"]
-	path = deps/spdlog
-	url = https://github.com/chainblocks/spdlog.git
-[submodule "deps/kissfft"]
-	path = deps/kissfft
-	url = https://github.com/chainblocks/kissfft.git
-[submodule "deps/pareto"]
-	path = deps/pareto
-	url = https://github.com/chainblocks/pareto.git
 [submodule "deps/imguizmo"]
 	path = deps/imguizmo
 	url = https://github.com/chainblocks/ImGuizmo.git
-[submodule "deps/bgfx.cmake"]
-	path = deps/bgfx.cmake
-	url = https://github.com/chainblocks/bgfx.cmake.git
-	branch = chainblocks
-[submodule "deps/brotli"]
-	path = deps/brotli
-	url = https://github.com/chainblocks/brotli.git
-[submodule "deps/snappy"]
-	path = deps/snappy
-	url = https://github.com/chainblocks/snappy.git
