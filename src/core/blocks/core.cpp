@@ -2,7 +2,7 @@
 /* Copyright © 2019 Fragcolor Pte. Ltd. */
 
 #include "../runtime.hpp"
-#include "pdqsort.h"
+#include <pdqsort/pdqsort.h>
 #include "utility.hpp"
 #include <boost/algorithm/string.hpp>
 #include <chrono>

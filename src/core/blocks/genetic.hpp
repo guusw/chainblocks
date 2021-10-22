@@ -6,7 +6,7 @@
 #include "chainblocks.hpp"
 #include "shared.hpp"
 #include <limits>
-#include <pdqsort.h>
+#include <pdqsort/pdqsort.h>
 #include <random>
 #include <sstream>
 #include <taskflow/taskflow.hpp>

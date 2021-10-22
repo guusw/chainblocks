@@ -4,7 +4,7 @@
 #ifndef CB_LINALG_SHIM_HPP
 #define CB_LINALG_SHIM_HPP
 
-#include <linalg.h>
+#include <linalg/linalg.h>
 #include <vector>
 namespace chainblocks {
 struct alignas(16) Mat4 : public linalg::aliases::float4x4 {

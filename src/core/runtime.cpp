@@ -12,7 +12,7 @@
 #include <csignal>
 #include <cstdarg>
 #include <filesystem>
-#include <pdqsort.h>
+#include <pdqsort/pdqsort.h>
 #include <set>
 #include <string.h>
 #include <unordered_set>

@@ -39,11 +39,9 @@ set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
 
 enable_testing()
 include(CTest)
-include(deps/Catch2/extras/Catch.cmake)
+include(${Catch2_DIR}/Catch.cmake)
 
-include(Boost)
-
-add_subdirectory(deps)
+include(deps)
 
 add_subdirectory(src/core)
 add_subdirectory(src/mal)

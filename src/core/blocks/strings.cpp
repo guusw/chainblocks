@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: BSD-3-Clause */
 /* Copyright © 2019 Fragcolor Pte. Ltd. */
 
-#include "../../../deps/utf8.h/utf8.h"
+#include "utf8.h/utf8.h"
 #include "shared.hpp"
 #include <regex>
 
