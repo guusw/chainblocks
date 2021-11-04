@@ -8,3 +8,6 @@
 [submodule "deps/imguizmo"]
 	path = deps/imguizmo
 	url = https://github.com/chainblocks/ImGuizmo.git
+[submodule "cmake/chainblocks-cmake-shared"]
+	path = cmake/chainblocks-cmake-shared
+	url = git@github.com:guusw/chainblocks-cmake-shared.git
