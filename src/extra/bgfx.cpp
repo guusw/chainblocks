@@ -3,7 +3,8 @@
 
 #include "./bgfx.hpp"
 #include "./imgui.hpp"
-#include "SDL.h"
+#include "SDL2/SDL.h"
+#include <bgfx/embedded_shader.h>
 #include <bx/debug.h>
 #include <bx/math.h>
 #include <bx/timer.h>
@@ -23,15 +24,14 @@ using namespace chainblocks;
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb/stb_truetype.h>
 
-#include "fs_imgui_image.bin.h"
-#include "fs_ocornut_imgui.bin.h"
-#include "vs_imgui_image.bin.h"
-#include "vs_ocornut_imgui.bin.h"
-
-#include "icons_font_awesome.ttf.h"
-#include "icons_kenney.ttf.h"
-#include "roboto_regular.ttf.h"
-#include "robotomono_regular.ttf.h"
+#include "bgfx/examples/imgui/fs_imgui_image.bin.h"
+#include "bgfx/examples/imgui/fs_ocornut_imgui.bin.h"
+#include "bgfx/examples/imgui/vs_imgui_image.bin.h"
+#include "bgfx/examples/imgui/vs_ocornut_imgui.bin.h"
+#include "bgfx/examples/imgui/icons_font_awesome.ttf.h"
+#include "bgfx/examples/imgui/icons_kenney.ttf.h"
+#include "bgfx/examples/imgui/roboto_regular.ttf.h"
+#include "bgfx/examples/imgui/robotomono_regular.ttf.h"
 
 static bgfx::RendererType::Enum getCurrentBgfxRenderType() {
   switch (BGFX::CurrentRenderer) {
@@ -3237,7 +3237,7 @@ void registerBGFXBlocks() {
 #endif
 
 namespace BGFX {
-#include "SDL_syswm.h"
+#include "SDL2/SDL_syswm.h"
 
 void *SDL_GetNativeWindowPtr(SDL_Window *window) {
   SDL_SysWMinfo winInfo{};

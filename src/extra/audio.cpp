@@ -5,9 +5,6 @@
 #include "runtime.hpp"
 #include <boost/lockfree/queue.hpp>
 
-#define STB_VORBIS_HEADER_ONLY
-#include "extras/stb_vorbis.c" // Enables Vorbis decoding.
-
 #ifdef __APPLE__
 #define MA_NO_RUNTIME_LINKING
 #endif
@@ -17,12 +14,7 @@
 // #define MA_DEBUG_OUTPUT 1
 // #endif
 #define MINIAUDIO_IMPLEMENTATION
-#include "miniaudio.h"
-
-// The stb_vorbis implementation must come after the implementation of
-// miniaudio.
-#undef STB_VORBIS_HEADER_ONLY
-#include "extras/stb_vorbis.c" 
+#include "miniaudio/miniaudio.h"
 
 namespace chainblocks {
 namespace Audio {

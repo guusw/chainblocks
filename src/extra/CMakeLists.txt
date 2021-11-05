@@ -30,15 +30,19 @@ if(EMSCRIPTEN)
     "SHELL:-s USE_SDL=2"
   )
 else()
-  target_link_libraries(chainblocks-extra SDL2-static)
+  target_link_libraries(chainblocks-extra SDL2::SDL2-static)
 endif()
 
+target_include_directories(chainblocks-extra PRIVATE ${TinyGLTF_INCLUDE_DIR})
 target_link_libraries(chainblocks-extra
   chainblocks-core 
-  bx bimg bgfx bgfx-example-common stb tinygltf
-  dear-imgui imgui_club implot imguizmo
-  brotlienc-static brotlidec-static brotlicommon-static snappy
-  kissfft miniaudio
+  bgfx::bx bgfx::bimg bgfx::bgfx bgfx::dear-imgui
+  imgui_club implot imguizmo
+  Snappy::snappy
+  kissfft::kissfft-float
+  stb stb_vorbis
+  miniaudio
+  brotlienc-static brotlidec-static brotlicommon-static
   nlohmann_json
 )
 
@@ -68,14 +72,14 @@ endif()
 if(CHAINBLOCKS_BUILD_TESTS)
   # Include test code embedded in chainblocks-extra
   target_compile_definitions(chainblocks-extra PRIVATE CHAINBLOCKS_BUILD_TESTS=1)
-  target_link_libraries(chainblocks-extra Catch2)
+  target_link_libraries(chainblocks-extra Catch2::Catch2)
 
   add_executable(test_extra
     ../tests/test_extra.cpp
   )
   
   target_link_libraries(test_extra 
-    chainblocks-core chainblocks-extra Catch2WithMain
+    chainblocks-core chainblocks-extra Catch2::Catch2WithMain
   )
   catch_discover_tests(test_extra)
 endif()

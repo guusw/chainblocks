@@ -8,7 +8,7 @@
 #ifdef WIN32
 // windows mingw has bugged copy/copyfile
 #include <boost/filesystem.hpp>
-namespace fs = ghc::filesystem;
+namespace fs = boost::filesystem;
 #else
 #include <filesystem>
 namespace fs = std::filesystem;
@@ -420,7 +420,7 @@ struct Copy {
       throw ActivationError("Destination is not a valid");
     const auto dst = fs::path(dstVar.payload.stringValue);
 
-    std::error_code err;
+    boost::system::error_code err;
     if (fs::is_regular_file(src) &&
         (!fs::exists(dst) || fs::is_regular_file(dst))) {
       fs::copy_file(src, dst, options, err);

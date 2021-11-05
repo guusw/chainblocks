@@ -79,11 +79,12 @@ if(APPLE)
   endif()
 endif()
 
-target_link_libraries(chainblocks-core-static Boost::context Boost::filesystem)
-
 target_link_libraries(chainblocks-core-static 
-  spdlog magic_enum nameof linalg xxHash
-  pdqsort utf8.h Taskflow stb nlohmann_json m3 ghc_filesystem 
+  Boost::context Boost::filesystem
+  Taskflow::Taskflow
+  spdlog magic_enum::magic_enum nameof::nameof linalg xxHash
+  pdqsort utf8.h
+  stb nlohmann_json m3
 )
 
 if(NOT EMSCRIPTEN)
@@ -184,7 +185,7 @@ if(CHAINBLOCKS_BUILD_TESTS)
   add_executable(test_runtime ../tests/test_runtime.cpp)
   
   target_link_libraries(test_runtime 
-    chainblocks-core Catch2WithMain
+    chainblocks-core Catch2::Catch2WithMain
   )
   catch_discover_tests(test_runtime)
 endif()

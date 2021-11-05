@@ -11,23 +11,12 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
-  set (X86 TRUE)
-else()
-  set (X86 FALSE) 
-endif()
-
-if(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
-  set(EXTERNAL_BUILD_TYPE "MinSizeRel")
-else()
-  set(EXTERNAL_BUILD_TYPE "Release")
-endif()
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake" "${CMAKE_CURRENT_SOURCE_DIR}/cmake/chainblocks-cmake-shared")
 get_filename_component(CHAINBLOCKS_DIR ${CMAKE_CURRENT_LIST_DIR} ABSOLUTE)
 
-include(Sanitizers)
 include(Platform)
+include(Sanitizers)
+include(CompileFlags)
 include(Tidy)
 include(Utils)
 
@@ -37,11 +26,11 @@ include(Rust)
 # disable targets being added by CTestTargets.cmake
 set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
 
+include(deps)
+
 enable_testing()
 include(CTest)
 include(${Catch2_DIR}/Catch.cmake)
-
-include(deps)
 
 add_subdirectory(src/core)
 add_subdirectory(src/mal)

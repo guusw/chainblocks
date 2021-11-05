@@ -24,7 +24,7 @@ using LastWriteTime = decltype(fs::last_write_time(fs::path()));
 #define TINYGLTF_NO_INCLUDE_STB_IMAGE_WRITE
 #define TINYGLTF_USE_CPP14
 // #define TINYGLTF_ENABLE_DRACO
-#include <tinygltf/tiny_gltf.h>
+#include <tiny_gltf.h>
 using GLTFModel = tinygltf::Model;
 using GLTFImage = tinygltf::Image;
 using namespace tinygltf;

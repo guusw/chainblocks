@@ -4,7 +4,7 @@
 #ifndef CB_BGFX_HPP
 #define CB_BGFX_HPP
 
-#include "SDL.h"
+#include "SDL2/SDL.h"
 #include "bgfx/bgfx.h"
 #include "bgfx/embedded_shader.h"
 #include "bgfx/platform.h"

@@ -4,7 +4,7 @@
 #pragma once
 
 #include "foundation.hpp"
-#include "imgui.h"
+#include "bgfx/examples/imgui/imgui.h"
 
 #include "ImGuizmo.h"
 

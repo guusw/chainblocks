@@ -2,7 +2,7 @@
 /* Copyright © 2021 Fragcolor Pte. Ltd. */
 
 #include "./bgfx.hpp"
-#include "SDL.h"
+#include "SDL2/SDL.h"
 #include "blocks/shared.hpp"
 
 namespace chainblocks {

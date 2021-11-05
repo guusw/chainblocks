@@ -14,7 +14,7 @@ set(chainblocks_SOURCES
 add_executable(cbl ${chainblocks_SOURCES})
 target_link_libraries(cbl
   chainblocks-core
-  replxx
+  replxx::replxx
 )
 
 # mal DLL

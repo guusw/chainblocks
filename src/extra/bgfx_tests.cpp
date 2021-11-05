@@ -27,7 +27,7 @@
 
 namespace chainblocks {
 namespace BGFX_Tests {
-void testVertexAttribute() {
+void testVertexAttribute() { 
   REQUIRE(BGFX::Model::toBgfx(BGFX::Model::VertexAttribute::Position) ==
           bgfx::Attrib::Position);
   REQUIRE(BGFX::Model::toBgfx(BGFX::Model::VertexAttribute::Normal) ==

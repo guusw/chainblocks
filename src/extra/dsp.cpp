@@ -4,8 +4,8 @@
 #include "blocks/shared.hpp"
 #include "runtime.hpp"
 
-#include "kiss_fft.h"
-#include "kiss_fftr.h"
+#include "kissfft/kiss_fft.h"
+#include "kissfft/kiss_fftr.h"
 
 // TODO optimize.
 // Best would be to introduce our CBVar packing in kissfft fork
