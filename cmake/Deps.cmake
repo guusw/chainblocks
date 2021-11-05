@@ -6,27 +6,44 @@ option(CHAINBLOCKS_AUTO_DEPS "Automatically download prebuilt dependencies" ${CH
 if(CHAINBLOCKS_AUTO_DEPS) 
   set(AUTO_DEPS_BASE_PATH "${CHAINBLOCKS_DIR}/auto-deps")
   set(AUTO_DEPS_PATH "${AUTO_DEPS_BASE_PATH}/${TARGET_ID}")
-  set(AUTO_DEPS_FILENAME deps-${TARGET_ID}.tar.gz)
+  set(AUTO_DEPS_FILENAME ${TARGET_ID}.tar.gz)
   set(AUTO_DEPS_ARCHIVE_PATH ${AUTO_DEPS_BASE_PATH}/${AUTO_DEPS_FILENAME})
-  file(MAKE_DIRECTORY ${AUTO_DEPS_PATH})
+  
   if(NOT EXISTS ${AUTO_DEPS_ARCHIVE_PATH})
+    set(DOWNLOAD_URL https://github.com/guusw/chainblocks-deps/releases/download/auto-deps-${TARGET_ID}/${AUTO_DEPS_FILENAME})
+    message(STATUS "Downloading dependencies from ${DOWNLOAD_URL}")
     file(
-      DOWNLOAD 
-      https://github.com/guusw/chainblocks-deps/releases/download/auto-deps-deps-${TARGET_ID}/${AUTO_DEPS_FILENAME}
-        ${AUTO_DEPS_ARCHIVE_PATH}
+      DOWNLOAD ${DOWNLOAD_URL} ${AUTO_DEPS_ARCHIVE_PATH}
       SHOW_PROGRESS
+      STATUS DOWNLOAD_STATUS
     )
+    list(GET DOWNLOAD_STATUS 0 DOWNLOAD_STATUS_CODE)
+    list(GET DOWNLOAD_STATUS 1 DOWNLOAD_STATUS_STRING)
+    if(NOT DOWNLOAD_STATUS_CODE EQUAL 0)
+      file(REMOVE ${AUTO_DEPS_ARCHIVE_PATH})
+      message(FATAL_ERROR "Failed to download dependencies: ${DOWNLOAD_STATUS_STRING} (${DOWNLOAD_STATUS_CODE})")
+    endif()
   endif()
-  if(NOT EXISTS ${AUTO_DEPS_PATH}/include)
+  
+  set(TEST_PATH ${AUTO_DEPS_PATH}/include)
+  if(NOT EXISTS ${TEST_PATH})
+    message(STATUS "Extracting downloaded archive ${AUTO_DEPS_ARCHIVE_PATH} into ${AUTO_DEPS_PATH}")
     file(ARCHIVE_EXTRACT
       INPUT ${AUTO_DEPS_ARCHIVE_PATH}
       DESTINATION ${AUTO_DEPS_PATH}
     )
+    
+    if(NOT EXISTS ${AUTO_DEPS_PATH}/include)
+      file(REMOVE ${AUTO_DEPS_ARCHIVE_PATH})
+      file(REMOVE_RECURSE ${AUTO_DEPS_PATH})
+      message(FATAL_ERROR "Corrupt dependency archive, removing")
+    endif()
   endif()
+  
   list(REMOVE_ITEM CMAKE_PREFIX_PATH ${AUTO_DEPS_PATH})
   list(APPEND CMAKE_PREFIX_PATH ${AUTO_DEPS_PATH})
   set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} CACHE STRING "" FORCE)
-  message(STATUS "CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}")
+  message(STATUS "Update CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}")
 endif()
 
 set(Boost_DEBUG ON)
