@@ -26,7 +26,7 @@ include(Rust)
 # disable targets being added by CTestTargets.cmake
 set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
 
-include(deps)
+include(Deps)
 
 enable_testing()
 include(CTest)
