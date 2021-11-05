@@ -140,6 +140,7 @@ jobs:
   Linux:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         build-type: ["Debug", "Release"]
     steps:
@@ -432,6 +433,7 @@ jobs:
   Windows:
     runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
         build-type: ["Debug", "Release"]
         bitness: [32bits, 64bits]
@@ -756,6 +758,7 @@ jobs:
   macOS:
     runs-on: macos-latest
     strategy:
+      fail-fast: false
       matrix:
         build-type: ["Debug", "Release"]
     steps:
