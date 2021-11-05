@@ -46,8 +46,6 @@ jobs:
           ./emsdk install 2.0.25
           ./emsdk activate 2.0.25
           cd .. && mkdir external && cd external
-          wget -nv https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.gz
-          tar xzf boost_1_76_0.tar.gz
           rustup update
           rustup default nightly
           rustup target add wasm32-unknown-emscripten
@@ -57,11 +55,10 @@ jobs:
           rustup component add rust-src --toolchain nightly
       - name: Build
         run: |
-          BOOST_ROOT=`pwd`/external/boost_1_76_0
           source emsdk/emsdk_env.sh
           mkdir build
           cd build
-          cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DSKIP_HEAVY_INLINE=1 -DUSE_LTO=1 -DRUST_USE_LTO=0 -DBOOST_ROOT=$BOOST_ROOT -DEMSCRIPTEN_PTHREADS=${{ matrix.threading == 'mt' }} -DEMSCRIPTEN_IDBFS=1 -DCMAKE_TOOLCHAIN_FILE=$EMSDK/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake ..
+          cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DSKIP_HEAVY_INLINE=1 -DUSE_LTO=1 -DRUST_USE_LTO=0 -DEMSCRIPTEN_PTHREADS=${{ matrix.threading == 'mt' }} -DEMSCRIPTEN_IDBFS=1 -DCMAKE_TOOLCHAIN_FILE=$EMSDK/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake ..
           ninja cbl && ninja test_runtime
       - name: Test (st)
         if: ${{ matrix.threading == 'st' }}
