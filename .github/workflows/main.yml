@@ -473,14 +473,6 @@ jobs:
             mingw-w64-${{ matrix.arch }}-clang
             mingw-w64-${{ matrix.arch }}-lld
             wget
-      - name: Build libtrace (64bits)
-        if: ${{ matrix.bitness == '64bits' }}
-        shell: msys2 {0}
-        run: |
-          cd deps/libbacktrace
-          mkdir build
-          ./configure --prefix=`pwd`/build
-          make && make install
       - name: Build
         env:
           RUST_BACKTRACE: 1
@@ -488,7 +480,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -DUSE_LIBBACKTRACE=${{ matrix.bitness == '64bits' }} -DSKIP_RUST_BINDGEN=${{ matrix.bitness == '32bits' }} ..
+          cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -DSKIP_RUST_BINDGEN=${{ matrix.bitness == '32bits' }} ..
           ninja cbl
       - name: Test runtime (Debug)
         if: ${{ matrix.build-type == 'Debug' }}
