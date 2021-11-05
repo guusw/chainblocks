@@ -2,6 +2,10 @@ name: CI
 
 on:
   push:
+    branches:
+      - devel
+      - cmake_cleanup
+      - cmake_cleanup_deps
   pull_request:
   workflow_dispatch:
 
