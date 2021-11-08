@@ -80,7 +80,6 @@ if(APPLE)
 endif()
 
 target_link_libraries(chainblocks-core-static 
-  Boost::core
   Taskflow::Taskflow
   spdlog magic_enum::magic_enum nameof::nameof linalg xxHash::xxhash
   pdqsort utf8.h
@@ -91,7 +90,14 @@ target_include_directories(chainblocks-core-static PUBLIC ${Boost_INCLUDE_DIRS})
 
 if(NOT EMSCRIPTEN)
   target_link_libraries(chainblocks-core-static 
-    Boost::context Boost::filesystem
+    Boost::core Boost::context Boost::filesystem
+  )
+else()
+  target_compile_options(chainblocks-core-static PRIVATE 
+    "SHELL:-s USE_BOOST_HEADERS=1"
+  )
+  target_link_options(chainblocks-core-static PRIVATE
+    "SHELL:-s USE_BOOST_HEADERS=1"
   )
 endif()
 
