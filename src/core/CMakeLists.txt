@@ -80,12 +80,20 @@ if(APPLE)
 endif()
 
 target_link_libraries(chainblocks-core-static 
-  Boost::context Boost::filesystem
+  Boost::core
   Taskflow::Taskflow
   spdlog magic_enum::magic_enum nameof::nameof linalg xxHash
   pdqsort utf8.h
   stb nlohmann_json m3
 )
+
+target_include_directories(chainblocks-core-static PUBLIC ${Boost_INCLUDE_DIRS})
+
+if(NOT EMSCRIPTEN)
+  target_link_libraries(chainblocks-core-static 
+    Boost::context Boost::filesystem
+  )
+endif()
 
 if(NOT EMSCRIPTEN)
   target_sources(chainblocks-core-static PRIVATE ${os_SOURCES})
