@@ -5,14 +5,8 @@
 #include <boost/algorithm/string.hpp>
 #include <fstream>
 
-#ifdef WIN32
-// windows mingw has bugged copy/copyfile
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
-#else
-#include <filesystem>
-namespace fs = std::filesystem;
-#endif
 
 namespace chainblocks {
 namespace FS {
