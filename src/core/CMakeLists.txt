@@ -82,9 +82,9 @@ endif()
 target_link_libraries(chainblocks-core-static 
   Boost::core
   Taskflow::Taskflow
-  spdlog magic_enum::magic_enum nameof::nameof linalg xxHash
+  spdlog magic_enum::magic_enum nameof::nameof linalg xxHash::xxhash
   pdqsort utf8.h
-  stb nlohmann_json m3
+  stb nlohmann_json::nlohmann_json m3
 )
 
 target_include_directories(chainblocks-core-static PUBLIC ${Boost_INCLUDE_DIRS})
